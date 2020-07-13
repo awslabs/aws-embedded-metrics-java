@@ -74,18 +74,17 @@ public class EMFLogItem {
 
 
     /**
-     * Create a CloudwatchMetricCollection, and add it to the internal list for later flushing.
-     * @return newly created CloudWatchMetricCollection
+     * Create a MetricsContext, and add it to the internal list for later flushing.
+     * @return newly created MetricsContext
      */
-    public CloudwatchMetricCollection createMetricsCollection() {
-        CloudwatchMetricCollection newMetricCollection = new CloudwatchMetricCollection(
-                rootNode,
-                rootNode.getAws().createMetricDirective()
+    public MetricsContext createMetricsContext() {
+        MetricsContext newMetricCollection = new MetricsContext(
+                rootNode
         );
         return newMetricCollection;
     }
 
     public Map<String, Object> getProperties() {
-        return rootNode.getMetricsAndProperties();
+        return rootNode.getProperties();
     }
 }

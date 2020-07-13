@@ -1,10 +1,26 @@
+/*
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+
 package software.amazon.awssdk.services.cloudwatchlogs.emf.testutils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Aggregation;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.CloudwatchMetricCollection;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 
 import java.util.Random;
 
@@ -30,10 +46,10 @@ public final class EMFTestUtilities {
 
 
     public static EMFLogItem createTinyLogItem(EMFLogItem logItem, int id) {
-        CloudwatchMetricCollection metricsCollection = logItem.createMetricsCollection();
-        metricsCollection.putDimension("d", "1");
-        metricsCollection.putMetric("m", 2);
-        metricsCollection.setNamespace("a");
+        MetricsContext metricsContext = logItem.createMetricsContext();
+        metricsContext.putDimension("d", "1");
+        metricsContext.putMetric("m", 2);
+        metricsContext.setNamespace("a");
         return logItem;
     }
 
@@ -46,22 +62,15 @@ public final class EMFTestUtilities {
 
 
     public static EMFLogItem createLargeLogItem(EMFLogItem logItem, int id) {
-        CloudwatchMetricCollection metricsCollection = logItem.createMetricsCollection();
-        metricsCollection.putDimension("dim1", "dimVal1");
-        metricsCollection.putDimension("dim2", "dimVal2");
-        metricsCollection.putDimensionAggregation("dim1");
-        metricsCollection.putDimensionAggregation("dim2");
-        Aggregation agg = metricsCollection.putDimensionAggregation("dim2", "dim1", "dim4");
-        agg.addDimension("dim3");
-        agg.setDimensionValue("dim3", "dimVal3");
-        agg.addDimension("dim4", "dimVal4");
+        MetricsContext metricsContext = logItem.createMetricsContext();
+        metricsContext.putDimension("dim1", "dimVal1");
+        metricsContext.putDimension("dim2", "dimVal2");
 
-
-        metricsCollection.putMetric("metric1", 1);
-        metricsCollection.putMetric("metric2", 2);
-        metricsCollection.putProperty("stringProperty1", "simpleStringProp1");
-        metricsCollection.putProperty("intProperty1", 3);
-        metricsCollection.setNamespace("aNamespace");
+        metricsContext.putMetric("metric1", 1);
+        metricsContext.putMetric("metric2", 2);
+        metricsContext.putProperty("stringProperty1", "simpleStringProp1");
+        metricsContext.putProperty("intProperty1", 3);
+        metricsContext.setNamespace("aNamespace");
         logItem.setRawLogMessage(String.format("%d", id));
         return logItem;
     }
@@ -87,17 +96,15 @@ public final class EMFTestUtilities {
     public static EMFLogItem createComplexLogItem(int id) {
         // Create a log item to serialize
         EMFLogItem logItem = new EMFLogItem();
-        CloudwatchMetricCollection metricsCollection = logItem.createMetricsCollection();
-        metricsCollection.putDimension("dim1", "dimVal1");
-        metricsCollection.putDimension("dim2", "dimVal2");
-        metricsCollection.putDimensionAggregation("dim1");
-        metricsCollection.putDimensionAggregation("dim2");
-        metricsCollection.putMetric("metric1", 1);
-        metricsCollection.putMetric("metric2", 2);
-        metricsCollection.putProperty("stringProperty1", "simpleStringProp1");
-        metricsCollection.putProperty("intProperty1", 3);
-        metricsCollection.putProperty("complexProperty1", new ComplexProperty("aString", 4));
-        metricsCollection.setNamespace("aNamespace");
+        MetricsContext metricsContext = logItem.createMetricsContext();
+        metricsContext.putDimension("dim1", "dimVal1");
+        metricsContext.putDimension("dim2", "dimVal2");
+        metricsContext.putMetric("metric1", 1);
+        metricsContext.putMetric("metric2", 2);
+        metricsContext.putProperty("stringProperty1", "simpleStringProp1");
+        metricsContext.putProperty("intProperty1", 3);
+        metricsContext.putProperty("complexProperty1", new ComplexProperty("aString", 4));
+        metricsContext.setNamespace("aNamespace");
         logItem.setRawLogMessage(String.format("%d", id));
         return logItem;
     }
@@ -119,4 +126,5 @@ public final class EMFTestUtilities {
         }
         return threwRightException;
     }
+
 }

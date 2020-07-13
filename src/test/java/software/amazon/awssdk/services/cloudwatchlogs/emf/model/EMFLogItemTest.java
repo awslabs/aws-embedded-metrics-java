@@ -2,8 +2,6 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +11,6 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.testutils.EMFTestUtili
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class EMFLogItemTest {
@@ -51,12 +48,6 @@ public class EMFLogItemTest {
         String tmpMetricsJson = String.format("%s%n", metricsJson);
         String difference = StringUtils.difference(tmpMetricsJson, fullLog);
         assertEquals(rawLogMessage, difference);
-
-        // Validate we can deserialize the JSON back into an object
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        RootNode deserializedRootNode = objectMapper.readValue(metricsJson, RootNode.class);
-        assertNotNull(deserializedRootNode);
     }
 
 

@@ -5,8 +5,8 @@ import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.CloudWatchLimits;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.LogItemTooLargeException;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.CloudwatchMetricCollection;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.testutils.EMFTestUtilities;
 
 import java.util.ArrayList;
@@ -43,11 +43,11 @@ public class CloudWatchLogsClientSinkItemTooBigTest extends CloudWatchLogsClient
         int maxBatchSize = CloudWatchLimits.getMaxBatchSizeInBytes();
 
         EMFLogItem logItem = EMFTestUtilities.createTinyLogItem(id);
-        CloudwatchMetricCollection metricsCollection =logItem.createMetricsCollection();
+        MetricsContext metricsContext =logItem.createMetricsContext();
         // Assume int is 4 bytes
         // Add more than enough properties to metric to make it too big.
         for (Integer i = 0; i < maxBatchSize / 4; ++i) {
-            metricsCollection.putProperty(i.toString(), i.toString());
+            metricsContext.putProperty(i.toString(), i.toString());
         }
 
         return logItem;
