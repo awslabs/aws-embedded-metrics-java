@@ -28,11 +28,11 @@ public class AgentSink implements ISink {
 
     public void accept(MetricsContext context) {
         if (logGroupName != null && !logGroupName.isEmpty()) {
-            context.putProperty("LogGroupName", logGroupName);
+            context.putMetadata("LogGroupName", logGroupName);
         }
 
         if (logStreamName!= null && !logStreamName.isEmpty()) {
-            context.putProperty("LogStreamName", logStreamName);
+            context.putMetadata("LogStreamName", logStreamName);
         }
 
         try {

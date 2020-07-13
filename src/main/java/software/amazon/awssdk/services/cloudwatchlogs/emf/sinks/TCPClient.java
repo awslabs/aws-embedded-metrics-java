@@ -50,6 +50,7 @@ public class TCPClient implements SocketClient {
 
         try {
             os.write(message.getBytes());
+            os.write("\n".getBytes());
         } catch (IOException e) {
             log.error("Could not send write request due to IOException: ", e);
             connect();

@@ -97,6 +97,15 @@ public class MetricsLogger {
     }
 
     /**
+     * Add a custom key-value pair to the Metadata object.
+     * @see [CloudWatch Metadata](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html#CloudWatch_Embedded_Metric_Format_Specification_structure_metadata)
+     */
+    public MetricsLogger putMetadata(String key, Object value) {
+        this.context.putMetadata(key, value);
+        return this;
+    }
+
+    /**
      * Set the CloudWatch namespace that metrics should be published to.
      * @param namespace
      */

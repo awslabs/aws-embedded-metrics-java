@@ -1,6 +1,6 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,7 +12,9 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.InstantSer
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the MetaData part of the EMF schema.
@@ -30,9 +32,13 @@ class Metadata {
     @JsonProperty("CloudWatchMetrics")
     private List<MetricDirective> cloudWatchMetrics;
 
+
+    private Map<String, Object> customFields;
+
     Metadata() {
         cloudWatchMetrics = new ArrayList<>();
         timestamp = Instant.now();
+        customFields = new HashMap<>();
     }
 
 
@@ -55,4 +61,12 @@ class Metadata {
                 .allMatch(MetricDirective::hasNoMetrics);
     }
 
+    void putCustomMetadata(String key, Object value) {
+        customFields.put(key, value);
+    }
+
+    @JsonAnyGetter
+    Map<String, Object> getCustomMetadata() {
+        return this.customFields;
+    }
 }

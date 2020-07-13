@@ -30,6 +30,6 @@ public class TCPClientTest {
         String message = "Test message";
         client.sendMessage(message);
 
-        assertEquals(bos.toString(), message);
+        assertEquals(bos.toString(), message + "\n");
     }
 }

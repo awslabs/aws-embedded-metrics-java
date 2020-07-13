@@ -195,6 +195,13 @@ public class MetricsContext {
         return metricDirective.getAllDimensions();
     }
 
+    /**
+     * Add a key-value pair to the metadata.
+     */
+    public void putMetadata(String key, Object value) {
+        rootNode.getAws().putCustomMetadata(key, value);
+    }
+
 
     /**
      * Creates an independently flushable context.
