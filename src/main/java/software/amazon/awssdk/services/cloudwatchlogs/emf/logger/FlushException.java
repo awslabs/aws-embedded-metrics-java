@@ -51,6 +51,10 @@ public class FlushException extends EMFException {
         this.unprocessedLogItems = unprocessedLogItems;
     }
 
+    public FlushException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     // Internal constructor for handling errors before all information is available
     protected FlushException(String message) {
         super(message);

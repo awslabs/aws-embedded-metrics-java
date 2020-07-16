@@ -138,4 +138,11 @@ public class DimensionSet {
     public Set<String> getDimensionKeys() {
         return dimensionRecords.keySet();
     }
+
+    /**
+     * Return the dimension value associated with a dimension key
+     */
+    public String getDimensionValue(String key) {
+        return this.dimensionRecords.get(key);
+    }
 }

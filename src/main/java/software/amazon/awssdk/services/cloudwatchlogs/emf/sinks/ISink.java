@@ -1,7 +1,8 @@
-package software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks;
+package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 
 import java.util.List;
 
@@ -15,4 +16,9 @@ public interface ISink {
      * @throws FlushException
      */
     void accept(List<EMFLogItem> logItems) throws FlushException;
+
+    /**
+     * accept MetricsContext to sink to CloudWatch.
+     */
+    void accept(MetricsContext context);
 }

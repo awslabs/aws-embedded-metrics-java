@@ -2,6 +2,8 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -64,5 +66,10 @@ class RootNode {
             }
         }
         return dimensions;
+    }
+
+    String serialize() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
     }
 }

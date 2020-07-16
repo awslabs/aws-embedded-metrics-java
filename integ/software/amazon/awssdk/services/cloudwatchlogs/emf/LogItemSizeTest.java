@@ -5,7 +5,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.CloudWatchLimits;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.EMFLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.SinkUtilities;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.SinkUtilities;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.CloudwatchMetricCollection;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 import software.amazon.awssdk.services.cloudwatchlogs.model.GetLogEventsRequest;

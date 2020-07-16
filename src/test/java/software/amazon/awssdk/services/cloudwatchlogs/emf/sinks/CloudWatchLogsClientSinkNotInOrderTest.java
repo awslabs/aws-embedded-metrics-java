@@ -1,4 +1,4 @@
-package software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks;
+package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;

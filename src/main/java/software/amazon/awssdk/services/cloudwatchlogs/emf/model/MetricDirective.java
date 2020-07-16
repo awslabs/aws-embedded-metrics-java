@@ -1,6 +1,7 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,10 +25,11 @@ class MetricDirective {
     @JsonProperty("Metrics")
     private List<MetricDefinition> metrics = new ArrayList<>();
 
-    @Setter
+    @Getter(AccessLevel.PROTECTED)
     private List<DimensionSet> dimensions = new ArrayList<>();
 
     @Setter
+    @Getter(AccessLevel.PROTECTED)
     private DimensionSet defaultDimensions = new DimensionSet();
     private boolean should_use_default_dimension = true;
 

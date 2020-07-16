@@ -4,7 +4,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.EMFLogger;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.CloudWatchLogsClientSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.CloudWatchLogsClientSink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.testutils.EMFTestUtilities;
 
 public class IntegrationTestBase {

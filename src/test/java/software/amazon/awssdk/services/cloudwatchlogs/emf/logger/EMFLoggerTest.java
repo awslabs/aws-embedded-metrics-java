@@ -2,8 +2,8 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.logger;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.ConsoleSink;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.MultiSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ConsoleSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.MultiSink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.testutils.EMFTestUtilities;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.testutils.TestSink;

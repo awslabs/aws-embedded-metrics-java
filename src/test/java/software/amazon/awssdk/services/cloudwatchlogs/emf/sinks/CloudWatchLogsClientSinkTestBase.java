@@ -1,4 +1,4 @@
-package software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks;
+package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.mockito.Mockito;
