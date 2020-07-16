@@ -28,7 +28,7 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
-   implementation 'software.amazon.awssdk:cloudwatchlogs:2.13.54'
+    implementation 'software.amazon.awssdk:cloudwatchlogs:2.13.54'
     implementation 'software.amazon.awssdk:cloudwatch:2.13.54'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'

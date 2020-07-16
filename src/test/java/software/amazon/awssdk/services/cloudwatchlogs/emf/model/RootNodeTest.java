@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -39,12 +40,42 @@ public class RootNodeTest {
     }
 
     @Test
+    public void testPutSamePropertyMultipleTimes() {
+        RootNode rootNode = new RootNode();
+        rootNode.putProperty("Property", "Value");
+        rootNode.putProperty("Property", "NewValue");
+
+        assertEquals(rootNode.getTargetMembers().get("Property"), "NewValue");
+    }
+
+    @Test
     public void testGetDimension() {
         RootNode rootNode = new RootNode();
         MetricDirective metricDirective = rootNode.getAws().createMetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Dim1", "DimValue1"));
 
         assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimValue1");
+    }
+
+    @Test
+    public void testGetTargetMembers() {
+        RootNode rootNode = new RootNode();
+        MetricsContext mc = new MetricsContext(rootNode);
+
+        // Put same metric multiple times
+        mc.putMetric("Count", 10.0);
+        mc.putMetric("Count", 20.0);
+
+        mc.putMetric("Latency", 100.0, StandardUnit.MILLISECONDS);
+
+        mc.putDimension("Dim1", "DimVal1");
+
+        mc.putProperty("Prop1", "PropValue1");
+
+        assertEquals(rootNode.getTargetMembers().get("Count"), Arrays.asList(10.0, 20.0));
+        assertEquals(rootNode.getTargetMembers().get("Latency"), 100.0);
+        assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimVal1");
+        assertEquals(rootNode.getTargetMembers().get("Prop1"), "PropValue1");
     }
 
     @Test

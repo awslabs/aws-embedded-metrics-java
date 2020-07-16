@@ -39,13 +39,13 @@ class RootNode {
     }
 
     /**
-     *  Return the list of target members that are referenced by metrics, dimensions and properties
+     *  Return the target members that are referenced by metrics, dimensions and properties
      */
     @JsonAnyGetter
     Map<String, Object> getTargetMembers() {
         Map<String, Object> targetMembers = new HashMap<>();
         targetMembers.putAll(properties);
-        targetMembers.putAll(getDimension());
+        targetMembers.putAll(getDimensions());
         for (Map.Entry<String, List<Double>> entry: metrics.entrySet()) {
             List<Double> values = entry.getValue();
             targetMembers.put(entry.getKey(), values.size() == 1 ? values.get(0) : values);
@@ -56,7 +56,7 @@ class RootNode {
     /**
      * Return a list of all dimensions that are referenced by each dimension set
      */
-    Map<String, String> getDimension() {
+    Map<String, String> getDimensions() {
         Map<String, String> dimensions = new HashMap<>();
         for (MetricDirective mc: aws.getCloudWatchMetrics()) {
             for (DimensionSet dimensionSet: mc.getAllDimensions()) {
