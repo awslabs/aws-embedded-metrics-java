@@ -1,4 +1,4 @@
-package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
+package software.amazon.awssdk.services.cloudwatchlogs.emf.serializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

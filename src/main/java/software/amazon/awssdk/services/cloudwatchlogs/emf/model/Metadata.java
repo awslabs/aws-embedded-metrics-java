@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.InstantDeserializer;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.InstantSerializer;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,21 +18,19 @@ import java.util.List;
  */
 class Metadata {
 
-    @Getter
-    @Setter
+    @Getter @Setter
     @JsonProperty("Timestamp")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, timezone = "UTC")
     @JsonSerialize(using = InstantSerializer.class)
     @JsonDeserialize(using = InstantDeserializer.class)
     private Instant timestamp;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     @JsonProperty("CloudWatchMetrics")
     private List<MetricDirective> cloudWatchMetrics;
 
     Metadata() {
-        cloudWatchMetrics = new ArrayList<MetricDirective>();
+        cloudWatchMetrics = new ArrayList<>();
         timestamp = Instant.now();
     }
 

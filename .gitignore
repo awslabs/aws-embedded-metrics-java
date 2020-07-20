@@ -8,5 +8,6 @@ build
 .project
 .idea
 *.iml
+out
 .settings
 
