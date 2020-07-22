@@ -19,7 +19,7 @@ public class TCPClient implements SocketClient {
         this.endpoint = endpoint;
     }
 
-    public void connect() {
+    private void connect() {
         try {
             socket.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
             shouldConnect = false;
@@ -34,7 +34,7 @@ public class TCPClient implements SocketClient {
     }
 
     @Override
-    public void sendMessage(String message) {
+    public synchronized void sendMessage(String message) {
         if (socket.isClosed() || shouldConnect) {
             connect();
         }
@@ -51,9 +51,11 @@ public class TCPClient implements SocketClient {
         try {
             os.write(message.getBytes());
         } catch (IOException e) {
-            log.error("Could not send write request: ", e);
+            log.error("Could not send write request due to IOException: ", e);
             connect();
-            return;
+        } catch (Exception e) {
+            log.error("Could not send write request due to Exception: ", e);
+            connect();
         }
     }
 }

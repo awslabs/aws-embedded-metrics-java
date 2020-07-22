@@ -33,14 +33,7 @@ public class EMFLogItem {
      * @throws JsonProcessingException
      */
     public String serializeMetrics() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        if (EMFLogItem.isGlobalPrettyPrintJson()) {
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        }
-
-        String ret = objectMapper.writeValueAsString(rootNode);
-        return ret;
+        return rootNode.serialize();
     }
 
     /**

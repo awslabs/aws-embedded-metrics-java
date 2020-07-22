@@ -35,7 +35,6 @@ public class AgentSink implements ISink {
             context.putProperty("LogStreamName", logStreamName);
         }
 
-        client.connect();
         try {
             client.sendMessage(context.serialize());
         } catch (JsonProcessingException e) {

@@ -24,11 +24,6 @@ public class AgentSinkTest {
         private String message;
 
         @Override
-        public void connect() {
-            // no-op
-        }
-
-        @Override
         public void sendMessage(String message) {
             this.message = message;
         }
@@ -68,7 +63,6 @@ public class AgentSinkTest {
 
         assertEquals(emf_map.get("LogGroupName"), logGroupName);
         assertEquals(emf_map.get("LogStreamName"), logStreamName);
-        assertTrue(emf_map.containsKey("_aws"));
     }
 
     @Test
@@ -87,7 +81,6 @@ public class AgentSinkTest {
 
         assertFalse(emf_map.containsKey("LogGroupName"));
         assertFalse(emf_map.containsKey("LogStreamName"));
-        assertTrue(emf_map.containsKey("_aws"));
 
     }
 }

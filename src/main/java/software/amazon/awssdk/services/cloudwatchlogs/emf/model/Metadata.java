@@ -1,5 +1,6 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -44,4 +45,14 @@ class Metadata {
         cloudWatchMetrics.add(newMetricDirective);
         return newMetricDirective;
     }
+
+    /**
+     * Test if there's any metric added.
+     * @return true if no metrics have been added, otherwise, false
+     */
+    boolean isEmpty() {
+        return cloudWatchMetrics.isEmpty() || this.cloudWatchMetrics.stream()
+                .allMatch(MetricDirective::hasNoMetrics);
+    }
+
 }

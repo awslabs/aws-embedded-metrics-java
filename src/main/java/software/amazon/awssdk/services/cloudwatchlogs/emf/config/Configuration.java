@@ -28,8 +28,7 @@ public class Configuration {
     Optional<String> serviceType;
 
     /**
-     * The LogGroup name to use. This will be ignored when using the
-     * Lambda scope.
+     * The LogGroup name to use. This is only used for the Cloudwatch Agent in agent-based environment.
      */
     @Getter @Setter
     Optional<String> logGroupName;

@@ -77,4 +77,12 @@ class MetricDirective {
                 .map(dim -> defaultDimensions.add(dim))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Test if there's any metric added.
+     * @return true if no metrics have been added, otherwise, false
+     */
+    boolean hasNoMetrics() {
+        return this.getMetrics().isEmpty();
+    }
 }
