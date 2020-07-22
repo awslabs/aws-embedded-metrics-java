@@ -88,7 +88,7 @@ public class RootNodeTest {
         mc.putProperty("Property", "PropertyValue");
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String emf_log = objectMapper.writeValueAsString(mc.getRootNode());
+        String emf_log = mc.serialize();
         Map<String, Object> emf_map = objectMapper.readValue(emf_log, new TypeReference<Map<String, Object>>(){});
 
         assertEquals(emf_map.keySet().size(), 5);
@@ -100,5 +100,15 @@ public class RootNodeTest {
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
         assertTrue(metadata.containsKey("Timestamp"));
         assertTrue(metadata.containsKey("CloudWatchMetrics"));
+    }
+
+    @Test
+    public void testSerializeRootNodeWithoutAnyMetrics() throws JsonProcessingException {
+        RootNode root = new RootNode();
+        String property = "foo";
+        String value = "bar";
+        root.putProperty(property, value);
+
+        assertEquals(root.serialize(), "{\"foo\":\"bar\"}");
     }
 }

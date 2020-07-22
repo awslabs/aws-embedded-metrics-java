@@ -1,7 +1,11 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -12,12 +16,20 @@ import java.util.Map;
 /**
  * Represents the root of the EMF schema.
  */
+@JsonFilter("emptyMetricFilter")
 class RootNode {
     @Getter
     @JsonProperty("_aws")
-    private Metadata aws = new Metadata();;
+    private Metadata aws = new Metadata();
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, List<Double>> metrics = new HashMap<>();
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    RootNode() {
+        final SimpleFilterProvider filterProvider = new SimpleFilterProvider()
+                .addFilter("emptyMetricFilter", new EmptyMetricsFilter());
+        objectMapper.setFilterProvider(filterProvider);
+    }
 
     public void putProperty(String key, Object value) {
         properties.put(key, value);
@@ -64,5 +76,9 @@ class RootNode {
             }
         }
         return dimensions;
+    }
+
+    String serialize() throws JsonProcessingException {
+        return objectMapper.writeValueAsString(this);
     }
 }

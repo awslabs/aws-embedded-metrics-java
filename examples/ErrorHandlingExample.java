@@ -3,9 +3,9 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.EMFLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.CloudWatchLogsClientSink;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.ConsoleSink;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.MultiSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.CloudWatchLogsClientSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ConsoleSink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.MultiSink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.CloudwatchMetricCollection;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 

@@ -1,9 +1,12 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Stores metrics and their associated properties and dimensions
@@ -25,12 +28,36 @@ public class MetricsContext {
         metricDirective = rootNode.getAws().createMetricDirective();
     }
 
+    public MetricsContext(
+            String namespace,
+            Map<String, Object> properties,
+            List<DimensionSet> dimensionSets,
+            DimensionSet defaultDimensionSet
+    ) {
+        this();
+        setNamespace(namespace);
+        setDefaultDimensions(defaultDimensionSet);
+        for (DimensionSet dimension: dimensionSets) {
+            putDimension(dimension);
+        }
+        for (Map.Entry<String, Object> entry: properties.entrySet()) {
+            putProperty(entry.getKey(), entry.getValue());
+        }
+    }
+
     /**
      * Update the namespace with the parameter
      * @param namespace The new namespace
      */
     public void setNamespace(String namespace) {
         metricDirective.setNamespace(namespace);
+    }
+
+    /**
+     * Return the namespace. If the namespace is not set, it would return a default value
+     */
+    public String getNamespace() {
+        return metricDirective.getNamespace();
     }
 
     /**
@@ -52,6 +79,21 @@ public class MetricsContext {
      */
     public void setDefaultDimensions(DimensionSet dimensionSet) {
         metricDirective.setDefaultDimensions(dimensionSet);
+    }
+
+    /**
+     * Return the default dimension set
+     */
+    public DimensionSet getDefaultDimensions() {
+        return metricDirective.getDefaultDimensions();
+    }
+
+
+    /**
+     *  Return true if there're default dimensions defined, otherwise, false
+     */
+    public boolean hasDefaultDimensions() {
+        return getDefaultDimensions().getDimensionKeys().size() > 0;
     }
 
     /**
@@ -108,7 +150,13 @@ public class MetricsContext {
      */
     public void putProperty(String name, Object value) {
         rootNode.putProperty(name, value);
+    }
 
+    /**
+     * Return the value of a property.
+     */
+    public Object getProperty(String name) {
+        return rootNode.getProperties().get(name);
     }
 
 
@@ -138,5 +186,33 @@ public class MetricsContext {
      */
     public void putDimension(String dimension, String value) {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
+    }
+
+    /**
+     * Return the list of dimensions that has been added, including default dimensions
+     */
+    public List<DimensionSet> getDimensions() {
+        return metricDirective.getAllDimensions();
+    }
+
+
+    /**
+     * Creates an independently flushable context.
+     */
+    public MetricsContext createCopyWithContext() {
+        return new MetricsContext(
+            this.metricDirective.getNamespace(),
+            this.rootNode.getProperties(),
+            this.metricDirective.getDimensions(),
+            this.metricDirective.getDefaultDimensions()
+        );
+    }
+
+    /**
+     * Serialize the metrics in this context to a string.
+     * @throws JsonProcessingException
+     */
+    public String serialize() throws JsonProcessingException {
+        return this.rootNode.serialize();
     }
 }

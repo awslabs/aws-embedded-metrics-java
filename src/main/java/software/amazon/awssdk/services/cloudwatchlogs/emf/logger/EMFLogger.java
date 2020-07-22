@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.ISink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 
 import java.util.ArrayList;

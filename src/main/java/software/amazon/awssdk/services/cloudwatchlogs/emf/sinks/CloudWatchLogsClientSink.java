@@ -1,4 +1,4 @@
-package software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks;
+package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Builder;
@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FailedToSeriali
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.LogItemTooLargeException;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogGroupRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogStreamRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.DataAlreadyAcceptedException;
@@ -97,6 +98,12 @@ public class CloudWatchLogsClientSink implements ISink {
             }
         }
     }
+
+    @Override
+    public void accept(MetricsContext context) {
+        // TODO
+    }
+
 
 
     void putLogEvents(

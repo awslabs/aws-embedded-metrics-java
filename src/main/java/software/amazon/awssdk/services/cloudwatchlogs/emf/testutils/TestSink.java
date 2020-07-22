@@ -2,7 +2,8 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.testutils;
 
 import lombok.Getter;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.sinks.ISink;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 
 import java.util.ArrayList;
@@ -21,5 +22,10 @@ public class TestSink implements ISink {
     @Override
     public void accept(List<EMFLogItem> logItems) throws FlushException {
         seenLogItems.addAll(logItems);
+    }
+
+    @Override
+    public void accept(MetricsContext context) {
+        // no-op
     }
 }
