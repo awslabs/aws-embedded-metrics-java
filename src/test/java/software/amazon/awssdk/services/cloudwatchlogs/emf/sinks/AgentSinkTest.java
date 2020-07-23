@@ -43,10 +43,15 @@ public class AgentSinkTest {
 
     @Test
     public void testAccept() throws JsonProcessingException {
+        String prop = "TestProp";
+        String propValue = "TestPropValue";
         String logGroupName = "TestLogGroup";
         String logStreamName = "TestLogStream";
 
         MetricsContext mc = new MetricsContext();
+
+        mc.putProperty(prop, propValue);
+        mc.putMetric("Time", 10);
 
         AgentSink sink  = new AgentSink(
                 logGroupName,
@@ -59,10 +64,13 @@ public class AgentSinkTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> emf_map = objectMapper.readValue(client.getMessage(), new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> metadata = (Map<String, Object>)emf_map.get("_aws");
 
 
-        assertEquals(emf_map.get("LogGroupName"), logGroupName);
-        assertEquals(emf_map.get("LogStreamName"), logStreamName);
+        assertEquals(emf_map.get(prop), propValue);
+        assertEquals(emf_map.get("Time"), 10.0);
+        assertEquals(metadata.get("LogGroupName"), logGroupName);
+        assertEquals(metadata.get("LogStreamName"), logStreamName);
     }
 
     @Test
@@ -74,13 +82,17 @@ public class AgentSinkTest {
                 Endpoint.DEFAULT_TCP_ENDPOINT,
                 factory
         );
+        MetricsContext mc = new MetricsContext();
+        mc.putMetric("Time", 10);
 
-        sink.accept(new MetricsContext());
+
+        sink.accept(mc);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> emf_map = objectMapper.readValue(client.getMessage(), new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> metadata = (Map<String, Object>)emf_map.get("_aws");
 
-        assertFalse(emf_map.containsKey("LogGroupName"));
-        assertFalse(emf_map.containsKey("LogStreamName"));
+        assertFalse(metadata.containsKey("LogGroupName"));
+        assertFalse(metadata.containsKey("LogStreamName"));
 
     }
 }

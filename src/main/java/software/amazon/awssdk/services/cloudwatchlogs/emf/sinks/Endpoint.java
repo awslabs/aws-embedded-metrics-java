@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 @RequiredArgsConstructor
 public class Endpoint {
 
-    static public Endpoint DEFAULT_TCP_ENDPOINT = new Endpoint("0.0.0.0", 25888, Protocol.TCP);
+    static public Endpoint DEFAULT_TCP_ENDPOINT = new Endpoint("127.0.0.1", 25888, Protocol.TCP);
 
     @Getter
     @NonNull
