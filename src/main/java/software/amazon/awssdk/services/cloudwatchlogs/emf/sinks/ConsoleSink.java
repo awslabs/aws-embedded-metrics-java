@@ -2,6 +2,7 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 @Slf4j
 @Builder
+@NoArgsConstructor
 public class ConsoleSink implements ISink {
 
     @Override
