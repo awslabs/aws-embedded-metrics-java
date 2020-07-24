@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    jcenter()
+}
+
+
+dependencies {
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation rootProject
+        
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+build.dependsOn buildZip
