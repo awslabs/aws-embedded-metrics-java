@@ -122,5 +122,6 @@ public class MetricsLogger {
         defaultDimension.addDimension("ServiceName", environment.getName());
         defaultDimension.addDimension("ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
+        environment.configureContext(context);
     }
 }
