@@ -8,3 +8,5 @@
  */
 
 rootProject.name = 'aws-embedded-metrics'
+
+include 'examples:lambda'
