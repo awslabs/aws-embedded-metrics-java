@@ -1,6 +1,8 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
-public interface SocketClient {
+import java.io.Closeable;
+
+public interface SocketClient extends Closeable {
 
     /**
      * Send a message through the Socket Client

@@ -31,6 +31,10 @@ public class AgentSinkTest {
         public String getMessage() {
             return this.message;
         }
+
+        @Override
+        public void close()  {}
+
     }
 
     @Before

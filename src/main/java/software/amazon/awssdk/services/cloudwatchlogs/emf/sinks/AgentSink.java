@@ -36,7 +36,7 @@ public class AgentSink implements ISink {
         }
 
         try {
-            client.sendMessage(context.serialize());
+            client.sendMessage(context.serialize() + "\n");
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize the metrics with the exception: ", e);
         }
