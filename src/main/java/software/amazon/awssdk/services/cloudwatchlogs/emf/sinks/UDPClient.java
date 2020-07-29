@@ -16,7 +16,7 @@ class UDPClient implements SocketClient {
     private DatagramSocket datagramSocket;
     private int port;
 
-    public UDPClient(Endpoint endpoint) {
+    UDPClient(Endpoint endpoint) {
         inetAddress = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
         port = endpoint.getPort();
 
@@ -38,7 +38,9 @@ class UDPClient implements SocketClient {
 
     private synchronized void flush(DatagramPacket packet) {
         try {
-            datagramSocket.send(packet);
+            if (datagramSocket != null) {
+                datagramSocket.send(packet);
+            }
         } catch (IOException ex) {
             final String msg = "Failed to send DatagramPacket to " + inetAddress;
             log.error(msg, ex);
@@ -46,10 +48,9 @@ class UDPClient implements SocketClient {
     }
 
     @Override
-    public synchronized void close() throws IOException {
+    public void close() throws IOException {
         if (datagramSocket != null) {
             datagramSocket.close();
-            datagramSocket = null;
         }
     }
 }

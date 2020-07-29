@@ -63,7 +63,6 @@ public class TCPClient implements SocketClient {
     public void close() throws IOException {
         if (socket != null) {
             socket.close();
-            socket = null;
         }
     }
 
