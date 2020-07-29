@@ -66,6 +66,31 @@ public class MetricsLoggerIntegrationTest {
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
+    @Test(timeout = 120_000)
+    public void testSingleFlushOverUDP() throws InterruptedException {
+        String metricName = "UDP-SingleFlush";
+        int expectedSamples = 1;
+        config.setAgentEndpoint(Optional.of("udp://127.0.0.1:25888"));
+
+        logMetric(metricName);
+
+        assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
+    }
+
+    @Test(timeout = 300_000)
+    public void testMultipleFlushOverUDP() throws InterruptedException {
+        String metricName = "UDP-MultipleFlush";
+        int expectedSamples = 3;
+        config.setAgentEndpoint(Optional.of("udp://127.0.0.1:25888"));
+
+        logMetric(metricName);
+        logMetric(metricName);
+        Thread.sleep(500);
+        logMetric(metricName);
+
+        assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
+    }
+
     private void logMetric(String metricName) {
         MetricsLogger logger = new MetricsLogger(new EnvironmentProvider());
         logger.putDimensions(dimensions);

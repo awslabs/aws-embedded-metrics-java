@@ -10,7 +10,7 @@ import java.net.Socket;
 @Slf4j
 public class TCPClient implements SocketClient {
 
-    private final Socket socket;
+    private Socket socket;
     private final Endpoint endpoint;
     private boolean shouldConnect = true;
 
@@ -50,7 +50,6 @@ public class TCPClient implements SocketClient {
 
         try {
             os.write(message.getBytes());
-            os.write("\n".getBytes());
         } catch (IOException e) {
             log.error("Could not send write request due to IOException: ", e);
             connect();
@@ -59,4 +58,12 @@ public class TCPClient implements SocketClient {
             connect();
         }
     }
+
+    @Override
+    public void close() throws IOException {
+        if (socket != null) {
+            socket.close();
+        }
+    }
+
 }
