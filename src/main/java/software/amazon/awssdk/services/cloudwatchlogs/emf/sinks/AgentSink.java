@@ -2,11 +2,7 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.FlushException;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.EMFLogItem;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
-
-import java.util.List;
 
 
 @Slf4j
@@ -19,11 +15,6 @@ public class AgentSink implements ISink {
             this.logGroupName = logGroupName;
             this.logStreamName = logStreamName;
             client = clientFactory.getClient(endpoint);
-    }
-
-    @Override
-    public void accept(List<EMFLogItem> logItems) throws FlushException {
-        //TODO Remove this method
     }
 
     public void accept(MetricsContext context) {

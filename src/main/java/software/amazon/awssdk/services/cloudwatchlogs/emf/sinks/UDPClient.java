@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 class UDPClient implements SocketClient {
@@ -24,7 +24,7 @@ class UDPClient implements SocketClient {
 
     @Override
     public void sendMessage(String message) {
-        byte[] data = message.getBytes(Charset.forName("UTF-8"));
+        byte[] data = message.getBytes(StandardCharsets.UTF_8);
         final DatagramPacket packet = new DatagramPacket(data,  data.length, inetAddress);
         flush(packet);
     }
