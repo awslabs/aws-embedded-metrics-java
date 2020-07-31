@@ -4,13 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import java.io.IOException;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
-import java.io.IOException;
-
-/**
- * JSON deserializer for StandardUnit type.
- */
+/** JSON deserializer for StandardUnit type. */
 public class StandardUnitDeserializer extends StdDeserializer<StandardUnit> {
     StandardUnitDeserializer() {
         this(null);

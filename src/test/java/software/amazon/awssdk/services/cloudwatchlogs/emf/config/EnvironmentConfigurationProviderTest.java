@@ -1,5 +1,7 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.config;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -7,13 +9,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.Environments;
 
-
-import static org.junit.Assert.*;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemWrapper.class})
 public class EnvironmentConfigurationProviderTest {
-
 
     @Test
     public void getGetConfig() {
@@ -34,7 +32,7 @@ public class EnvironmentConfigurationProviderTest {
         assertEquals(config.agentEndpoint.get(), "Endpoint");
         assertEquals(config.getEnvironmentOverride(), Environments.Agent);
     }
-    
+
     private void putEnv(String key, String value) {
         PowerMockito.when(SystemWrapper.getenv(key)).thenReturn(value);
     }

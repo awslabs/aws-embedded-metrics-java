@@ -2,7 +2,6 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 
-
 public class SinkShunt implements ISink {
 
     private MetricsContext context;
@@ -15,5 +14,4 @@ public class SinkShunt implements ISink {
     public MetricsContext getContext() {
         return context;
     }
-
 }

@@ -7,6 +7,10 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 
+/**
+ * An metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
+ * CloudWatch Metrics asynchronously.
+ */
 public class MetricsLogger {
     private MetricsContext context;
     private Environment environment;
@@ -21,8 +25,7 @@ public class MetricsLogger {
     }
 
     /**
-     * Flushes the current context state to the configured sink.
-     * TODO: Support flush asynchronously
+     * Flushes the current context state to the configured sink. TODO: Support flush asynchronously
      */
     public void flush() {
         ISink sink = environment.getSink();
@@ -32,12 +35,9 @@ public class MetricsLogger {
     }
 
     /**
-     * Set a property on the published metrics.
-     * This is stored in the emitted log data and you are not
-     * charged for this data by CloudWatch Metrics.
-     * These values can be values that are useful for searching on,
-     * but have too high cardinality to emit as dimensions to
-     * CloudWatch Metrics.
+     * Set a property on the published metrics. This is stored in the emitted log data and you are
+     * not charged for this data by CloudWatch Metrics. These values can be values that are useful
+     * for searching on, but have too high cardinality to emit as dimensions to CloudWatch Metrics.
      *
      * @param key Property name
      * @param value Property value
@@ -48,12 +48,13 @@ public class MetricsLogger {
     }
 
     /**
-     * Adds a dimension.
-     * This is generally a low cardinality key-value pair that is part of the metric identity.
-     * CloudWatch treats each unique combination of dimensions as a separate metric, even if the metrics have the same metric name.
+     * Adds a dimension. This is generally a low cardinality key-value pair that is part of the
+     * metric identity. CloudWatch treats each unique combination of dimensions as a separate
+     * metric, even if the metrics have the same metric name.
      *
      * @param dimensions
-     * @see [CloudWatch Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
+     * @see [CloudWatch
+     *     Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
      */
     public MetricsLogger putDimensions(DimensionSet dimensions) {
         context.putDimension(dimensions);
@@ -64,17 +65,19 @@ public class MetricsLogger {
      * Overwrite all dimensions on this MetricsLogger instance.
      *
      * @param dimensionSets
-     * @see [CloudWatch Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
+     * @see [CloudWatch
+     *     Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
      */
-    public MetricsLogger setDimensions(DimensionSet ... dimensionSets) {
+    public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
         context.setDimensions(dimensionSets);
         return this;
     }
 
     /**
-     * Put a metric value.
-     * This value will be emitted to CloudWatch Metrics asyncronously and does not contribute to your
-     * account TPS limits. The value will also be available in your CloudWatch Logs
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asyncronously and does
+     * not contribute to your account TPS limits. The value will also be available in your
+     * CloudWatch Logs
+     *
      * @param key
      * @param value
      * @param unit
@@ -85,9 +88,10 @@ public class MetricsLogger {
     }
 
     /**
-     * Put a metric value.
-     * This value will be emitted to CloudWatch Metrics asyncronously and does not contribute to your
-     * account TPS limits. The value will also be available in your CloudWatch Logs
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asyncronously and does
+     * not contribute to your account TPS limits. The value will also be available in your
+     * CloudWatch Logs
+     *
      * @param key
      * @param value
      */
@@ -98,7 +102,9 @@ public class MetricsLogger {
 
     /**
      * Add a custom key-value pair to the Metadata object.
-     * @see [CloudWatch Metadata](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html#CloudWatch_Embedded_Metric_Format_Specification_structure_metadata)
+     *
+     * @see [CloudWatch
+     *     Metadata](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html#CloudWatch_Embedded_Metric_Format_Specification_structure_metadata)
      */
     public MetricsLogger putMetadata(String key, Object value) {
         this.context.putMetadata(key, value);
@@ -107,6 +113,7 @@ public class MetricsLogger {
 
     /**
      * Set the CloudWatch namespace that metrics should be published to.
+     *
      * @param namespace
      */
     public MetricsLogger setNamespace(String namespace) {
@@ -115,8 +122,9 @@ public class MetricsLogger {
     }
 
     private void configureContextForEnvironment(MetricsContext context, Environment environment) {
-        if (context.hasDefaultDimensions())
+        if (context.hasDefaultDimensions()) {
             return;
+        }
         DimensionSet defaultDimension = new DimensionSet();
         defaultDimension.addDimension("LogGroup", environment.getLogGroupName());
         defaultDimension.addDimension("ServiceName", environment.getName());

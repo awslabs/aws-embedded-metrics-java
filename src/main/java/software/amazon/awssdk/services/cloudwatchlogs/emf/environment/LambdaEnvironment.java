@@ -1,15 +1,15 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
+import java.util.Optional;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 
-import java.util.Optional;
-
+/** An environment stands for the AWS Lambda environment. */
 public class LambdaEnvironment implements Environment {
     private static final String AWS_EXECUTION_ENV = "AWS_EXECUTION_ENV";
-    private static final String LAMBDA_FUNCTION_NAME= "AWS_LAMBDA_FUNCTION_NAME";
+    private static final String LAMBDA_FUNCTION_NAME = "AWS_LAMBDA_FUNCTION_NAME";
     private static final String LAMBDA_FUNCTION_VERSION = "AWS_LAMBDA_FUNCTION_VERSION";
     private static final String LAMBDA_LOG_STREAM = "AWS_LAMBDA_LOG_STREAM_NAME";
     private static final String TRACE_ID = "_X_AMZN_TRACE_ID";
@@ -17,7 +17,7 @@ public class LambdaEnvironment implements Environment {
 
     private ISink sink = null;
 
-    //TODO: support probing asynchronously
+    // TODO: support probing asynchronously
     @Override
     public boolean probe() {
         String functionName = getEnv(LAMBDA_FUNCTION_NAME);

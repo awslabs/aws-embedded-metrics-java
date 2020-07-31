@@ -1,16 +1,15 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
-
 import java.util.Arrays;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 public class RootNodeTest {
 
@@ -89,7 +88,8 @@ public class RootNodeTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String emf_log = mc.serialize();
-        Map<String, Object> emf_map = objectMapper.readValue(emf_log, new TypeReference<Map<String, Object>>(){});
+        Map<String, Object> emf_map =
+                objectMapper.readValue(emf_log, new TypeReference<Map<String, Object>>() {});
 
         assertEquals(emf_map.keySet().size(), 5);
         assertEquals(emf_map.get("Region"), "us-east-1");

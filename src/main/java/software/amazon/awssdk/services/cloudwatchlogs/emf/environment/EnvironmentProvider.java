@@ -1,20 +1,21 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
+import java.util.Optional;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
-import java.util.Optional;
-
+/** A provider that will detect the environment. */
 public class EnvironmentProvider {
+    private static Environment cachedEnvironment;
     private final Configuration config = EnvironmentConfigurationProvider.getConfig();
     private final Environment lambdaEnvironment = new LambdaEnvironment();
     private final Environment defaultEnvironment = new DefaultEnvironment(config);
-    private final Environment[] environments = new Environment[] {lambdaEnvironment, defaultEnvironment};
 
-    private static Environment cachedEnvironment;
+    // Ordering of this array matters
+    private final Environment[] environments =
+            new Environment[] {lambdaEnvironment, defaultEnvironment};
 
-
-    //TODO: Support more environments
+    // TODO: Support more environments
     public Environment resolveEnvironment() {
         if (cachedEnvironment != null) {
             return cachedEnvironment;
@@ -26,15 +27,13 @@ public class EnvironmentProvider {
         return cachedEnvironment;
     }
 
-    /**
-     * A helper method to clean the cached environment in tests
-     */
+    /** A helper method to clean the cached environment in tests. */
     void cleanResolvedEnvironment() {
         cachedEnvironment = null;
     }
 
     private Optional<Environment> discoverEnvironment() {
-        for (Environment env: environments) {
+        for (Environment env : environments) {
             if (env.probe()) {
                 return Optional.of(env);
             }

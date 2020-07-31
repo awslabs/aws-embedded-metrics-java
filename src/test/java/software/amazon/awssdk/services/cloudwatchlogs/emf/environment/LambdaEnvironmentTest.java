@@ -1,5 +1,8 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
 import com.github.javafaker.Faker;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,9 +13,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ConsoleSink;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemWrapper.class})
@@ -50,7 +50,6 @@ public class LambdaEnvironmentTest {
     @Test
     public void testConfigureContextAddProperties() {
         MetricsContext mc = new MetricsContext();
-
 
         String expectedEnv = faker.name().name();
         when(SystemWrapper.getenv("AWS_EXECUTION_ENV")).thenReturn(expectedEnv);

@@ -1,17 +1,17 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import lombok.extern.slf4j.Slf4j;
 
+/** A client that would connect to a TCP socket. */
 @Slf4j
 public class TCPClient implements SocketClient {
 
-    private Socket socket;
     private final Endpoint endpoint;
+    private Socket socket;
     private boolean shouldConnect = true;
 
     public TCPClient(Endpoint endpoint) {
@@ -40,7 +40,7 @@ public class TCPClient implements SocketClient {
         }
 
         OutputStream os;
-        try{
+        try {
             os = socket.getOutputStream();
         } catch (IOException e) {
             log.error("Failed to open output stream: ", e);
@@ -65,5 +65,4 @@ public class TCPClient implements SocketClient {
             socket.close();
         }
     }
-
 }
