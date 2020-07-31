@@ -72,8 +72,11 @@ spotless {
 	}
 
 	java {
+		importOrder()
 		// apply a specific flavor of google-java-format
 		googleJavaFormat('1.7').aosp()
+		removeUnusedImports()
+
 	}
 }
 
