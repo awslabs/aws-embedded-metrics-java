@@ -1,14 +1,13 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
-import org.junit.Before;
-import org.junit.Test;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-
-import java.util.Optional;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 
 public class DefaultEnvironmentTest {
     private DefaultEnvironment environment;
@@ -35,7 +34,7 @@ public class DefaultEnvironmentTest {
 
     @Test
     public void testGetType() {
-        String serviceType= "TestServiceType";
+        String serviceType = "TestServiceType";
         when(configuration.getServiceType()).thenReturn(Optional.of(serviceType));
         assertEquals(environment.getType(), serviceType);
     }

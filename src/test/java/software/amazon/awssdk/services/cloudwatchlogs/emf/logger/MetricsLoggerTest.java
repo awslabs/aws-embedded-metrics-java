@@ -1,21 +1,17 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.logger;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.SinkShunt;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MetricsLoggerTest {
     private MetricsLogger logger;
@@ -52,7 +48,9 @@ public class MetricsLoggerTest {
         logger.flush();
 
         assertEquals(sink.getContext().getDimensions().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName), dimensionValue);
+        assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
     }
 
     @Test
@@ -70,7 +68,8 @@ public class MetricsLoggerTest {
         logger.flush();
 
         assertEquals(sink.getContext().getDimensions().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName), null);
+        assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName), null);
     }
 
     @Test
@@ -84,7 +83,9 @@ public class MetricsLoggerTest {
 
         assertEquals(sink.getContext().getDimensions().size(), 1);
         assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName), dimensionValue);
+        assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
     }
 
     @Test
@@ -114,7 +115,6 @@ public class MetricsLoggerTest {
 
         expectDimension("ServiceType", serviceType);
     }
-
 
     @Test
     public void testFlushWithConfiguredLogGroup() {

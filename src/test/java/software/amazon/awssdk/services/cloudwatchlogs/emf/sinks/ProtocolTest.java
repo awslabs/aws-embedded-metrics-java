@@ -1,8 +1,8 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class ProtocolTest {
 
@@ -29,5 +29,4 @@ public class ProtocolTest {
     public void testThrowExceptionHttps() {
         Protocol.valueOf("https");
     }
-
 }

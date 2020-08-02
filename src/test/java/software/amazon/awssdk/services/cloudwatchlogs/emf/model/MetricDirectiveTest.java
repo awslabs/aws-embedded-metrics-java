@@ -1,10 +1,10 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class MetricDirectiveTest {
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -16,8 +16,7 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[]]}"
-        );
+                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[]]}");
     }
 
     @Test
@@ -29,8 +28,7 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"test-lambda-metrics\",\"Metrics\":[],\"Dimensions\":[[]]}"
-        );
+                "{\"Namespace\":\"test-lambda-metrics\",\"Metrics\":[],\"Dimensions\":[[]]}");
     }
 
     @Test
@@ -42,22 +40,20 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Dimensions\":[[]]}"
-        );
-
+                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Dimensions\":[[]]}");
     }
 
     @Test
     public void testPutDimensions() throws JsonProcessingException {
         MetricDirective metricDirective = new MetricDirective();
-        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
 
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Region\",\"Instance\"]]}"
-        );
+                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Region\",\"Instance\"]]}");
     }
 
     @Test
@@ -70,8 +66,7 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Region\"],[\"Instance\"]]}"
-        );
+                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Region\"],[\"Instance\"]]}");
     }
 
     @Test
@@ -85,7 +80,6 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 serializedMetricDirective,
-                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Version\",\"Region\"],[\"Version\",\"Instance\"]]}"
-        );
+                "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[\"Version\",\"Region\"],[\"Version\",\"Instance\"]]}");
     }
 }

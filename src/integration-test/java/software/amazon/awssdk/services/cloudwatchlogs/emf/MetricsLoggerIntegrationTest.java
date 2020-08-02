@@ -1,5 +1,14 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf;
 
+import static org.junit.Assert.assertTrue;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -11,17 +20,6 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConf
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static org.junit.Assert.assertTrue;
-
 
 public class MetricsLoggerIntegrationTest {
 
@@ -100,7 +98,7 @@ public class MetricsLoggerIntegrationTest {
 
     private String getLocalHost() {
         try {
-            return InetAddress.getLocalHost().getHostName() ;
+            return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             return "UnknownHost";
         }
@@ -108,12 +106,12 @@ public class MetricsLoggerIntegrationTest {
 
     private GetMetricStatisticsRequest buildRequest(String metricName) {
         Instant now = Instant.now();
-        List<Dimension> dimensions = Arrays.asList(
-                getDimension("ServiceName", serviceName),
-                getDimension("ServiceType", serviceType),
-                getDimension("LogGroup", logGroupName),
-                getDimension(dimensionName, dimensionValue)
-        );
+        List<Dimension> dimensions =
+                Arrays.asList(
+                        getDimension("ServiceName", serviceName),
+                        getDimension("ServiceType", serviceType),
+                        getDimension("LogGroup", logGroupName),
+                        getDimension(dimensionName, dimensionValue));
 
         return GetMetricStatisticsRequest.builder()
                 .namespace("aws-embedded-metrics")
@@ -127,20 +125,18 @@ public class MetricsLoggerIntegrationTest {
     }
 
     private Dimension getDimension(String name, String value) {
-        return Dimension.builder()
-                .name(name)
-                .value(value)
-                .build();
+        return Dimension.builder().name(name).value(value).build();
     }
 
-    private boolean retryUntilSucceed(Supplier<GetMetricStatisticsRequest> provider, int expected) throws InterruptedException {
+    private boolean retryUntilSucceed(Supplier<GetMetricStatisticsRequest> provider, int expected)
+            throws InterruptedException {
         int attempts = 0;
         while (!testHelper.checkMetricExistence(provider.get(), expected)) {
             attempts++;
-            System.out.println("No metrics yet. Sleeping before trying again. Attempt #" + attempts);
+            System.out.println(
+                    "No metrics yet. Sleeping before trying again. Attempt #" + attempts);
             Thread.sleep(2000);
         }
         return true;
     }
-
 }

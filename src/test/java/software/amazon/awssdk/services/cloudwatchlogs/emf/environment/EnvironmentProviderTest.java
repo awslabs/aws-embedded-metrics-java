@@ -1,5 +1,7 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
+import static org.junit.Assert.assertTrue;
+
 import com.github.javafaker.Faker;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,8 +10,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.SystemWrapper;
-
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemWrapper.class})
@@ -28,7 +28,8 @@ public class EnvironmentProviderTest {
         String lambdaFunctionName = faker.name().name();
 
         PowerMockito.mockStatic(SystemWrapper.class);
-        PowerMockito.when(SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME")).thenReturn(lambdaFunctionName);
+        PowerMockito.when(SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+                .thenReturn(lambdaFunctionName);
 
         Environment resolvedEnvironment = environmentProvider.resolveEnvironment();
 

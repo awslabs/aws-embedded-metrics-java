@@ -1,5 +1,6 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.config;
 
+/** The key of configurations used by EMF logger. */
 public class ConfigurationKeys {
 
     public static final String ENV_VAR_PREFIX = "AWS_EMF";

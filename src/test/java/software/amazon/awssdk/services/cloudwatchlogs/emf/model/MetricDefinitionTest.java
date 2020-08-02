@@ -1,11 +1,11 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
-
-import static org.junit.Assert.assertEquals;
 
 public class MetricDefinitionTest {
 

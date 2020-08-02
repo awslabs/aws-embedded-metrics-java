@@ -1,19 +1,16 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-/**
- * Represents the MetricDirective part of the EMF schema.
- */
+/** Represents the MetricDirective part of the EMF schema. */
 class MetricDirective {
     @Setter
     @Getter
@@ -31,8 +28,8 @@ class MetricDirective {
     @Setter
     @Getter(AccessLevel.PROTECTED)
     private DimensionSet defaultDimensions = new DimensionSet();
-    private boolean should_use_default_dimension = true;
 
+    private boolean shouldUseDefaultDimension = true;
 
     void putDimensionSet(DimensionSet dimensionSet) {
         dimensions.add(dimensionSet);
@@ -44,27 +41,27 @@ class MetricDirective {
 
     @JsonProperty("Dimensions")
     List<Set<String>> getAllDimensionKeys() {
-        return getAllDimensions()
-                .stream()
+        return getAllDimensions().stream()
                 .map(DimensionSet::getDimensionKeys)
                 .collect(Collectors.toList());
     }
 
     /**
      * Override all existing dimensions.
+     *
      * @param dimensionSets
      */
     void setDimensions(List<DimensionSet> dimensionSets) {
-        should_use_default_dimension = false;
+        shouldUseDefaultDimension = false;
         dimensions = dimensionSets;
     }
 
     /**
-     * Return all the dimension sets. If there's a default dimension set, the custom dimensions are prepended
-     * with the default dimensions.
+     * Return all the dimension sets. If there's a default dimension set, the custom dimensions are
+     * prepended with the default dimensions.
      */
     List<DimensionSet> getAllDimensions() {
-        if (!should_use_default_dimension) {
+        if (!shouldUseDefaultDimension) {
             return dimensions;
         }
 
@@ -72,14 +69,14 @@ class MetricDirective {
             return Arrays.asList(defaultDimensions);
         }
 
-        return dimensions
-                .stream()
+        return dimensions.stream()
                 .map(dim -> defaultDimensions.add(dim))
                 .collect(Collectors.toList());
     }
 
     /**
      * Test if there's any metric added.
+     *
      * @return true if no metrics have been added, otherwise, false
      */
     boolean hasNoMetrics() {

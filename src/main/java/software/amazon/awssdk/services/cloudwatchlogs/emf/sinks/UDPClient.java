@@ -1,14 +1,14 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 
+/** A client that would connect to a UDP socket. */
 @Slf4j
 class UDPClient implements SocketClient {
 
@@ -21,11 +21,10 @@ class UDPClient implements SocketClient {
         this.endpoint = endpoint;
     }
 
-
     @Override
     public void sendMessage(String message) {
         byte[] data = message.getBytes(StandardCharsets.UTF_8);
-        final DatagramPacket packet = new DatagramPacket(data,  data.length, inetAddress);
+        final DatagramPacket packet = new DatagramPacket(data, data.length, inetAddress);
         flush(packet);
     }
 
