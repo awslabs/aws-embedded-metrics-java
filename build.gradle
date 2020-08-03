@@ -59,6 +59,8 @@ dependencies {
 	testImplementation "org.powermock:powermock-module-junit4:2.0.2"
 	testImplementation "org.powermock:powermock-api-mockito2:2.0.2"
 	testImplementation "com.github.javafaker:javafaker:1.0.2"
+	testImplementation "com.github.tomakehurst:wiremock-jre8:2.27.0"
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 spotless {

@@ -10,10 +10,14 @@ public class EnvironmentProvider {
     private final Configuration config = EnvironmentConfigurationProvider.getConfig();
     private final Environment lambdaEnvironment = new LambdaEnvironment();
     private final Environment defaultEnvironment = new DefaultEnvironment(config);
+    private final Environment ec2Environment = new EC2Environment(config, new ResourceFetcher());
+    private final Environment ecsEnvironment = new ECSEnvironment(config, new ResourceFetcher());
 
     // Ordering of this array matters
     private final Environment[] environments =
-            new Environment[] {lambdaEnvironment, defaultEnvironment};
+            new Environment[] {
+                lambdaEnvironment, ec2Environment, ecsEnvironment, defaultEnvironment
+            };
 
     // TODO: Support more environments
     public Environment resolveEnvironment() {
@@ -52,6 +56,10 @@ public class EnvironmentProvider {
             case Agent:
                 environment = Optional.of(defaultEnvironment);
                 break;
+            case EC2:
+                environment = Optional.of(ec2Environment);
+            case ECS:
+                environment = Optional.of(ecsEnvironment);
             default:
                 environment = Optional.empty();
         }
