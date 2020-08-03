@@ -58,8 +58,10 @@ public class EnvironmentProvider {
                 break;
             case EC2:
                 environment = Optional.of(ec2Environment);
+                break;
             case ECS:
                 environment = Optional.of(ecsEnvironment);
+                break;
             default:
                 environment = Optional.empty();
         }
