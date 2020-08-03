@@ -45,6 +45,9 @@ class EC2Environment extends AgentBasedEnvironment {
 
     @Override
     public String getType() {
+        if (config.getServiceType().isPresent()) {
+            return config.getServiceType().get();
+        }
         if (this.metadata != null) {
             return CFN_EC2_TYPE;
         }

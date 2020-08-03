@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.github.javafaker.Faker;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,15 @@ public class EC2EnvironmentTest {
         when(fetcher.fetch(any(), any())).thenReturn(new EC2Environment.EC2Metadata());
         environment.probe();
         assertEquals(environment.getType(), "AWS::EC2::Instance");
+    }
+
+    @Test
+    public void testGetTypeFromConfiguration() {
+        when(fetcher.fetch(any(), any())).thenReturn(new EC2Environment.EC2Metadata());
+        environment.probe();
+        String testType = faker.letterify("???");
+        when(config.getServiceType()).thenReturn(Optional.of(testType));
+        assertEquals(environment.getType(), testType);
     }
 
     @Test

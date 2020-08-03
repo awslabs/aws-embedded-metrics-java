@@ -91,6 +91,13 @@ public class ECSEnvironmentTest {
     }
 
     @Test
+    public void testGetTypeFromConfig() {
+        String type = faker.letterify("????");
+        when(config.getServiceType()).thenReturn(Optional.of(type));
+        assertEquals(environment.getType(), type);
+    }
+
+    @Test
     public void testSetFluentBit() {
         PowerMockito.mockStatic(SystemWrapper.class);
         String uri = "http://ecs-metata.com";

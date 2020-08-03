@@ -72,6 +72,9 @@ class ECSEnvironment extends AgentBasedEnvironment {
 
     @Override
     public String getType() {
+        if (config.getServiceType().isPresent()) {
+            return config.getServiceType().get();
+        }
         return ENVIRONMENT_TYPE;
     }
 
