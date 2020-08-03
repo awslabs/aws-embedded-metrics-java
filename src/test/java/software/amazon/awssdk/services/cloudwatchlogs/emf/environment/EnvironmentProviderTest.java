@@ -54,7 +54,6 @@ public class EnvironmentProviderTest {
         assertTrue(resolvedEnvironment instanceof DefaultEnvironment);
     }
 
-
     @Test
     public void testResolveEnvironmentReturnsEC2Environment() {
         PowerMockito.mockStatic(EnvironmentConfigurationProvider.class);
