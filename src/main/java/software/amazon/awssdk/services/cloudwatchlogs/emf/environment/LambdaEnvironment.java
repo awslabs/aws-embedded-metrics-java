@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 
 /** An environment stands for the AWS Lambda environment. */
-public class LambdaEnvironment implements Environment {
+class LambdaEnvironment implements Environment {
     private static final String AWS_EXECUTION_ENV = "AWS_EXECUTION_ENV";
     private static final String LAMBDA_FUNCTION_NAME = "AWS_LAMBDA_FUNCTION_NAME";
     private static final String LAMBDA_FUNCTION_VERSION = "AWS_LAMBDA_FUNCTION_VERSION";

@@ -1,0 +1,128 @@
+package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.*;
+
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import lombok.Data;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.exception.EMFClientException;
+
+public class ResourceFetcherTest {
+    private ResourceFetcher fetcher;
+
+    private static URI endpoint;
+    private static final String endpoint_path = "/fake/endpoint";
+
+    @ClassRule public static WireMockRule mockServer = new WireMockRule(0);
+
+    @Before
+    public void setUp() throws URISyntaxException {
+        endpoint = new URI("http://localhost:" + mockServer.port() + endpoint_path);
+        fetcher = new ResourceFetcher();
+    }
+
+    @Test
+    public void testFetchThrowsExceptionWhenNoConnection() throws URISyntaxException {
+        int port = 0;
+        try {
+            port = getUnusedPort();
+        } catch (IOException ioexception) {
+            fail("Unable to find an unused port");
+        }
+
+        try {
+            fetcher.fetch(new URI("http://localhost:" + port), ResourceFetcher.class);
+            fail("no exception is thrown");
+        } catch (EMFClientException exception) {
+            assertTrue(exception.getMessage().contains("Failed to connect"));
+        }
+    }
+
+    @Test
+    public void testFetchThrowsExceptionFor404Response() throws Exception {
+        generateStub(404, "NotFound");
+        try {
+            fetcher.fetch(endpoint, TestData.class);
+            fail("Expected EMFClientException");
+        } catch (EMFClientException ex) {
+            assertTrue(ex.getMessage().contains("not found"));
+        }
+    }
+
+    @Test
+    public void testFetchThrowsExceptionFor500Response() {
+        generateStub(500, "ServerError");
+        try {
+            fetcher.fetch(endpoint, TestData.class);
+            fail("Expected EMFClientException");
+        } catch (EMFClientException ex) {
+            assertTrue(ex.getMessage().contains("Unable to parse error stream"));
+        }
+    }
+
+    @Test
+    public void testReadDataWith200Response() {
+        generateStub(200, "{\"name\":\"test\",\"size\":10}");
+        TestData data = fetcher.fetch(endpoint, TestData.class);
+
+        assertEquals(data.name, "test");
+        assertEquals(data.size, 10);
+    }
+
+    @Test
+    public void testReadCaseInsensitiveDataWith200Response() {
+        generateStub(200, "{\"Name\":\"test\",\"Size\":10}");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        TestData data = fetcher.fetch(endpoint, objectMapper, TestData.class);
+
+        assertEquals(data.name, "test");
+        assertEquals(data.size, 10);
+    }
+
+    @Test
+    public void testReadDataWith200ResponseButInvalidJson() {
+
+        generateStub(200, "error");
+        try {
+            fetcher.fetch(endpoint, TestData.class);
+            fail("Expected EMFClientException");
+        } catch (EMFClientException ex) {
+            assertTrue(ex.getMessage().contains("Unable to parse Json String"));
+        }
+    }
+
+    static int getUnusedPort() throws IOException {
+        ServerSocket socket = new ServerSocket(0);
+        socket.setReuseAddress(true);
+        int port = socket.getLocalPort();
+        socket.close();
+        return port;
+    }
+
+    private void generateStub(int statusCode, String message) {
+        stubFor(
+                get(urlPathEqualTo(endpoint_path))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(statusCode)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withHeader("charset", "utf-8")
+                                        .withBody(message)));
+    }
+
+    @Data
+    private static class TestData {
+        private String name;
+        private int size;
+    }
+}
