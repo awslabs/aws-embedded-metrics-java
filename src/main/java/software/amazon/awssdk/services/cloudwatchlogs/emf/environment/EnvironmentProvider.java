@@ -1,6 +1,9 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.environment;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
@@ -19,16 +22,33 @@ public class EnvironmentProvider {
                 lambdaEnvironment, ec2Environment, ecsEnvironment, defaultEnvironment
             };
 
-    // TODO: Support more environments
-    public Environment resolveEnvironment() {
+    public CompletableFuture<Environment> resolveEnvironment() {
         if (cachedEnvironment != null) {
-            return cachedEnvironment;
+            return CompletableFuture.completedFuture(cachedEnvironment);
         }
 
         Optional<Environment> env = getEnvironmentFromOverride();
+        if (env.isPresent()) {
+            cachedEnvironment = env.get();
+            return CompletableFuture.completedFuture(cachedEnvironment);
+        }
 
-        cachedEnvironment = env.orElseGet(() -> discoverEnvironment().orElse(defaultEnvironment));
-        return cachedEnvironment;
+        CompletableFuture<Optional<EnvironmentResolveResult>> resolvedEnv =
+                discoverEnvironmentAsync();
+
+        return resolvedEnv.thenApply(
+                optionalEnv ->
+                        optionalEnv
+                                .map(EnvironmentResolveResult::getEnvironment)
+                                .orElseGet(
+                                        () -> {
+                                            cachedEnvironment = defaultEnvironment;
+                                            return cachedEnvironment;
+                                        }));
+    }
+
+    public Environment getDefaultEnvironment() {
+        return defaultEnvironment;
     }
 
     /** A helper method to clean the cached environment in tests. */
@@ -36,13 +56,29 @@ public class EnvironmentProvider {
         cachedEnvironment = null;
     }
 
-    private Optional<Environment> discoverEnvironment() {
+    private CompletableFuture<Optional<EnvironmentResolveResult>> discoverEnvironmentAsync() {
+
+        CompletableFuture<Optional<EnvironmentResolveResult>> ans =
+                CompletableFuture.completedFuture(Optional.empty());
         for (Environment env : environments) {
-            if (env.probe()) {
-                return Optional.of(env);
-            }
+            CompletableFuture<EnvironmentResolveResult> future =
+                    CompletableFuture.supplyAsync(
+                            () -> new EnvironmentResolveResult(env.probe(), env));
+            ans =
+                    ans.thenCombine(
+                            future,
+                            (optionalEnv, envResult) -> {
+                                if (optionalEnv.isPresent()) {
+                                    return optionalEnv;
+                                }
+                                if (envResult.isCandidate) {
+                                    return Optional.of(envResult);
+                                }
+                                return Optional.empty();
+                            });
         }
-        return Optional.empty();
+
+        return ans;
     }
 
     private Optional<Environment> getEnvironmentFromOverride() {
@@ -66,5 +102,12 @@ public class EnvironmentProvider {
                 environment = Optional.empty();
         }
         return environment;
+    }
+
+    @AllArgsConstructor
+    @Data
+    static class EnvironmentResolveResult {
+        private boolean isCandidate;
+        private Environment environment;
     }
 }
