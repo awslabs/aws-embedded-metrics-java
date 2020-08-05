@@ -86,16 +86,6 @@ public class EnvironmentProviderTest {
     }
 
     @Test
-    public void testResolveEnvironmentReturnsDefaultWhenNoConfig() {
-        environmentProvider.cleanResolvedEnvironment();
-
-        CompletableFuture<Environment> resolvedEnvironment =
-                environmentProvider.resolveEnvironment();
-
-        assertTrue(resolvedEnvironment.join() instanceof DefaultEnvironment);
-    }
-
-    @Test
     public void testResolveEnvironmentReturnsEC2Environment() {
         PowerMockito.mockStatic(EnvironmentConfigurationProvider.class);
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
