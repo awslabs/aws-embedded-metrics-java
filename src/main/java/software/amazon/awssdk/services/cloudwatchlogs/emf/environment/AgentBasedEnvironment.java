@@ -48,7 +48,7 @@ public abstract class AgentBasedEnvironment implements Environment {
     }
 
     public String getLogStreamName() {
-        return config.getLogStreamName().orElse(getName() + "-stream");
+        return config.getLogStreamName().orElse("");
     }
 
     @Override

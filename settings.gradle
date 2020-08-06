@@ -10,3 +10,4 @@
 rootProject.name = 'aws-embedded-metrics'
 
 include 'examples:lambda'
+include 'canarytests:agent'

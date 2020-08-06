@@ -19,6 +19,16 @@ plugins {
 	id "com.diffplug.spotless" version "5.1.0"
 }
 
+
+allprojects {
+	compileJava {
+		sourceCompatibility = '1.8'
+		targetCompatibility = '1.8'
+	}
+
+	version = '0.1.0-beta'
+}
+
 repositories {
 	// Use jcenter for resolving dependencies.
 	// You can declare any Maven/Ivy/file repository here.
@@ -94,6 +104,12 @@ task integrationTest(type: Test) {
 
 task integ(type: Exec) {
 	commandLine './bin/run-integ-tests.sh'
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Version': version
+	}
 }
 
 tasks.named('wrapper') {

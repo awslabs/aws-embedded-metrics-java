@@ -57,7 +57,7 @@ public class DefaultEnvironmentTest {
         String serviceName = "TestService";
         when(configuration.getLogStreamName()).thenReturn(Optional.empty());
         when(configuration.getServiceName()).thenReturn(Optional.of(serviceName));
-        assertEquals(environment.getLogStreamName(), serviceName + "-stream");
+        assertEquals(environment.getLogStreamName(), "");
     }
 
     @Test
