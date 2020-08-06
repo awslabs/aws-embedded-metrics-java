@@ -62,6 +62,10 @@ public class EnvironmentProvider {
             case ECS:
                 environment = Optional.of(ecsEnvironment);
                 break;
+            case Local:
+                environment = Optional.of(new LocalEnvironment(config));
+                break;
+            case Unknown:
             default:
                 environment = Optional.empty();
         }

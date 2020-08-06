@@ -79,4 +79,17 @@ public class EnvironmentProviderTest {
 
         assertTrue(resolvedEnvironment instanceof ECSEnvironment);
     }
+
+    @Test
+    public void testResolveEnvironmentReturnsLocalEnvironment() {
+        PowerMockito.mockStatic(EnvironmentConfigurationProvider.class);
+        when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
+        when(config.getEnvironmentOverride()).thenReturn(Environments.Local);
+
+        environmentProvider.cleanResolvedEnvironment();
+
+        Environment resolvedEnvironment = environmentProvider.resolveEnvironment();
+
+        assertTrue(resolvedEnvironment instanceof LocalEnvironment);
+    }
 }
