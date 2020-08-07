@@ -29,6 +29,10 @@ public class IOUtils {
     /**
      * Reads and returns the rest of the given input stream as a byte array. It's the caller's
      * responsibility to close the stream after the read.
+     *
+     * @param is an InputStream
+     * @return a byte array of all content in the InputStream
+     * @throws IOException If there were any problems reading from the stream
      */
     public static byte[] toByteArray(InputStream is) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -44,6 +48,10 @@ public class IOUtils {
     /**
      * Reads and returns the rest of the given input stream as a string. It's the caller's
      * responsibility to close the stream after the read.
+     *
+     * @param is an InputStream
+     * @return the string from the content of the input stream
+     * @throws IOException If there were any problems reading from the stream
      */
     public static String toString(InputStream is) throws IOException {
         return new String(toByteArray(is), StandardCharsets.UTF_8);

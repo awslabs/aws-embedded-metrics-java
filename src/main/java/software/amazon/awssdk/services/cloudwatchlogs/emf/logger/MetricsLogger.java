@@ -73,6 +73,7 @@ public class MetricsLogger {
      *
      * @param key Property name
      * @param value Property value
+     * @return the current logger
      */
     public MetricsLogger putProperty(String key, Object value) {
         this.context.putProperty(key, value);
@@ -84,9 +85,11 @@ public class MetricsLogger {
      * metric identity. CloudWatch treats each unique combination of dimensions as a separate
      * metric, even if the metrics have the same metric name.
      *
-     * @param dimensions
-     * @see [CloudWatch
-     *     Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
+     * @param dimensions the DimensionSet to add
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension">CloudWatch
+     *     Dimensions</a>
+     * @return the current logger
      */
     public MetricsLogger putDimensions(DimensionSet dimensions) {
         context.putDimension(dimensions);
@@ -96,9 +99,11 @@ public class MetricsLogger {
     /**
      * Overwrite all dimensions on this MetricsLogger instance.
      *
-     * @param dimensionSets
-     * @see [CloudWatch
-     *     Dimensions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension)
+     * @param dimensionSets the dimensionSets to set.
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension">CloudWatch
+     *     Dimensions</a>
+     * @return the current logger
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
         context.setDimensions(dimensionSets);
@@ -110,9 +115,10 @@ public class MetricsLogger {
      * not contribute to your account TPS limits. The value will also be available in your
      * CloudWatch Logs
      *
-     * @param key
-     * @param value
-     * @param unit
+     * @param key is the name of the metric
+     * @param value is the value of the metric
+     * @param unit is the unit of the metric value
+     * @return the current logger
      */
     public MetricsLogger putMetric(String key, double value, Unit unit) {
         this.context.putMetric(key, value, unit);
@@ -124,8 +130,9 @@ public class MetricsLogger {
      * not contribute to your account TPS limits. The value will also be available in your
      * CloudWatch Logs
      *
-     * @param key
-     * @param value
+     * @param key the name of the metric
+     * @param value the value of the metric
+     * @return the current logger
      */
     public MetricsLogger putMetric(String key, double value) {
         this.context.putMetric(key, value, Unit.NONE);
@@ -135,8 +142,12 @@ public class MetricsLogger {
     /**
      * Add a custom key-value pair to the Metadata object.
      *
-     * @see [CloudWatch
-     *     Metadata](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html#CloudWatch_Embedded_Metric_Format_Specification_structure_metadata)
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html#CloudWatch_Embedded_Metric_Format_Specification_structure_metadata">CloudWatch
+     *     Metadata</a>
+     * @param key the name of the key
+     * @param value the value associated with the key
+     * @return the current logger
      */
     public MetricsLogger putMetadata(String key, Object value) {
         this.context.putMetadata(key, value);
@@ -146,7 +157,8 @@ public class MetricsLogger {
     /**
      * Set the CloudWatch namespace that metrics should be published to.
      *
-     * @param namespace
+     * @param namespace the namespace of the logs
+     * @return the current logger
      */
     public MetricsLogger setNamespace(String namespace) {
         this.context.setNamespace(namespace);

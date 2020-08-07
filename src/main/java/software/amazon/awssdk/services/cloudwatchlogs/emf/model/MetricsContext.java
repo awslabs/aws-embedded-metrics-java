@@ -54,7 +54,7 @@ public class MetricsContext {
         }
     }
 
-    /** Return the namespace. If the namespace is not set, it would return a default value. */
+    /** @return the namespace. If the namespace is not set, it would return a default value. */
     public String getNamespace() {
         return metricDirective.getNamespace();
     }
@@ -68,7 +68,7 @@ public class MetricsContext {
         metricDirective.setNamespace(namespace);
     }
 
-    /** Return the default dimension set. */
+    /** @return the default dimension set. */
     public DimensionSet getDefaultDimensions() {
         return metricDirective.getDefaultDimensions();
     }
@@ -78,13 +78,12 @@ public class MetricsContext {
      * dimensions are specified, the metrics will be emitted with the defaults. If custom dimensions
      * are specified, they will be prepended with the default dimensions
      *
-     * @param dimensionSet
+     * @param dimensionSet the DimensionSet to be the default
      */
     public void setDefaultDimensions(DimensionSet dimensionSet) {
         metricDirective.setDefaultDimensions(dimensionSet);
     }
 
-    /** Return true if there're default dimensions defined, otherwise, false. */
     public boolean hasDefaultDimensions() {
         return getDefaultDimensions().getDimensionKeys().size() > 0;
     }
@@ -137,7 +136,6 @@ public class MetricsContext {
         rootNode.putProperty(name, value);
     }
 
-    /** Return the value of a property. */
     public Object getProperty(String name) {
         return rootNode.getProperties().get(name);
     }
@@ -149,7 +147,7 @@ public class MetricsContext {
      * metricContext.putDimension(DimensionSet.of("Dim", "Value" ))
      * }</pre>
      *
-     * @param dimensionSet
+     * @param dimensionSet the dimensions set to add
      */
     public void putDimension(DimensionSet dimensionSet) {
         metricDirective.putDimensionSet(dimensionSet);
@@ -161,31 +159,39 @@ public class MetricsContext {
      * <pre>{@code
      * metricContext.putDimension("Dim", "Value" )
      * }</pre>
+     *
+     * @param dimension the name of the dimension
+     * @param value the value associated with the dimension
      */
     public void putDimension(String dimension, String value) {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
     }
 
-    /** Return the list of dimensions that has been added, including default dimensions. */
+    /** @return the list of dimensions that has been added, including default dimensions. */
     public List<DimensionSet> getDimensions() {
         return metricDirective.getAllDimensions();
     }
 
     /**
-     * Update the dimensions.
+     * Update the dimensions. This would override default dimensions
      *
-     * @param dimensionSets
+     * @param dimensionSets the dimensionSets to be set
      */
     public void setDimensions(DimensionSet... dimensionSets) {
         metricDirective.setDimensions(Arrays.asList(dimensionSets));
     }
 
-    /** Add a key-value pair to the metadata. */
+    /**
+     * Add a key-value pair to the metadata
+     *
+     * @param key the name of the key
+     * @param value the value associated with the key
+     */
     public void putMetadata(String key, Object value) {
         rootNode.getAws().putCustomMetadata(key, value);
     }
 
-    /** Creates an independently flushable context. */
+    /** @return Creates an independently flushable context. */
     public MetricsContext createCopyWithContext() {
         return new MetricsContext(
                 this.metricDirective.getNamespace(),
@@ -197,7 +203,8 @@ public class MetricsContext {
     /**
      * Serialize the metrics in this context to a string.
      *
-     * @throws JsonProcessingException
+     * @return the serialized string
+     * @throws JsonProcessingException if there's any object that cannot be serialized
      */
     public String serialize() throws JsonProcessingException {
         return this.rootNode.serialize();

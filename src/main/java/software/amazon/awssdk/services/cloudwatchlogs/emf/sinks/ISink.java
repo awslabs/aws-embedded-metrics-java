@@ -21,6 +21,10 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 /** Interface for sinking log items to CloudWatch. */
 public interface ISink {
 
-    /** accept MetricsContext to sink to CloudWatch. */
+    /**
+     * Accept MetricsContext to sink to CloudWatch.
+     *
+     * @param context MetricsContext
+     */
     void accept(MetricsContext context);
 }
