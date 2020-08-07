@@ -32,13 +32,13 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 
 class Example {
-    public static void main(String[] args) {
-        MetricsLogger logger = new MeticsLogger();
-        metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-        metrics.putMetric("ProcessingLatency", 100, Unit.Milliseconds);
-        metrics.setProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
-        logger.flush();
-    }
+	public static void main(String[] args) {
+		MetricsLogger logger = new MeticsLogger();
+		metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
+		metrics.putMetric("ProcessingLatency", 100, Unit.Milliseconds);
+		metrics.setProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
+		logger.flush();
+	}
 }
 ```
 
@@ -80,10 +80,10 @@ Examples:
 putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8")
 putPropertyproperty("InstanceId", "i-1234567890")
 putPproperty("Device", new HashMap<String, String>() {{
-        put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
-        put("Name", "Transducer");
-        put("Model", "PT-1234");
-    }}
+		put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
+		put("Name", "Transducer");
+		put("Model", "PT-1234");
+	}}
 );
 ```
 
@@ -124,8 +124,8 @@ Examples:
 
 ```java
 setDimensions(DimensionSet.of(
-      "Operation", "Aggregator",
-      "DeviceType", "Actuator")
+	"Operation", "Aggregator",
+	"DeviceType", "Actuator")
 )
 
 ```
@@ -295,7 +295,7 @@ We have 2 different types of tests:
 	```
 
 	**NOTE**: You need to replace the access key id and access key with your own AWS credentials.
-	
+
 ### Formatting
 
 We use [Spotless plugin](https://github.com/diffplug/spotless/tree/master/plugin-gradle) for style-checking.
