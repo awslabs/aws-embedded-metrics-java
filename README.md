@@ -168,7 +168,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
-Config.setServiceName("MyApp")
+config.setServiceName("MyApp")
 
 # environment
 AWS_EMF_SERVICE_NAME = MyApp
@@ -189,7 +189,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
-Config.setServiceName("JavaWebApp")
+config.setServiceType("JavaWebApp")
 
 # environment
 AWS_EMF_SERVICE_TYPE=JavaWebApp
@@ -210,7 +210,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
-Config.setLogGroupName("LogGroupName")
+config.setLogGroupName("LogGroupName")
 
 # environment
 AWS_EMF_LOG_GROUP_NAME=LogGroupName
@@ -231,31 +231,42 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
-Config.setLogStreamName(LogStreamName))
+config.setLogStreamName(LogStreamName))
 
 # environment
 AWS_EMF_LOG_STREAM_NAME=LogStreamName
 ```
 
-**NameSpace**: Overrides the CloudWatch [namespace](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Namespace). If not set, a default value of aws-embedded-metrics will be used.
+**EnvironmentOverride**: Short circuit auto-environment detection by explicitly defining how events should be sent. This is not supported through programmatic access.
 
-Requirements:
+Valid values include:
 
-- Name Length 1-512 characters
-- Name must be ASCII characters only
+- Local: no decoration and sends over stdout
+- Lambda: decorates logs with Lambda metadata and sends over stdout
+- Agent: no decoration and sends over TCP
+- EC2: decorates logs with EC2 metadata and sends over TCP
+- ECS: decorates logs with ECS metadata and sends over TCP
+
+Example:
+
+```shell
+AWS_EMF_ENVIRONMENT=Local
+```
+
+**AgentEndpoint**: For agent-based platforms, you may optionally configure the endpoint to reach the agent on.
 
 Example:
 
 ```java
-# in process
+// in process
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
-Config.setLogStreamName("MyApplication");
+config.setAgentEndpoint("udp://127.0.0.1:1000");
 
-# environment
-AWS_EMF_NAMESPACE=MyApplication
+// environment
+AWS_EMF_AGENT_ENDPOINT="udp://127.0.0.1:1000"
 ```
 
 ## Examples
