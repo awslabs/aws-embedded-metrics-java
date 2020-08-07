@@ -1,10 +1,10 @@
 package software.amazon.awssdk.services.cloudwatchlogs.emf.logger;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.Environment;
@@ -25,7 +25,8 @@ public class MetricsLoggerTest {
         environment = mock(Environment.class);
         sink = new SinkShunt();
 
-        when(envProvider.resolveEnvironment()).thenReturn(environment);
+        when(envProvider.resolveEnvironment())
+                .thenReturn(CompletableFuture.completedFuture(environment));
         when(environment.getSink()).thenReturn(sink);
         logger = new MetricsLogger(envProvider);
     }
@@ -136,6 +137,26 @@ public class MetricsLoggerTest {
 
         expectDimension("foo", "bar");
         expectDimension("LogGroup", null);
+    }
+
+    @SuppressWarnings("")
+    @Test
+    public void testUseDefaultEnvironmentOnResolverException() {
+        String serviceType = "TestServiceType";
+        CompletableFuture<Environment> future =
+                CompletableFuture.supplyAsync(
+                        () -> {
+                            throw new RuntimeException("UnExpected");
+                        });
+        EnvironmentProvider envProvider = mock(EnvironmentProvider.class);
+        when(envProvider.resolveEnvironment()).thenReturn(future);
+        when(envProvider.getDefaultEnvironment()).thenReturn(environment);
+        when(environment.getType()).thenReturn(serviceType);
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.flush();
+
+        verify(envProvider).getDefaultEnvironment();
+        expectDimension("ServiceType", serviceType);
     }
 
     private void expectDimension(String dimension, String value) {

@@ -16,6 +16,8 @@
 
 package software.amazon.awssdk.services.cloudwatchlogs.emf.logger;
 
+import java.util.concurrent.CompletableFuture;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -27,9 +29,11 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
  * An metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
  * CloudWatch Metrics asynchronously.
  */
+@Slf4j
 public class MetricsLogger {
     private MetricsContext context;
-    private Environment environment;
+    private CompletableFuture<Environment> environmentFuture;
+    private EnvironmentProvider environmentProvider;
 
     public MetricsLogger() {
         this(new EnvironmentProvider());
@@ -40,14 +44,22 @@ public class MetricsLogger {
     }
 
     public MetricsLogger(EnvironmentProvider environmentProvider, MetricsContext metricsContext) {
-        environment = environmentProvider.resolveEnvironment();
         context = metricsContext;
+        environmentFuture = environmentProvider.resolveEnvironment();
+        this.environmentProvider = environmentProvider;
     }
 
     /**
      * Flushes the current context state to the configured sink. TODO: Support flush asynchronously
      */
     public void flush() {
+        Environment environment;
+        try {
+            environment = environmentFuture.join();
+        } catch (Exception ex) {
+            log.error("Failed to resolve environment. Fallback to default environment: ", ex);
+            environment = environmentProvider.getDefaultEnvironment();
+        }
         ISink sink = environment.getSink();
         configureContextForEnvironment(context, environment);
         sink.accept(context);
