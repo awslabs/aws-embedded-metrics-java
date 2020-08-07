@@ -29,7 +29,7 @@ public class EnvironmentConfigurationProviderTest {
         assertEquals(config.getServiceType().get(), "TestServiceType");
         assertEquals(config.getLogGroupName().get(), "TestLogGroup");
         assertEquals(config.getLogStreamName().get(), "TestLogStream");
-        assertEquals(config.agentEndpoint.get(), "Endpoint");
+        assertEquals(config.getAgentEndpoint().get(), "Endpoint");
         assertEquals(config.getEnvironmentOverride(), Environments.Agent);
     }
 

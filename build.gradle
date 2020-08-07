@@ -96,6 +96,13 @@ test {
 	outputs.upToDateWhen {false}
 }
 
+jar {
+	manifest {
+		attributes 'Implementation-Version': archiveVersion.get()
+	}
+}
+
+
 task integrationTest(type: Test) {
 	testClassesDirs = sourceSets.integrationTest.output.classesDirs
 	classpath = sourceSets.integrationTest.runtimeClasspath
@@ -106,10 +113,9 @@ task integ(type: Exec) {
 	commandLine './bin/run-integ-tests.sh'
 }
 
-jar {
-	manifest {
-		attributes 'Implementation-Version': archiveVersion.get()
-	}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
 tasks.named('wrapper') {

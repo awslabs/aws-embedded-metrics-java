@@ -8,7 +8,6 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.util.Optional;
 
 public class ECSRunnable implements Runnable {
 
@@ -21,7 +20,7 @@ public class ECSRunnable implements Runnable {
             version = "Unknown";
         }
         Configuration config = EnvironmentConfigurationProvider.getConfig();
-        config.setLogGroupName(Optional.of("/Canary/Java/CloudWatchAgent/Metrics"));
+        config.setLogGroupName("/Canary/Java/CloudWatchAgent/Metrics");
         logger.putDimensions(
                 DimensionSet.of(
                         "Runtime", "Java8",
