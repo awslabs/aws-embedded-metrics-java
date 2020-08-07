@@ -53,10 +53,8 @@ configurations {
 
 dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
-	api 'software.amazon.awssdk:cloudwatch:2.13.54'
 
 	implementation 'org.projectlombok:lombok:1.18.12'
-	implementation 'software.amazon.awssdk:cloudwatchlogs:2.13.54'
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
@@ -70,6 +68,7 @@ dependencies {
 	testImplementation "org.powermock:powermock-api-mockito2:2.0.2"
 	testImplementation "com.github.javafaker:javafaker:1.0.2"
 	testImplementation "com.github.tomakehurst:wiremock-jre8:2.27.0"
+	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 

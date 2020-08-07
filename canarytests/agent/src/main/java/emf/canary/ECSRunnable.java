@@ -1,10 +1,10 @@
 package emf.canary;
 
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -33,10 +33,10 @@ public class ECSRunnable implements Runnable {
         long heapUsed = runtimeMXBean.getHeapMemoryUsage().getUsed();
         long nonHeapUsed = runtimeMXBean.getNonHeapMemoryUsage().getUsed();
 
-        logger.putMetric("Invoke", 1, StandardUnit.COUNT);
-        logger.putMetric("Memory.HeapTotal", heapTotal, StandardUnit.COUNT);
-        logger.putMetric("Memory.HeapUsed", heapUsed, StandardUnit.COUNT);
-        logger.putMetric("Memory.JVMUsedTotal", heapUsed + nonHeapUsed, StandardUnit.COUNT);
+        logger.putMetric("Invoke", 1, Unit.COUNT);
+        logger.putMetric("Memory.HeapTotal", heapTotal, Unit.COUNT);
+        logger.putMetric("Memory.HeapUsed", heapUsed, Unit.COUNT);
+        logger.putMetric("Memory.JVMUsedTotal", heapUsed + nonHeapUsed, Unit.COUNT);
 
         logger.flush();
     }

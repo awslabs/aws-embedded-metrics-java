@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.Test;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 public class RootNodeTest {
 
@@ -65,7 +64,7 @@ public class RootNodeTest {
         mc.putMetric("Count", 10.0);
         mc.putMetric("Count", 20.0);
 
-        mc.putMetric("Latency", 100.0, StandardUnit.MILLISECONDS);
+        mc.putMetric("Latency", 100.0, Unit.MILLISECONDS);
 
         mc.putDimension("Dim1", "DimVal1");
 

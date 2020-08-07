@@ -21,20 +21,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
 
-/** JSON serializer for StandardUnit type. */
-public class StandardUnitSerializer extends StdSerializer<StandardUnit> {
-    StandardUnitSerializer() {
+/** JSON serializer for Unit type. */
+public class UnitSerializer extends StdSerializer<Unit> {
+    UnitSerializer() {
         this(null);
     }
 
-    StandardUnitSerializer(Class<StandardUnit> t) {
+    UnitSerializer(Class<Unit> t) {
         super(t);
     }
 
     @Override
-    public void serialize(StandardUnit value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(Unit value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException {
 
         String str = value.toString();

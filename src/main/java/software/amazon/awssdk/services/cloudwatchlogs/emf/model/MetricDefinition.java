@@ -23,9 +23,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.StandardUnitDeserializer;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.StandardUnitSerializer;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.UnitDeserializer;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.serializers.UnitSerializer;
 
 /** Represents the MetricDefinition of the EMF schema. */
 @AllArgsConstructor
@@ -39,11 +38,11 @@ class MetricDefinition {
     @Setter
     @Getter
     @JsonProperty("Unit")
-    @JsonSerialize(using = StandardUnitSerializer.class)
-    @JsonDeserialize(using = StandardUnitDeserializer.class)
-    private StandardUnit unit;
+    @JsonSerialize(using = UnitSerializer.class)
+    @JsonDeserialize(using = UnitDeserializer.class)
+    private Unit unit;
 
     MetricDefinition(String name) {
-        this(name, StandardUnit.NONE);
+        this(name, Unit.NONE);
     }
 }
