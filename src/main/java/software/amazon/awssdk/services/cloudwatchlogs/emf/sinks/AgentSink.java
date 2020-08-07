@@ -19,6 +19,7 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.sinks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.util.StringUtils;
 
 /** An sink connecting to CloudWatch Agent. */
 @Slf4j
@@ -38,11 +39,11 @@ public class AgentSink implements ISink {
     }
 
     public void accept(MetricsContext context) {
-        if (logGroupName != null && !logGroupName.isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(logGroupName)) {
             context.putMetadata("LogGroupName", logGroupName);
         }
 
-        if (logStreamName != null && !logStreamName.isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(logStreamName)) {
             context.putMetadata("LogStreamName", logStreamName);
         }
 
