@@ -1,6 +1,5 @@
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
@@ -13,7 +12,7 @@ public class Handler implements RequestHandler<Map<String,String>, String> {
     @Override
     public String handleRequest(Map<String,String> event, Context context) {
         String response = "200 OK";
-        MetricsLogger logger = new MetricsLogger(new EnvironmentProvider());
+        MetricsLogger logger = new MetricsLogger();
 
         logger.putDimensions(DimensionSet.of("Service", "Aggregator"));
         logger.putMetric("ProcessingLatency", 100, StandardUnit.MILLISECONDS);
