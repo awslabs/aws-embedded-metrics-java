@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 /** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
@@ -95,14 +94,14 @@ public class MetricsContext {
      * an array of scalar values.
      *
      * <pre>{@code
-     * metricContext.putMetric("Latency", 100, StandardUnit.MILLISECONDS)
+     * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS)
      * }</pre>
      *
      * @param key Name of the metric
      * @param value Value of the metric
      * @param unit The unit of the metric
      */
-    public void putMetric(String key, double value, StandardUnit unit) {
+    public void putMetric(String key, double value, Unit unit) {
         metricDirective.putMetric(new MetricDefinition(key, unit));
         rootNode.putMetric(key, value);
     }
@@ -119,7 +118,7 @@ public class MetricsContext {
      * @param value Value of the metric
      */
     public void putMetric(String key, double value) {
-        putMetric(key, value, StandardUnit.NONE);
+        putMetric(key, value, Unit.NONE);
     }
 
     /**

@@ -21,24 +21,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
 
 /** JSON deserializer for StandardUnit type. */
-public class StandardUnitDeserializer extends StdDeserializer<StandardUnit> {
-    StandardUnitDeserializer() {
+public class UnitDeserializer extends StdDeserializer<Unit> {
+    UnitDeserializer() {
         this(null);
     }
 
-    StandardUnitDeserializer(Class<?> vc) {
+    UnitDeserializer(Class<?> vc) {
         super(vc);
     }
 
     @Override
-    public StandardUnit deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Unit deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         String value = jp.getValueAsString();
-        StandardUnit unit = StandardUnit.fromValue(value);
+        Unit unit = Unit.fromValue(value);
         return unit;
     }
 }

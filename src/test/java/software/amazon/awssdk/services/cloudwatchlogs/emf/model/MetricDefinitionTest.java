@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 public class MetricDefinitionTest {
 
@@ -26,7 +25,7 @@ public class MetricDefinitionTest {
     @Test
     public void testSerializeMetricDefinition() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MetricDefinition metricDefinition = new MetricDefinition("Time", StandardUnit.MILLISECONDS);
+        MetricDefinition metricDefinition = new MetricDefinition("Time", Unit.MILLISECONDS);
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals(metricString, "{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}");

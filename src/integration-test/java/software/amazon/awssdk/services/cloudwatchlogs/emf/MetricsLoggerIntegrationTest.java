@@ -12,13 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.GetMetricStatisticsRequest;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatch.model.Statistic;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
 
 public class MetricsLoggerIntegrationTest {
 
@@ -91,7 +91,7 @@ public class MetricsLoggerIntegrationTest {
     private void logMetric(String metricName) {
         MetricsLogger logger = new MetricsLogger(new EnvironmentProvider());
         logger.putDimensions(dimensions);
-        logger.putMetric(metricName, 100, StandardUnit.MILLISECONDS);
+        logger.putMetric(metricName, 100, Unit.MILLISECONDS);
         logger.flush();
     }
 

@@ -18,11 +18,11 @@ package software.amazon.awssdk.services.cloudwatchlogs.emf.logger;
 
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
+import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 
 /**
@@ -114,7 +114,7 @@ public class MetricsLogger {
      * @param value
      * @param unit
      */
-    public MetricsLogger putMetric(String key, double value, StandardUnit unit) {
+    public MetricsLogger putMetric(String key, double value, Unit unit) {
         this.context.putMetric(key, value, unit);
         return this;
     }
@@ -128,7 +128,7 @@ public class MetricsLogger {
      * @param value
      */
     public MetricsLogger putMetric(String key, double value) {
-        this.context.putMetric(key, value, StandardUnit.NONE);
+        this.context.putMetric(key, value, Unit.NONE);
         return this;
     }
 

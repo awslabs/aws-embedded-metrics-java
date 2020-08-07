@@ -48,7 +48,7 @@ class Example {
 
 The `MetricsLogger` is the interface you will use to publish embedded metrics.
 
-- MetricsLogger **putMetric**(String key, double value, StandardUnit unit)
+- MetricsLogger **putMetric**(String key, double value, Unit unit)
 - MetricsLogger **putMetric**(String key, double value)
 
 Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. The Embedded Metric Format supports a maximum of 100 values per key.
@@ -63,7 +63,7 @@ Requirements:
 Examples:
 
 ```java
-put_metric("Latency", 200, StandardUnit.MILLISECONDS)
+put_metric("Latency", 200, Unit.MILLISECONDS)
 ```
 
 - MetricsLogger **putProperty**(String key, Object value )
