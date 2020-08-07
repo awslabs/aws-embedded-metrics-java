@@ -19,7 +19,7 @@ jar  {
 
     manifest {
         attributes 'Main-Class': 'emf.canary.CanaryTestApp',
-            'Implementation-Version': version
+            'Implementation-Version': archiveVersion.get()
 
     }
 

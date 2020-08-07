@@ -108,7 +108,7 @@ task integ(type: Exec) {
 
 jar {
 	manifest {
-		attributes 'Implementation-Version': version
+		attributes 'Implementation-Version': archiveVersion.get()
 	}
 }
 

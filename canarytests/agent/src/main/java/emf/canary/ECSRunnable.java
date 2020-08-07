@@ -3,7 +3,6 @@ package emf.canary;
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
 
@@ -15,7 +14,7 @@ public class ECSRunnable implements Runnable {
 
     @Override
     public void run() {
-        MetricsLogger logger = new MetricsLogger(new EnvironmentProvider());
+        MetricsLogger logger = new MetricsLogger();
 
         String version = logger.getClass().getPackage().getImplementationVersion();
         if (version == null) {
@@ -38,10 +37,7 @@ public class ECSRunnable implements Runnable {
         logger.putMetric("Invoke", 1, StandardUnit.COUNT);
         logger.putMetric("Memory.HeapTotal", heapTotal, StandardUnit.COUNT);
         logger.putMetric("Memory.HeapUsed", heapUsed, StandardUnit.COUNT);
-
-        // Java does not have a way to get RSS directly. Use the sume of heap and non-heap memory size.
-        // This is not actual RSS as the used memory may be swapped.
-        logger.putMetric("Memory.RSS", heapUsed + nonHeapUsed, StandardUnit.COUNT);
+        logger.putMetric("Memory.JVMUsedTotal", heapUsed + nonHeapUsed, StandardUnit.COUNT);
 
         logger.flush();
     }

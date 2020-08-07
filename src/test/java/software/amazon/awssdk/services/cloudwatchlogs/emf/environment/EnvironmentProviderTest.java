@@ -121,8 +121,9 @@ public class EnvironmentProviderTest {
 
         environmentProvider.cleanResolvedEnvironment();
 
-        Environment resolvedEnvironment = environmentProvider.resolveEnvironment();
+        CompletableFuture<Environment> resolvedEnvironment =
+                environmentProvider.resolveEnvironment();
 
-        assertTrue(resolvedEnvironment instanceof LocalEnvironment);
+        assertTrue(resolvedEnvironment.join() instanceof LocalEnvironment);
     }
 }
