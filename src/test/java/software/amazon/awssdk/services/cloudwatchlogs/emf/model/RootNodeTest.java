@@ -77,6 +77,7 @@ public class RootNodeTest {
         assertEquals(rootNode.getTargetMembers().get("Prop1"), "PropValue1");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testSerializeRootNode() throws JsonProcessingException {
         MetricsContext mc = new MetricsContext();

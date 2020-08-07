@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Optional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.Constants;
@@ -137,7 +136,7 @@ class ECSEnvironment extends AgentBasedEnvironment {
         if (fluentHost != null && !config.getAgentEndpoint().isPresent()) {
             fluentBitEndpoint =
                     String.format("tcp://%s:%d", fluentHost, Constants.DEFAULT_AGENT_PORT);
-            config.setAgentEndpoint(Optional.of(fluentBitEndpoint));
+            config.setAgentEndpoint(fluentBitEndpoint);
             log.info("Using FluentBit configuration. Endpoint: {}", fluentBitEndpoint);
         }
     }

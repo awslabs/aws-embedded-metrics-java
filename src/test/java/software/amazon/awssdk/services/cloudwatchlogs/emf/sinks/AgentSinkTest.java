@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import software.amazon.awssdk.services.cloudwatchlogs.emf.model.MetricsContext;
 
+@SuppressWarnings("unchecked")
 public class AgentSinkTest {
 
     private SocketClientFactory factory;

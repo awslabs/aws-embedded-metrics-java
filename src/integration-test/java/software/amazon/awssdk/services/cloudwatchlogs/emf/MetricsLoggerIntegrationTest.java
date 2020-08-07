@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,16 +33,16 @@ public class MetricsLoggerIntegrationTest {
 
     @Before
     public void setUp() {
-        config.setServiceName(Optional.of(serviceName));
-        config.setServiceType(Optional.of(serviceType));
-        config.setLogGroupName(Optional.of(logGroupName));
+        config.setServiceName(serviceName);
+        config.setServiceType(serviceType);
+        config.setLogGroupName(logGroupName);
     }
 
     @Test(timeout = 120_000)
     public void testSingleFlushOverTCP() throws InterruptedException {
         String metricName = "TCP-SingleFlush";
         int expectedSamples = 1;
-        config.setAgentEndpoint(Optional.of("tcp://127.0.0.1:25888"));
+        config.setAgentEndpoint("tcp://127.0.0.1:25888");
 
         logMetric(metricName);
 
@@ -54,7 +53,7 @@ public class MetricsLoggerIntegrationTest {
     public void testMultipleFlushesOverTCP() throws InterruptedException {
         String metricName = "TCP-MultipleFlushes";
         int expectedSamples = 3;
-        config.setAgentEndpoint(Optional.of("tcp://127.0.0.1:25888"));
+        config.setAgentEndpoint("tcp://127.0.0.1:25888");
 
         logMetric(metricName);
         logMetric(metricName);
@@ -68,7 +67,7 @@ public class MetricsLoggerIntegrationTest {
     public void testSingleFlushOverUDP() throws InterruptedException {
         String metricName = "UDP-SingleFlush";
         int expectedSamples = 1;
-        config.setAgentEndpoint(Optional.of("udp://127.0.0.1:25888"));
+        config.setAgentEndpoint("udp://127.0.0.1:25888");
 
         logMetric(metricName);
 
@@ -79,7 +78,7 @@ public class MetricsLoggerIntegrationTest {
     public void testMultipleFlushOverUDP() throws InterruptedException {
         String metricName = "UDP-MultipleFlush";
         int expectedSamples = 3;
-        config.setAgentEndpoint(Optional.of("udp://127.0.0.1:25888"));
+        config.setAgentEndpoint("udp://127.0.0.1:25888");
 
         logMetric(metricName);
         logMetric(metricName);

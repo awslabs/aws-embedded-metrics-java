@@ -107,11 +107,10 @@ public class ECSEnvironmentTest {
 
         environment.probe();
         when(fetcher.fetch(any(), any(), any())).thenReturn(new ECSEnvironment.ECSMetadata());
-        ArgumentCaptor<Optional<String>> argument = ArgumentCaptor.forClass(Optional.class);
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(config, times(1)).setAgentEndpoint(argument.capture());
         assertEquals(
-                argument.getValue().get(),
-                "tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT);
+                argument.getValue(), "tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT);
     }
 
     @Test
