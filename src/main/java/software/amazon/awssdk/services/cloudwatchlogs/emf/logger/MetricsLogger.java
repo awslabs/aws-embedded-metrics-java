@@ -15,6 +15,10 @@ public class MetricsLogger {
     private MetricsContext context;
     private Environment environment;
 
+    public MetricsLogger() {
+        this(new EnvironmentProvider());
+    }
+
     public MetricsLogger(EnvironmentProvider environmentProvider) {
         this(environmentProvider, new MetricsContext());
     }
