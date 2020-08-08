@@ -22,25 +22,37 @@ import software.amazon.awssdk.services.cloudwatchlogs.emf.sinks.ISink;
 /** A runtime environment (e.g. Lambda, EKS, ECS, EC2). */
 public interface Environment {
 
-    /** Determines whether or not we are executing in this environment. */
+    /**
+     * Determines whether or not we are executing in this environment.
+     *
+     * @return true if it is running in this environment, otherwise, false
+     */
     boolean probe();
 
-    /** Get the environment name. This will be used to set the ServiceName dimension. */
+    /**
+     * Get the environment name. This will be used to set the ServiceName dimension.
+     *
+     * @return the name of the environment
+     */
     String getName();
 
-    /** Get the environment type. This will be used to set the ServiceType dimension. */
+    /**
+     * Get the environment type. This will be used to set the ServiceType dimension.
+     *
+     * @return the type of the environment
+     */
     String getType();
 
-    /** Get log group name. This will be used to set the LogGroup dimension. */
+    /**
+     * Get log group name. This will be used to set the LogGroup dimension.
+     *
+     * @return the log group name
+     */
     String getLogGroupName();
 
-    /**
-     * Configure the context with environment properties.
-     *
-     * @param context
-     */
+    /** @param context the context to configure with environment properties */
     void configureContext(MetricsContext context);
 
-    /** Create the appropriate sink for this environment. */
+    /** @return an appropriate sink for this environment */
     ISink getSink();
 }

@@ -37,6 +37,11 @@ public class Jackson {
     /**
      * Returns the deserialized object from the given json string and target class; or null if the
      * given json string is null.
+     *
+     * @param json the string to be deserialized
+     * @param clazz the expected object class
+     * @param <T> the expected object type
+     * @return an object that is deserialized from the json string
      */
     public static <T> T fromJsonString(String json, Class<T> clazz) {
         return fromJsonString(json, objectMapper, clazz);

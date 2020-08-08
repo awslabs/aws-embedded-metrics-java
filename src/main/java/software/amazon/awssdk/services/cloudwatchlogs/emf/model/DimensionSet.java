@@ -34,6 +34,7 @@ public class DimensionSet {
      *
      * @param d1 Name of the single dimension
      * @param v1 Value of the single dimension
+     * @return a DimensionSet from the parameters
      */
     public static DimensionSet of(String d1, String v1) {
         return fromEntries(entryOf(d1, v1));
@@ -46,6 +47,7 @@ public class DimensionSet {
      * @param v1 Value of the first dimension
      * @param d2 Name of the second dimension
      * @param v2 Value of the second dimension
+     * @return a DimensionSet from the parameters
      */
     public static DimensionSet of(String d1, String v1, String d2, String v2) {
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2));
@@ -60,6 +62,7 @@ public class DimensionSet {
      * @param v2 Value of the second dimension
      * @param d3 Name of the third dimension
      * @param v3 Value of the third dimension
+     * @return a DimensionSet from the parameters
      */
     public static DimensionSet of(
             String d1, String v1, String d2, String v2, String d3, String v3) {
@@ -77,6 +80,7 @@ public class DimensionSet {
      * @param v3 Value of the third dimension
      * @param d4 Name of the fourth dimension
      * @param v4 Value of the fourth dimension
+     * @return a DimensionSet from the parameters
      */
     public static DimensionSet of(
             String d1,
@@ -104,6 +108,7 @@ public class DimensionSet {
      * @param v4 Value of the fourth dimension
      * @param d5 Name of the fifth dimension
      * @param v5 Value of the fifth dimension
+     * @return a DimensionSet from the parameters
      */
     public static DimensionSet of(
             String d1,
@@ -152,6 +157,7 @@ public class DimensionSet {
      * the two dimension sets.
      *
      * @param other Other dimension sets to merge with current
+     * @return a new DimensionSet from combining the current DimensionSet with other
      */
     public DimensionSet add(DimensionSet other) {
         DimensionSet mergedDimensionSet = new DimensionSet();
@@ -160,12 +166,15 @@ public class DimensionSet {
         return mergedDimensionSet;
     }
 
-    /** @return The dimension names in the dimension set */
+    /** @return all the dimension names in the dimension set. */
     public Set<String> getDimensionKeys() {
         return dimensionRecords.keySet();
     }
 
-    /** Return the dimension value associated with a dimension key. */
+    /**
+     * @param key the name of the dimension
+     * @return the dimension value associated with a dimension key.
+     */
     public String getDimensionValue(String key) {
         return this.dimensionRecords.get(key);
     }
