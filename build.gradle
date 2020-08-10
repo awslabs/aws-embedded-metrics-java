@@ -20,7 +20,7 @@ plugins {
 	id 'signing'
 }
 
-group "software.amazon.awssdk"
+group "software.amazon.cloudwatchlogs"
 
 allprojects {
 	compileJava {
