@@ -1,10 +1,10 @@
 package emf.canary;
 
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.Unit;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
+import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

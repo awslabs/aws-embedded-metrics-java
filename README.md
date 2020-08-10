@@ -28,8 +28,8 @@ To use a metric logger, you need to manually create and flush the logger.
 
 
 ```java
-import software.amazon.awssdk.services.cloudwatchlogs.emf.logger.MetricsLogger;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
+import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 
 class Example {
 	public static void main(String[] args) {
@@ -164,8 +164,8 @@ Example:
 
 ```java
 # in process
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setServiceName("MyApp")
@@ -185,8 +185,8 @@ Example:
 
 ```java
 # in process
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setServiceType("JavaWebApp")
@@ -206,8 +206,8 @@ Example:
 
 ```java
 # in process
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setLogGroupName("LogGroupName")
@@ -227,8 +227,8 @@ Example:
 
 ```java
 # in process
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setLogStreamName(LogStreamName))
@@ -259,8 +259,8 @@ Example:
 
 ```java
 // in process
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.awssdk.services.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
 Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setAgentEndpoint("udp://127.0.0.1:1000");
