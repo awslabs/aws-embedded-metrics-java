@@ -19,7 +19,7 @@ Generate CloudWatch Metrics embedded within structured log events. The embedded 
 
 - **Linking metrics to high cardinality context**
 
-Using the Embedded Metric Format, you will be able to visualize and alarm on custom metrics, but also retain the original, detailed and high-cardinality context which is queryable using [CloudWatch Logs Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html). For example, the library automatically injects environment metadata such as Lambda Function version, EC2 instance and image ids into the structured log event data.
+    Using the Embedded Metric Format, you will be able to visualize and alarm on custom metrics, but also retain the original, detailed and high-cardinality context which is queryable using [CloudWatch Logs Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html). For example, the library automatically injects environment metadata such as Lambda Function version, EC2 instance and image ids into the structured log event data.
 Be sure to:
 
 ## Usage
@@ -63,7 +63,7 @@ Requirements:
 Examples:
 
 ```java
-put_metric("Latency", 200, Unit.MILLISECONDS)
+putMetric("Latency", 200, Unit.MILLISECONDS)
 ```
 
 - MetricsLogger **putProperty**(String key, Object value )
@@ -78,7 +78,7 @@ Examples:
 
 ```java
 putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8")
-putPropertyproperty("InstanceId", "i-1234567890")
+putProperty("InstanceId", "i-1234567890")
 putPproperty("Device", new HashMap<String, String>() {{
 		put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
 		put("Name", "Transducer");
@@ -171,7 +171,7 @@ Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setServiceName("MyApp")
 
 # environment
-AWS_EMF_SERVICE_NAME = MyApp
+AWS_EMF_SERVICE_NAME="MyApp"
 ```
 
 **ServiceType**: Overrides the type of the service. For services where the type cannot be inferred (e.g. Java process running on EC2), a default value of Unknown will be used if not explicitly set.
@@ -213,7 +213,7 @@ Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setLogGroupName("LogGroupName")
 
 # environment
-AWS_EMF_LOG_GROUP_NAME=LogGroupName
+AWS_EMF_LOG_GROUP_NAME="LogGroupName"
 ```
 
 **LogStreamName**: For agent-based platforms, you may optionally configure the destination log stream that metrics should be delivered to. This value will be passed from the library to the agent in the Embedded Metric payload. If a LogGroup is not provided, the default value will be derived by the agent (this will likely be the hostname).
@@ -234,7 +234,7 @@ Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setLogStreamName(LogStreamName))
 
 # environment
-AWS_EMF_LOG_STREAM_NAME=LogStreamName
+AWS_EMF_LOG_STREAM_NAME="LogStreamName"
 ```
 
 **EnvironmentOverride**: Short circuit auto-environment detection by explicitly defining how events should be sent. This is not supported through programmatic access.
