@@ -20,7 +20,6 @@ Generate CloudWatch Metrics embedded within structured log events. The embedded 
 - **Linking metrics to high cardinality context**
 
 	Using the Embedded Metric Format, you will be able to visualize and alarm on custom metrics, but also retain the original, detailed and high-cardinality context which is queryable using [CloudWatch Logs Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html). For example, the library automatically injects environment metadata such as Lambda Function version, EC2 instance and image ids into the structured log event data.
-Be sure to:
 
 ## Usage
 
@@ -79,7 +78,7 @@ Examples:
 ```java
 putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8")
 putProperty("InstanceId", "i-1234567890")
-putPproperty("Device", new HashMap<String, String>() {{
+putProperty("Device", new HashMap<String, String>() {{
 		put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
 		put("Name", "Transducer");
 		put("Model", "PT-1234");
