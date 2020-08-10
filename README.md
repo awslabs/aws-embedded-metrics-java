@@ -192,7 +192,7 @@ Configuration config = EnvironmentConfigurationProvider.getConfig();
 config.setServiceType("JavaWebApp")
 
 # environment
-AWS_EMF_SERVICE_TYPE=JavaWebApp
+AWS_EMF_SERVICE_TYPE="JavaWebApp"
 ```
 
 **LogGroupName**: For agent-based platforms, you may optionally configure the destination log group that metrics should be delivered to. This value will be passed from the library to the agent in the Embedded Metric payload. If a LogGroup is not provided, the default value will be derived from the service name: <service-name>-metrics
@@ -250,7 +250,7 @@ Valid values include:
 Example:
 
 ```shell
-AWS_EMF_ENVIRONMENT=Local
+AWS_EMF_ENVIRONMENT="Local"
 ```
 
 **AgentEndpoint**: For agent-based platforms, you may optionally configure the endpoint to reach the agent on.
