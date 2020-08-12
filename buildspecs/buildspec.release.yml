@@ -1,0 +1,17 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: us-west-2
+  parameter-store:
+    ORG_GRADLE_PROJECT_signingKey: emf_java_signing_key
+    ORG_GRADLE_PROJECT_signingPassword: emf_java_signing_password
+    mavenUserName: mavenUserName
+    mavenPassword: mavenPassword
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+  build:
+    commands:
+      - ./gradlew publish
