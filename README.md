@@ -2,8 +2,7 @@
 
 ![](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNFp3emNQV0dUbWg5bHBqbXZsMjlOY0dZN0xFTlc3aVhQV1dnVW1uS1kxU3FINlpmRTlIYjNQdHRkcVVvM1RNK3ZLQ25qRHZkK1pBTFIxWFUwaU1NcktjPSIsIml2UGFyYW1ldGVyU3BlYyI6InFzblFPZGgzWXF2V2V5OFYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
-Generate CloudWatch Metrics embedded within structured log events. The embedded metrics will be extracted so you can visualize and alarm on them for real-time incident detection. This allows you to monitor aggregated values while preserving the detailed event context that generated them.
-
+Generate CloudWatch metrics embedded within structured log events. The embedded metrics will be extracted so that you can visualize and alarm on them for real-time incident detection. This allows you to monitor aggregated values while preserving the detailed log event context that generates them.
 - [Use Cases](#use-cases)
 - [Usage](#usage)
 - [API](#api)
@@ -14,7 +13,7 @@ Generate CloudWatch Metrics embedded within structured log events. The embedded 
 
 - **Generate custom metrics across compute environments**
 
-	- Easily generate custom metrics from Lambda functions without requiring custom batching code, making blocking network requests or relying on 3rd party software.
+	- Easily generate custom metrics from Lambda functions without requiring custom batching code, making blocking network requests or relying on third-party software.
 	- Other compute environments (EC2, On-prem, ECS, EKS, and other container environments) are supported by installing the [CloudWatch Agent](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Generation_CloudWatch_Agent.html).
 
 - **Linking metrics to high cardinality context**
@@ -57,7 +56,7 @@ Requirements:
 - Name Length 1-255 characters
 - Name must be ASCII characters only
 - Values must be in the range of 8.515920e-109 to 1.174271e+108. In addition, special values (for example, NaN, +Infinity, -Infinity) are not supported.
-- Units must meet CW Metrics unit requirements, if not it will default to None. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
+- Units must meet CloudWatch Metrics unit requirements, if not it will default to None. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
 
 Examples:
 
@@ -88,9 +87,9 @@ putProperty("Device", new HashMap<String, String>() {{
 
 - MetricsLogger **putDimensions**(DimensionSet dimensions)
 
-Adds a new set of dimensions that will be associated to all metric values.
+Adds a new set of dimensions that will be associated with all metric values.
 
-**WARNING**: Every distinct value will result in a new CloudWatch Metric.
+**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 
@@ -110,7 +109,7 @@ putDimensions(DimensionSet.of("Operation", "Aggregator", "DeviceType", "Actuator
 
 Explicitly override all dimensions. This will remove the default dimensions.
 
-**WARNING**: Every distinct value will result in a new CloudWatch Metric.
+**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 
