@@ -23,6 +23,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.github.javafaker.Faker;
 import java.util.concurrent.CompletableFuture;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +46,11 @@ public class EnvironmentProviderTest {
     public void setUp() {
         environmentProvider = new EnvironmentProvider();
         config = mock(Configuration.class);
+    }
+
+    @After
+    public void cleanCache() {
+        environmentProvider.cleanResolvedEnvironment();
     }
 
     @Test
@@ -80,8 +86,6 @@ public class EnvironmentProviderTest {
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
         when(config.getEnvironmentOverride()).thenReturn(Environments.Lambda);
 
-        environmentProvider.cleanResolvedEnvironment();
-
         CompletableFuture<Environment> resolvedEnvironment =
                 environmentProvider.resolveEnvironment();
 
@@ -93,8 +97,6 @@ public class EnvironmentProviderTest {
         PowerMockito.mockStatic(EnvironmentConfigurationProvider.class);
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
         when(config.getEnvironmentOverride()).thenReturn(Environments.Agent);
-
-        environmentProvider.cleanResolvedEnvironment();
 
         CompletableFuture<Environment> resolvedEnvironment =
                 environmentProvider.resolveEnvironment();
@@ -108,8 +110,6 @@ public class EnvironmentProviderTest {
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
         when(config.getEnvironmentOverride()).thenReturn(Environments.EC2);
 
-        environmentProvider.cleanResolvedEnvironment();
-
         CompletableFuture<Environment> resolvedEnvironment =
                 environmentProvider.resolveEnvironment();
 
@@ -122,8 +122,6 @@ public class EnvironmentProviderTest {
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
         when(config.getEnvironmentOverride()).thenReturn(Environments.ECS);
 
-        environmentProvider.cleanResolvedEnvironment();
-
         CompletableFuture<Environment> resolvedEnvironment =
                 environmentProvider.resolveEnvironment();
 
@@ -135,8 +133,6 @@ public class EnvironmentProviderTest {
         PowerMockito.mockStatic(EnvironmentConfigurationProvider.class);
         when(EnvironmentConfigurationProvider.getConfig()).thenReturn(config);
         when(config.getEnvironmentOverride()).thenReturn(Environments.Local);
-
-        environmentProvider.cleanResolvedEnvironment();
 
         CompletableFuture<Environment> resolvedEnvironment =
                 environmentProvider.resolveEnvironment();
