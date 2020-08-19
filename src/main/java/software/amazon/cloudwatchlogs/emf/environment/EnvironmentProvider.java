@@ -35,7 +35,7 @@ public class EnvironmentProvider {
     // Ordering of this array matters
     private final Environment[] environments =
             new Environment[] {
-                lambdaEnvironment, ec2Environment, ecsEnvironment, defaultEnvironment
+                lambdaEnvironment, ecsEnvironment, ec2Environment, defaultEnvironment
             };
 
     public CompletableFuture<Environment> resolveEnvironment() {

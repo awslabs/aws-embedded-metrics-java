@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.util.reflection.FieldSetter;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -141,5 +142,34 @@ public class EnvironmentProviderTest {
                 environmentProvider.resolveEnvironment();
 
         assertTrue(resolvedEnvironment.join() instanceof LocalEnvironment);
+    }
+
+    @Test
+    public void testResolveEnvironmentEC2AndECSEnvs() throws Exception {
+        ECSEnvironment mockedECSEnv = mock(ECSEnvironment.class);
+        when(mockedECSEnv.probe()).thenReturn(true);
+        EC2Environment mockedEC2Env = mock(EC2Environment.class);
+        when(mockedEC2Env.probe()).thenReturn(true);
+        DefaultEnvironment mockedDefaultEnv = mock(DefaultEnvironment.class);
+        when(mockedDefaultEnv.probe()).thenReturn(true);
+
+        Environment[] envs = new Environment[] {mockedECSEnv, mockedEC2Env, mockedDefaultEnv};
+        FieldSetter.setField(
+                environmentProvider,
+                EnvironmentProvider.class.getDeclaredField("environments"),
+                envs);
+        Environment env = environmentProvider.resolveEnvironment().join();
+        assertSame(env, mockedECSEnv);
+        environmentProvider.cleanResolvedEnvironment();
+
+        Environment[] EC2FirstEnvs =
+                new Environment[] {mockedEC2Env, mockedECSEnv, mockedDefaultEnv};
+        FieldSetter.setField(
+                environmentProvider,
+                EnvironmentProvider.class.getDeclaredField("environments"),
+                EC2FirstEnvs);
+        Environment expectedEnv = environmentProvider.resolveEnvironment().join();
+        assertSame(expectedEnv, mockedEC2Env);
+        environmentProvider.cleanResolvedEnvironment();
     }
 }
