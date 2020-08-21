@@ -57,7 +57,7 @@ public class MetricsLogger {
         try {
             environment = environmentFuture.join();
         } catch (Exception ex) {
-            log.error("Failed to resolve environment. Fallback to default environment: ", ex);
+            log.info("Failed to resolve environment. Fallback to default environment: ", ex);
             environment = environmentProvider.getDefaultEnvironment();
         }
         ISink sink = environment.getSink();
