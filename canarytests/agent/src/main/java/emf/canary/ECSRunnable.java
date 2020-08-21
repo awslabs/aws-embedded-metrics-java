@@ -21,7 +21,8 @@ public class ECSRunnable implements Runnable {
         }
         Configuration config = EnvironmentConfigurationProvider.getConfig();
         config.setLogGroupName("/Canary/Java/CloudWatchAgent/Metrics");
-        logger.putDimensions(
+        logger.setNamespace("Canary");
+        logger.setDimensions(
                 DimensionSet.of(
                         "Runtime", "Java8",
                         "Platform", "ECS",
