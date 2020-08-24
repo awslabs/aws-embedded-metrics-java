@@ -158,7 +158,6 @@ class ECSEnvironment extends AgentBasedEnvironment {
         String image;
         String formattedImageName;
         String imageID;
-        String ports;
         Map<String, String> labels;
         String createdAt;
         String startedAt;
