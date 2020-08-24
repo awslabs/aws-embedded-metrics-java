@@ -16,7 +16,7 @@ REGION=$2
 IMAGE_NAME=$3 # emf-ecs-firelens
 FLUENT_BIT_S3_CONFIG_BUCKET=$4 # aws-emf-ecs-firelens-configurations
 CLUSTER_NAME=$5 # emf-example
-ECS_TASK_FAMILY=$6 # aws-emf-ecs-koa-example
+ECS_TASK_FAMILY=$6 # aws-emf-ecs-app-example
 ECS_SERVICE_NAME=$7 # aws-emf-ecs-firelens-ec2
 
 LIB_PATH=$rootdir
