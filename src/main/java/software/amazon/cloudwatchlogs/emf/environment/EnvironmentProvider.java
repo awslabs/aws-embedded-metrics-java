@@ -51,17 +51,15 @@ public class EnvironmentProvider {
             return CompletableFuture.completedFuture(cachedEnvironment);
         }
 
-        CompletableFuture<Optional<Environment>> resolvedEnv =
-                discoverEnvironmentAsync();
+        CompletableFuture<Optional<Environment>> resolvedEnv = discoverEnvironmentAsync();
 
         return resolvedEnv.thenApply(
                 optionalEnv ->
-                        optionalEnv
-                                .orElseGet(
-                                        () -> {
-                                            cachedEnvironment = defaultEnvironment;
-                                            return cachedEnvironment;
-                                        }));
+                        optionalEnv.orElseGet(
+                                () -> {
+                                    cachedEnvironment = defaultEnvironment;
+                                    return cachedEnvironment;
+                                }));
     }
 
     public Environment getDefaultEnvironment() {
@@ -77,7 +75,7 @@ public class EnvironmentProvider {
 
         CompletableFuture<Optional<Environment>> ans = new CompletableFuture<>();
 
-        List<CompletableFuture<EnvironmentResolveResult>> futures  = new ArrayList<>();
+        List<CompletableFuture<EnvironmentResolveResult>> futures = new ArrayList<>();
         for (Environment env : environments) {
             CompletableFuture<EnvironmentResolveResult> future =
                     CompletableFuture.supplyAsync(
@@ -85,16 +83,17 @@ public class EnvironmentProvider {
             futures.add(future);
         }
 
-        CompletableFuture.runAsync(() -> {
-            for(CompletableFuture<EnvironmentResolveResult> future: futures) {
-                EnvironmentResolveResult result = future.join();
-                if (result.isCandidate) {
-                    ans.complete(Optional.of(result.environment));
-                    return;
-                }
-            }
-            ans.complete(Optional.empty());
-        });
+        CompletableFuture.runAsync(
+                () -> {
+                    for (CompletableFuture<EnvironmentResolveResult> future : futures) {
+                        EnvironmentResolveResult result = future.join();
+                        if (result.isCandidate) {
+                            ans.complete(Optional.of(result.environment));
+                            return;
+                        }
+                    }
+                    ans.complete(Optional.empty());
+                });
 
         return ans;
     }

@@ -180,13 +180,15 @@ public class EnvironmentProviderTest {
         EC2Environment mockedEC2Env = mock(EC2Environment.class);
         when(mockedEC2Env.probe()).thenReturn(true);
         DefaultEnvironment mockedDefaultEnv = mock(DefaultEnvironment.class);
-        when(mockedDefaultEnv.probe()).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                Thread.sleep(5_000);
-                return true;
-            }
-        });
+        when(mockedDefaultEnv.probe())
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                                Thread.sleep(5_000);
+                                return true;
+                            }
+                        });
         Environment[] envs = new Environment[] {mockedLambdaEnv, mockedDefaultEnv, mockedEC2Env};
 
         FieldSetter.setField(
