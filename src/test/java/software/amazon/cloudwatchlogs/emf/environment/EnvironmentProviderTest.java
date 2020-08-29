@@ -28,6 +28,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -167,5 +169,34 @@ public class EnvironmentProviderTest {
         Environment expectedEnv = environmentProvider.resolveEnvironment().join();
         assertSame(expectedEnv, mockedEC2Env);
         environmentProvider.cleanResolvedEnvironment();
+    }
+
+    @Test
+    public void testResolveEnvironmentReturnFirstDetectedEnvironment() throws Exception {
+
+        long startTime = System.currentTimeMillis();
+        LambdaEnvironment mockedLambdaEnv = mock(LambdaEnvironment.class);
+        when(mockedLambdaEnv.probe()).thenReturn(true);
+        EC2Environment mockedEC2Env = mock(EC2Environment.class);
+        when(mockedEC2Env.probe()).thenReturn(true);
+        DefaultEnvironment mockedDefaultEnv = mock(DefaultEnvironment.class);
+        when(mockedDefaultEnv.probe())
+                .thenAnswer(
+                        new Answer<Boolean>() {
+                            @Override
+                            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                                Thread.sleep(5_000);
+                                return true;
+                            }
+                        });
+        Environment[] envs = new Environment[] {mockedLambdaEnv, mockedDefaultEnv, mockedEC2Env};
+
+        FieldSetter.setField(
+                environmentProvider,
+                EnvironmentProvider.class.getDeclaredField("environments"),
+                envs);
+        Environment env = environmentProvider.resolveEnvironment().join();
+        assertSame(env, mockedLambdaEnv);
+        assertTrue(System.currentTimeMillis() - startTime < 3_000);
     }
 }

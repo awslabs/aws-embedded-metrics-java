@@ -16,6 +16,8 @@
 
 package software.amazon.cloudwatchlogs.emf.environment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -49,18 +51,15 @@ public class EnvironmentProvider {
             return CompletableFuture.completedFuture(cachedEnvironment);
         }
 
-        CompletableFuture<Optional<EnvironmentResolveResult>> resolvedEnv =
-                discoverEnvironmentAsync();
+        CompletableFuture<Optional<Environment>> resolvedEnv = discoverEnvironmentAsync();
 
         return resolvedEnv.thenApply(
                 optionalEnv ->
-                        optionalEnv
-                                .map(EnvironmentResolveResult::getEnvironment)
-                                .orElseGet(
-                                        () -> {
-                                            cachedEnvironment = defaultEnvironment;
-                                            return cachedEnvironment;
-                                        }));
+                        optionalEnv.orElseGet(
+                                () -> {
+                                    cachedEnvironment = defaultEnvironment;
+                                    return cachedEnvironment;
+                                }));
     }
 
     public Environment getDefaultEnvironment() {
@@ -72,27 +71,29 @@ public class EnvironmentProvider {
         cachedEnvironment = null;
     }
 
-    private CompletableFuture<Optional<EnvironmentResolveResult>> discoverEnvironmentAsync() {
+    private CompletableFuture<Optional<Environment>> discoverEnvironmentAsync() {
 
-        CompletableFuture<Optional<EnvironmentResolveResult>> ans =
-                CompletableFuture.completedFuture(Optional.empty());
+        CompletableFuture<Optional<Environment>> ans = new CompletableFuture<>();
+
+        List<CompletableFuture<EnvironmentResolveResult>> futures = new ArrayList<>();
         for (Environment env : environments) {
             CompletableFuture<EnvironmentResolveResult> future =
                     CompletableFuture.supplyAsync(
                             () -> new EnvironmentResolveResult(env.probe(), env));
-            ans =
-                    ans.thenCombine(
-                            future,
-                            (optionalEnv, envResult) -> {
-                                if (optionalEnv.isPresent()) {
-                                    return optionalEnv;
-                                }
-                                if (envResult.isCandidate) {
-                                    return Optional.of(envResult);
-                                }
-                                return Optional.empty();
-                            });
+            futures.add(future);
         }
+
+        CompletableFuture.runAsync(
+                () -> {
+                    for (CompletableFuture<EnvironmentResolveResult> future : futures) {
+                        EnvironmentResolveResult result = future.join();
+                        if (result.isCandidate) {
+                            ans.complete(Optional.of(result.environment));
+                            return;
+                        }
+                    }
+                    ans.complete(Optional.empty());
+                });
 
         return ans;
     }
