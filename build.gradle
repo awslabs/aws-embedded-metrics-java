@@ -129,11 +129,20 @@ tasks.named('wrapper') {
 def repoUrl = "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2/"
 def repoPassword = System.getenv('mavenPassword')
 def repoUserName = System.getenv('mavenUserName')
+def buildNumber = System.getenv('CODEBUILD_BUILD_NUMBER')
 
 
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
+			ext.get_version = {
+				if (buildNumber == null) {
+					return version + ".dev"
+				} else {
+					return version + "." + buildNumber
+				}
+			}
+			version = get_version()
 			from components.java
 			versionMapping {
 				usage('java-api') {
