@@ -142,7 +142,8 @@ publishing {
 					return version + "." + buildNumber
 				}
 			}
-			version = get_version()
+			//TODO: add the build version properly
+			//version = get_version()
 			from components.java
 			versionMapping {
 				usage('java-api') {
