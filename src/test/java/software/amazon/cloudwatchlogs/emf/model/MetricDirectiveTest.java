@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import org.junit.Test;
 
 public class MetricDirectiveTest {
@@ -50,13 +51,38 @@ public class MetricDirectiveTest {
     @Test
     public void testPutMetric() throws JsonProcessingException {
         MetricDirective metricDirective = new MetricDirective();
-        metricDirective.putMetric(new MetricDefinition("Time"));
+        metricDirective.putMetric("Time", 10);
 
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
                 serializedMetricDirective,
                 "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Dimensions\":[[]]}");
+    }
+
+    @Test
+    public void testPutSameMetricMultipleTimes() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10);
+        metricDirective.putMetric("Time", 20);
+
+        assertEquals(1, metricDirective.getAllMetrics().size());
+        MetricDefinition[] mds = metricDirective.getAllMetrics().toArray(new MetricDefinition[0]);
+        assertEquals(mds[0].getValues(), Arrays.asList(10d, 20d));
+    }
+
+    @Test
+    public void testPutMetricWithoutUnit() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10);
+        assertEquals(metricDirective.getMetrics().get("Time").getUnit(), Unit.NONE);
+    }
+
+    @Test
+    public void testPutMetricWithUnit() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10, Unit.MILLISECONDS);
+        assertEquals(metricDirective.getMetrics().get("Time").getUnit(), Unit.MILLISECONDS);
     }
 
     @Test

@@ -26,12 +26,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.With;
 import software.amazon.cloudwatchlogs.emf.serializers.InstantDeserializer;
 import software.amazon.cloudwatchlogs.emf.serializers.InstantSerializer;
 
 /** Represents the MetaData part of the EMF schema. */
+@AllArgsConstructor
 class Metadata {
 
     @Getter
@@ -44,6 +47,7 @@ class Metadata {
 
     @Getter
     @Setter
+    @With
     @JsonProperty("CloudWatchMetrics")
     private List<MetricDirective> cloudWatchMetrics;
 

@@ -22,42 +22,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.With;
 
 /** Represents the root of the EMF schema. */
+@AllArgsConstructor
 @JsonFilter("emptyMetricFilter")
 class RootNode {
     @Getter
+    @With
     @JsonProperty("_aws")
-    private Metadata aws = new Metadata();
+    private Metadata aws;
 
-    private Map<String, Object> properties = new HashMap<>();
-    private Map<String, List<Double>> metrics = new HashMap<>();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private Map<String, Object> properties;
+    private ObjectMapper objectMapper;
 
     RootNode() {
         final SimpleFilterProvider filterProvider =
                 new SimpleFilterProvider().addFilter("emptyMetricFilter", new EmptyMetricsFilter());
+        aws = new Metadata();
+        properties = new HashMap<>();
+        objectMapper = new ObjectMapper();
         objectMapper.setFilterProvider(filterProvider);
     }
 
     public void putProperty(String key, Object value) {
         properties.put(key, value);
-    }
-
-    /**
-     * Add a metric measurement. Multiple calls using the same key will be stored as an array of
-     * scalar values
-     */
-    void putMetric(String key, double value) {
-        if (!metrics.containsKey(key)) {
-            metrics.put(key, new ArrayList<>());
-        }
-        metrics.get(key).add(value);
     }
 
     Map<String, Object> getProperties() {
@@ -70,9 +65,13 @@ class RootNode {
         Map<String, Object> targetMembers = new HashMap<>();
         targetMembers.putAll(properties);
         targetMembers.putAll(getDimensions());
-        for (Map.Entry<String, List<Double>> entry : metrics.entrySet()) {
-            List<Double> values = entry.getValue();
-            targetMembers.put(entry.getKey(), values.size() == 1 ? values.get(0) : values);
+        List<MetricDefinition> metrics =
+                aws.getCloudWatchMetrics().stream()
+                        .flatMap(metricDirective -> metricDirective.getMetrics().values().stream())
+                        .collect(Collectors.toList());
+        for (MetricDefinition metric : metrics) {
+            List<Double> values = metric.getValues();
+            targetMembers.put(metric.getName(), values.size() == 1 ? values.get(0) : values);
         }
         return targetMembers;
     }
@@ -86,6 +85,10 @@ class RootNode {
             }
         }
         return dimensions;
+    }
+
+    Map<String, MetricDefinition> metrics() {
+        return aws.getCloudWatchMetrics().get(0).getMetrics();
     }
 
     String serialize() throws JsonProcessingException {

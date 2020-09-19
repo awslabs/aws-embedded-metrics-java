@@ -20,4 +20,6 @@ public class Constants {
     public static final int DEFAULT_AGENT_PORT = 25888;
 
     public static final String UNKNOWN = "Unknown";
+
+    public static final int MAX_METRICS_PER_EVENT = 100;
 }
