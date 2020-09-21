@@ -199,7 +199,9 @@ public class MetricsContext {
     }
 
     /**
-     * Serialize the metrics in this context to strings.
+     * Serialize the metrics in this context to strings. The EMF backend requires no more than 100
+     * metrics in one log event. If there're more than 100 metrics, we split the metrics into
+     * multiple log events.
      *
      * @return the serialized strings.
      * @throws JsonProcessingException if there's any object that cannot be serialized

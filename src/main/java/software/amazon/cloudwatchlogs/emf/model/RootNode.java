@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
@@ -65,13 +64,11 @@ class RootNode {
         Map<String, Object> targetMembers = new HashMap<>();
         targetMembers.putAll(properties);
         targetMembers.putAll(getDimensions());
-        List<MetricDefinition> metrics =
-                aws.getCloudWatchMetrics().stream()
-                        .flatMap(metricDirective -> metricDirective.getMetrics().values().stream())
-                        .collect(Collectors.toList());
-        for (MetricDefinition metric : metrics) {
-            List<Double> values = metric.getValues();
-            targetMembers.put(metric.getName(), values.size() == 1 ? values.get(0) : values);
+        for (MetricDirective metricDirective : aws.getCloudWatchMetrics()) {
+            for (MetricDefinition metric : metricDirective.getMetrics().values()) {
+                List<Double> values = metric.getValues();
+                targetMembers.put(metric.getName(), values.size() == 1 ? values.get(0) : values);
+            }
         }
         return targetMembers;
     }

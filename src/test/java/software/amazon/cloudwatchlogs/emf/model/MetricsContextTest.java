@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -72,6 +73,22 @@ public class MetricsContextTest {
             assertEquals(originalMetric.getName(), metric.getName());
             assertEquals(originalMetric.getUnit(), metric.getUnit());
         }
+    }
+
+    @Test
+    public void testSerializeZeroMetric() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        mc.putDimension(DimensionSet.of("Region", "IAD"));
+        List<String> events = mc.serialize();
+
+        int expectedEventCount = 1;
+        assertEquals(expectedEventCount, events.size());
+
+        JsonMapper objectMapper = new JsonMapper();
+        Map<String, Object> metadata_map =
+                objectMapper.readValue(events.get(0), new TypeReference<Map<String, Object>>() {});
+        // If there's no metric added, the _aws would be filtered out from the log event
+        assertFalse(metadata_map.containsKey("_aws"));
     }
 
     @SuppressWarnings("unchecked")
