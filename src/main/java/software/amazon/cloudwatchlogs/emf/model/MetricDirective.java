@@ -16,43 +16,58 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /** Represents the MetricDirective part of the EMF schema. */
+@AllArgsConstructor
 class MetricDirective {
     @Setter
     @Getter
     @JsonProperty("Namespace")
-    private String namespace = "aws-embedded-metrics";
+    private String namespace;
 
-    @Setter
-    @Getter
-    @JsonProperty("Metrics")
-    private List<MetricDefinition> metrics = new ArrayList<>();
+    @JsonIgnore @Setter @Getter @With private Map<String, MetricDefinition> metrics;
 
     @Getter(AccessLevel.PROTECTED)
-    private List<DimensionSet> dimensions = new ArrayList<>();
+    private List<DimensionSet> dimensions;
 
     @Setter
     @Getter(AccessLevel.PROTECTED)
-    private DimensionSet defaultDimensions = new DimensionSet();
+    private DimensionSet defaultDimensions;
 
-    private boolean shouldUseDefaultDimension = true;
+    private boolean shouldUseDefaultDimension;
+
+    MetricDirective() {
+        namespace = "aws-embedded-metrics";
+        metrics = new HashMap<>();
+        dimensions = new ArrayList<>();
+        defaultDimensions = new DimensionSet();
+        shouldUseDefaultDimension = true;
+    }
 
     void putDimensionSet(DimensionSet dimensionSet) {
         dimensions.add(dimensionSet);
     }
 
-    void putMetric(MetricDefinition metric) {
-        metrics.add(metric);
+    void putMetric(String key, double value) {
+        putMetric(key, value, Unit.NONE);
+    }
+
+    void putMetric(String key, double value, Unit unit) {
+        if (metrics.containsKey(key)) {
+            metrics.get(key).addValue(value);
+        } else {
+            metrics.put(key, new MetricDefinition(key, unit, value));
+        }
+    }
+
+    @JsonProperty("Metrics")
+    Collection<MetricDefinition> getAllMetrics() {
+        return metrics.values();
     }
 
     @JsonProperty("Dimensions")

@@ -37,7 +37,6 @@ public class InstantSerializer extends StdSerializer<Instant> {
     public void serialize(Instant value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException {
 
-        // Just serialize dimensions as an array.
         jgen.writeNumber(value.toEpochMilli());
     }
 }

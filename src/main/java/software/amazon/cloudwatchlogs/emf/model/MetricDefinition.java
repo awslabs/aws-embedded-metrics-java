@@ -16,13 +16,16 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitDeserializer;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitSerializer;
 
@@ -30,19 +33,31 @@ import software.amazon.cloudwatchlogs.emf.serializers.UnitSerializer;
 @AllArgsConstructor
 class MetricDefinition {
     @NonNull
-    @Setter
     @Getter
     @JsonProperty("Name")
     private String name;
 
-    @Setter
     @Getter
     @JsonProperty("Unit")
     @JsonSerialize(using = UnitSerializer.class)
     @JsonDeserialize(using = UnitDeserializer.class)
     private Unit unit;
 
+    @JsonIgnore @NonNull @Getter private List<Double> values;
+
     MetricDefinition(String name) {
-        this(name, Unit.NONE);
+        this(name, Unit.NONE, new ArrayList<>());
+    }
+
+    MetricDefinition(String name, double value) {
+        this(name, Unit.NONE, value);
+    }
+
+    MetricDefinition(String name, Unit unit, double value) {
+        this(name, unit, new ArrayList<>(Arrays.asList(value)));
+    }
+
+    void addValue(double value) {
+        values.add(value);
     }
 }

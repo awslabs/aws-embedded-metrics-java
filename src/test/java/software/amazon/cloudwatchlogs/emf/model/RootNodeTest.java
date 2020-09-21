@@ -23,27 +23,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
 public class RootNodeTest {
-
-    @Test
-    public void testPutMetric() {
-        RootNode rootNode = new RootNode();
-        rootNode.putMetric("Time", 10.0);
-
-        assertEquals(rootNode.getTargetMembers().get("Time"), 10.0);
-    }
-
-    @Test
-    public void testPutSameMetricMultipleTimes() {
-        RootNode rootNode = new RootNode();
-        rootNode.putMetric("Time", 10.0);
-        rootNode.putMetric("Time", 20.0);
-
-        assertEquals(rootNode.getTargetMembers().get("Time"), Arrays.asList(10.0, 20.0));
-    }
 
     @Test
     public void testPutProperty() {
@@ -103,9 +87,10 @@ public class RootNodeTest {
         mc.putProperty("Property", "PropertyValue");
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String emf_log = mc.serialize();
+        List<String> emf_logs = mc.serialize();
         Map<String, Object> emf_map =
-                objectMapper.readValue(emf_log, new TypeReference<Map<String, Object>>() {});
+                objectMapper.readValue(
+                        emf_logs.get(0), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(emf_map.keySet().size(), 5);
         assertEquals(emf_map.get("Region"), "us-east-1");

@@ -17,10 +17,9 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.Getter;
+import software.amazon.cloudwatchlogs.emf.Constants;
 
 /** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
@@ -101,8 +100,7 @@ public class MetricsContext {
      * @param unit The unit of the metric
      */
     public void putMetric(String key, double value, Unit unit) {
-        metricDirective.putMetric(new MetricDefinition(key, unit));
-        rootNode.putMetric(key, value);
+        metricDirective.putMetric(key, value, unit);
     }
 
     /**
@@ -201,12 +199,40 @@ public class MetricsContext {
     }
 
     /**
-     * Serialize the metrics in this context to a string.
+     * Serialize the metrics in this context to strings. The EMF backend requires no more than 100
+     * metrics in one log event. If there're more than 100 metrics, we split the metrics into
+     * multiple log events.
      *
-     * @return the serialized string
+     * @return the serialized strings.
      * @throws JsonProcessingException if there's any object that cannot be serialized
      */
-    public String serialize() throws JsonProcessingException {
-        return this.rootNode.serialize();
+    public List<String> serialize() throws JsonProcessingException {
+        if (rootNode.metrics().size() <= Constants.MAX_METRICS_PER_EVENT) {
+            return Arrays.asList(this.rootNode.serialize());
+        } else {
+            List<RootNode> nodes = new ArrayList<>();
+            Map<String, MetricDefinition> metrics = new HashMap<>();
+            int count = 0;
+            for (MetricDefinition metric : rootNode.metrics().values()) {
+                metrics.put(metric.getName(), metric);
+                count++;
+                if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
+                        || count == rootNode.metrics().size()) {
+                    Metadata metadata = rootNode.getAws();
+                    MetricDirective metricDirective = metadata.getCloudWatchMetrics().get(0);
+                    Metadata clonedMetadata =
+                            metadata.withCloudWatchMetrics(
+                                    Arrays.asList(metricDirective.withMetrics(metrics)));
+                    nodes.add(rootNode.withAws(clonedMetadata));
+                    metrics = new HashMap<>();
+                }
+            }
+
+            List<String> strings = new ArrayList<>();
+            for (RootNode node : nodes) {
+                strings.add(node.serialize());
+            }
+            return strings;
+        }
     }
 }

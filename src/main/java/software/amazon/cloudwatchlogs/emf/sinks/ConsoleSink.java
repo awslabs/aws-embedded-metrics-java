@@ -33,7 +33,9 @@ public class ConsoleSink implements ISink {
 
         try {
             // CHECKSTYLE OFF
-            System.out.println(context.serialize());
+            for (String event : context.serialize()) {
+                System.out.println(event);
+            }
             // CHECKSTYLE ON
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize a MetricsContext: ", e);
