@@ -31,6 +31,7 @@ public class MetricDirectiveTest {
         MetricDirective metricDirective = new MetricDirective();
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
+        System.out.println(serializedMetricDirective);
         assertEquals(
                 serializedMetricDirective,
                 "{\"Namespace\":\"aws-embedded-metrics\",\"Metrics\":[],\"Dimensions\":[[]]}");
@@ -42,6 +43,7 @@ public class MetricDirectiveTest {
         metricDirective.setNamespace("test-lambda-metrics");
 
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+        System.out.println(serializedMetricDirective);
 
         assertEquals(
                 serializedMetricDirective,
@@ -54,6 +56,7 @@ public class MetricDirectiveTest {
         metricDirective.putMetric("Time", 10);
 
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+        System.out.println(serializedMetricDirective);
 
         assertEquals(
                 serializedMetricDirective,
@@ -119,6 +122,7 @@ public class MetricDirectiveTest {
         metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
 
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+        System.out.println(serializedMetricDirective);
 
         assertEquals(
                 serializedMetricDirective,
