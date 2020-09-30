@@ -32,9 +32,11 @@ class MetricDirective {
 
     @JsonIgnore @Setter @Getter @With private Map<String, MetricDefinition> metrics;
 
+    @JsonIgnore
     @Getter(AccessLevel.PROTECTED)
     private List<DimensionSet> dimensions;
 
+    @JsonIgnore
     @Setter
     @Getter(AccessLevel.PROTECTED)
     private DimensionSet defaultDimensions;
