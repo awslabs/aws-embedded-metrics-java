@@ -28,6 +28,7 @@ To use a metric logger, you need to manually create and flush the logger.
 ```java
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 class Example {
 	public static void main(String[] args) {
@@ -39,6 +40,11 @@ class Example {
 	}
 }
 ```
+
+You can find the artifact location and examples of how to include it in your project at Maven Central:
+
+https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics
+
 
 ## API
 
