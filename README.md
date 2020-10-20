@@ -31,7 +31,7 @@ import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 
 class Example {
 	public static void main(String[] args) {
-		MetricsLogger logger = new MeticsLogger();
+		MetricsLogger logger = new MetricsLogger();
 		metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
 		metrics.putMetric("ProcessingLatency", 100, Unit.Milliseconds);
 		metrics.setProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
