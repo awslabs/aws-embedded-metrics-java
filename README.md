@@ -35,8 +35,8 @@ class Example {
 	public static void main(String[] args) {
 		MetricsLogger metrics = new MetricsLogger();
 		metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-		metrics.putMetric("ProcessingLatency", 100, Unit.Milliseconds);
-		metrics.setProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
+		metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+		metrics.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 		metrics.flush();
 	}
 }
