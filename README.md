@@ -1,6 +1,7 @@
 ## aws-embedded-metrics
 
 ![](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNFp3emNQV0dUbWg5bHBqbXZsMjlOY0dZN0xFTlc3aVhQV1dnVW1uS1kxU3FINlpmRTlIYjNQdHRkcVVvM1RNK3ZLQ25qRHZkK1pBTFIxWFUwaU1NcktjPSIsIml2UGFyYW1ldGVyU3BlYyI6InFzblFPZGgzWXF2V2V5OFYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+[![](https://img.shields.io/maven-central/v/software.amazon.cloudwatchlogs/aws-embedded-metrics)](https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics)
 
 Generate CloudWatch metrics embedded within structured log events. The embedded metrics will be extracted so that you can visualize and alarm on them for real-time incident detection. This allows you to monitor aggregated values while preserving the detailed log event context that generates them.
 - [Use Cases](#use-cases)
@@ -41,9 +42,7 @@ class Example {
 }
 ```
 
-You can find the artifact location and examples of how to include it in your project at [Maven Central](https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics):
-
-https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics
+You can find the artifact location and examples of how to include it in your project at [Maven Central](https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics)
 
 ## API
 
