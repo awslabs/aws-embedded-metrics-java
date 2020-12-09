@@ -54,12 +54,10 @@ public class EnvironmentProvider {
         CompletableFuture<Optional<Environment>> resolvedEnv = discoverEnvironmentAsync();
 
         return resolvedEnv.thenApply(
-                optionalEnv ->
-                        optionalEnv.orElseGet(
-                                () -> {
-                                    cachedEnvironment = defaultEnvironment;
-                                    return cachedEnvironment;
-                                }));
+                optionalEnv -> {
+                    cachedEnvironment = optionalEnv.orElse(defaultEnvironment);
+                    return cachedEnvironment;
+                });
     }
 
     public Environment getDefaultEnvironment() {

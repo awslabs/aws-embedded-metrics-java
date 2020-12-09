@@ -18,7 +18,7 @@ package software.amazon.cloudwatchlogs.emf.environment;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.github.javafaker.Faker;
@@ -80,6 +80,28 @@ public class EnvironmentProviderTest {
                 environmentProvider.resolveEnvironment();
 
         assertTrue(resolvedEnvironment.join() instanceof LambdaEnvironment);
+    }
+
+    @Test
+    public void testResolveEnvironmentFromCacheAfterSecondCall() {
+        environmentProvider.cleanResolvedEnvironment();
+        String lambdaFunctionName = faker.name().name();
+
+        PowerMockito.mockStatic(SystemWrapper.class);
+        when(SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME")).thenReturn(lambdaFunctionName);
+
+        // First call
+        CompletableFuture<Environment> resolvedEnvironment =
+                environmentProvider.resolveEnvironment();
+
+        assertTrue(resolvedEnvironment.join() instanceof LambdaEnvironment);
+
+        // Second call
+        assertTrue(environmentProvider.resolveEnvironment().join() instanceof LambdaEnvironment);
+
+        // The SystemWrapper.getenv should only be called once due to cache
+        PowerMockito.verifyStatic(SystemWrapper.class);
+        SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME");
     }
 
     @Test
