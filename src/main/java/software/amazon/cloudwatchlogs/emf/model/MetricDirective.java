@@ -86,7 +86,7 @@ class MetricDirective {
      */
     void setDimensions(List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = false;
-        dimensions = dimensionSets;
+        dimensions = new ArrayList<>(dimensionSets);
     }
 
     /**

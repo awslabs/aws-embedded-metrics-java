@@ -22,6 +22,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.Test;
 
 public class MetricDirectiveTest {
@@ -125,5 +127,19 @@ public class MetricDirectiveTest {
         assertEquals(
                 serializedMetricDirective,
                 "{\"Dimensions\":[[\"Version\",\"Region\"],[\"Version\",\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+    }
+
+    @Test
+    public void testPutDimensionsAfterSetDimensions() throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.setDimensions(Collections.singletonList(DimensionSet.of("Version", "1")));
+        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        assertEquals(
+                serializedMetricDirective,
+                "{\"Dimensions\":[[\"Version\"],[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
     }
 }
