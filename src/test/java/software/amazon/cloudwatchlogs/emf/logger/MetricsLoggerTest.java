@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.logger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -174,6 +175,30 @@ public class MetricsLoggerTest {
 
         verify(envProvider).getDefaultEnvironment();
         expectDimension("ServiceType", serviceType);
+    }
+
+    @Test
+    public void testNoDefaultDimensions() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions();
+        logger.putMetric("Count", 1);
+        logger.flush();
+        List<DimensionSet> dimensions = sink.getContext().getDimensions();
+
+        assertTrue(dimensions.size() == 0);
+        assertTrue(sink.getLogEvents().size() == 1);
+
+        String logEvent = sink.getLogEvents().get(0);
+        assertTrue(logEvent.contains("\"Dimensions\":[]"));
+    }
+
+    @Test
+    public void testNoDefaultDimensionsAfterSetDimension() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+
+        logger.setDimensions(DimensionSet.of("Name", "Test"));
+        logger.flush();
+        expectDimension("Name", "Test");
     }
 
     private void expectDimension(String dimension, String value) {

@@ -114,6 +114,15 @@ public class MetricDirectiveTest {
     }
 
     @Test
+    public void testGetDimensionAfterSetDimensions() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.setDefaultDimensions(DimensionSet.of("Dim", "Default"));
+        metricDirective.setDimensions(Arrays.asList(DimensionSet.of("Name", "Test")));
+
+        assertEquals(1, metricDirective.getAllDimensions().size());
+    }
+
+    @Test
     public void testPutDimensionsWhenDefaultDimensionsDefined() throws JsonProcessingException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(DimensionSet.of("Version", "1"));
