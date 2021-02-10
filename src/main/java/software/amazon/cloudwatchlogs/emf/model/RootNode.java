@@ -36,17 +36,16 @@ class RootNode {
     @Getter
     @With
     @JsonProperty("_aws")
-    private Metadata aws;
+    private final Metadata aws;
 
     private Map<String, Object> properties;
-    private ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final SimpleFilterProvider filterProvider =
+            new SimpleFilterProvider().addFilter("emptyMetricFilter", new EmptyMetricsFilter());
 
     RootNode() {
-        final SimpleFilterProvider filterProvider =
-                new SimpleFilterProvider().addFilter("emptyMetricFilter", new EmptyMetricsFilter());
         aws = new Metadata();
         properties = new HashMap<>();
-        objectMapper = new ObjectMapper();
         objectMapper.setFilterProvider(filterProvider);
     }
 
