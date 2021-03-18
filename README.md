@@ -109,7 +109,7 @@ putDimensions(DimensionSet.of("Operation", "Aggregator"))
 putDimensions(DimensionSet.of("Operation", "Aggregator", "DeviceType", "Actuator"))
 ```
 
-- MetricsLogger **setDimensions**(DimensionSet dimensions)
+- MetricsLogger **setDimensions**(DimensionSet... dimensionSets)
 
 Explicitly override all dimensions. This will remove the default dimensions.
 
@@ -129,8 +129,19 @@ setDimensions(DimensionSet.of(
 	"Operation", "Aggregator",
 	"DeviceType", "Actuator")
 )
-
 ```
+
+To create an aggregate metric across all dimensions, you can use an empty `DimensionsSet`:
+
+```java
+setDimensions(
+    DimensionSet.of(
+	"Operation", "Aggregator",
+	"DeviceType", "Actuator"),
+    new DimensionSet()
+)
+```
+
 
 - MetricsLogger **setNamespace**(String value)
 
