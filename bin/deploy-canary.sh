@@ -9,16 +9,17 @@ LIB_PATH=$rootdir
 CANARY_PATH=$LIB_PATH/canarytests/agent
 ACCOUNT_ID=863722843142
 REGION=us-west-2
-IMAGE_NAME=emf-java-canary
-ECS_CLUSTER_NAME=emf-canary
-ECS_TASK_FAMILY=emf-java-canary
-ECS_SERVICE_NAME=emf-java-canary
-ECR_REMOTE=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$IMAGE_NAME
-
+EMF_LANGUAGE=java
+IMAGE_NAME=emf-$EMF_LANGUAGE-canary
+ECS_CLUSTER_NAME=emf-canary-cluster
+ECS_TASK_FAMILY=emf-canary-$EMF_LANGUAGE-tasks
+ECS_SERVICE_NAME=emf-canary-$EMF_LANGUAGE-service
+ECR_ENDPOINT=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+ECR_REMOTE=$ECR_ENDPOINT/$IMAGE_NAME
 
 pushd $CANARY_PATH
 echo 'BUILDING THE DOCKER IMAGE FOR THE CANARY TESTS'
-`aws ecr get-login --no-include-email --region $REGION`
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_ENDPOINT
 docker build . -t $IMAGE_NAME:latest
 check_exit
 
@@ -35,13 +36,13 @@ aws ecs update-service \
   --service $ECS_SERVICE_NAME \
   --force-new-deployment \
   --task-definition $(aws ecs register-task-definition \
-                        --network-mode bridge \
-                        --requires-compatibilities EC2 \
-                        --task-role arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole \
-                        --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole" \
+                        --network-mode awsvpc \
+                        --requires-compatibilities FARGATE \
+                        --task-role arn:aws:iam::$ACCOUNT_ID:role/ECSCanaryTaskExecutionRole \
+                        --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ECSCanaryTaskExecutionRole" \
                         --region $REGION \
-                        --memory 256 \
-                        --cpu '1 vcpu' \
+                        --memory 512 \
+                        --cpu '0.25 vcpu' \
                         --family $ECS_TASK_FAMILY \
                         --container-definitions "$(cat container-definitions.json)" \
                     | jq --raw-output '.taskDefinition.taskDefinitionArn' | awk -F '/' '{ print $2 }')

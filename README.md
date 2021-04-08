@@ -135,10 +135,10 @@ To create an aggregate metric across all dimensions, you can use an empty `Dimen
 
 ```java
 setDimensions(
-    DimensionSet.of(
-	"Operation", "Aggregator",
-	"DeviceType", "Actuator"),
-    new DimensionSet()
+	DimensionSet.of(
+		"Operation", "Aggregator",
+		"DeviceType", "Actuator"),
+	new DimensionSet()
 )
 ```
 
