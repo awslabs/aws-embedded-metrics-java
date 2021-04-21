@@ -218,7 +218,7 @@ public class MetricsContext {
             Queue<MetricDefinition> metricDefinitions =
                     new LinkedList<>(rootNode.metrics().values());
             while (metricDefinitions.size() > 0) {
-                MetricDefinition metric = metricDefinitions.peek();
+                MetricDefinition metric = metricDefinitions.poll();
 
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
                         || metrics.containsKey(metric.getName())) {
@@ -226,7 +226,6 @@ public class MetricsContext {
                     metrics = new HashMap<>();
                 }
 
-                metric = metricDefinitions.poll();
                 if (metric.getValues().size() <= Constants.MAX_DATAPOINTS_PER_METRIC) {
                     metrics.put(metric.getName(), metric);
                 } else {
