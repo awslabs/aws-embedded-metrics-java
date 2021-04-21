@@ -203,36 +203,72 @@ public class MetricsContext {
      * metrics in one log event. If there're more than 100 metrics, we split the metrics into
      * multiple log events.
      *
+     * <p>If a metric has more than 100 data points, we also split the metric.
+     *
      * @return the serialized strings.
      * @throws JsonProcessingException if there's any object that cannot be serialized
      */
     public List<String> serialize() throws JsonProcessingException {
-        if (rootNode.metrics().size() <= Constants.MAX_METRICS_PER_EVENT) {
+        if (rootNode.metrics().size() <= Constants.MAX_METRICS_PER_EVENT
+                && !anyMetricWithTooManyDataPoints(rootNode)) {
             return Arrays.asList(this.rootNode.serialize());
         } else {
             List<RootNode> nodes = new ArrayList<>();
             Map<String, MetricDefinition> metrics = new HashMap<>();
-            int count = 0;
-            for (MetricDefinition metric : rootNode.metrics().values()) {
-                metrics.put(metric.getName(), metric);
-                count++;
+            Queue<MetricDefinition> metricDefinitions =
+                    new LinkedList<>(rootNode.metrics().values());
+            while (metricDefinitions.size() > 0) {
+                MetricDefinition metric = metricDefinitions.peek();
+
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
-                        || count == rootNode.metrics().size()) {
-                    Metadata metadata = rootNode.getAws();
-                    MetricDirective metricDirective = metadata.getCloudWatchMetrics().get(0);
-                    Metadata clonedMetadata =
-                            metadata.withCloudWatchMetrics(
-                                    Arrays.asList(metricDirective.withMetrics(metrics)));
-                    nodes.add(rootNode.withAws(clonedMetadata));
+                        || metrics.containsKey(metric.getName())) {
+                    nodes.add(buildRootNode(metrics));
                     metrics = new HashMap<>();
                 }
-            }
 
+                metric = metricDefinitions.poll();
+                if (metric.getValues().size() <= Constants.MAX_DATAPOINTS_PER_METRIC) {
+                    metrics.put(metric.getName(), metric);
+                } else {
+                    metrics.put(
+                            metric.getName(),
+                            new MetricDefinition(
+                                    metric.getName(),
+                                    metric.getUnit(),
+                                    metric.getValues()
+                                            .subList(0, Constants.MAX_DATAPOINTS_PER_METRIC)));
+                    metricDefinitions.offer(
+                            new MetricDefinition(
+                                    metric.getName(),
+                                    metric.getUnit(),
+                                    metric.getValues()
+                                            .subList(
+                                                    Constants.MAX_DATAPOINTS_PER_METRIC,
+                                                    metric.getValues().size())));
+                }
+            }
+            if (!metrics.isEmpty()) {
+                nodes.add(buildRootNode(metrics));
+            }
             List<String> strings = new ArrayList<>();
             for (RootNode node : nodes) {
                 strings.add(node.serialize());
             }
             return strings;
         }
+    }
+
+    private RootNode buildRootNode(Map<String, MetricDefinition> metrics) {
+        Metadata metadata = rootNode.getAws();
+        MetricDirective metricDirective = metadata.getCloudWatchMetrics().get(0);
+        Metadata clonedMetadata =
+                metadata.withCloudWatchMetrics(Arrays.asList(metricDirective.withMetrics(metrics)));
+        return rootNode.withAws(clonedMetadata);
+    }
+
+    private boolean anyMetricWithTooManyDataPoints(RootNode node) {
+        return node.metrics().values().stream()
+                .anyMatch(
+                        metric -> metric.getValues().size() > Constants.MAX_DATAPOINTS_PER_METRIC);
     }
 }
