@@ -18,14 +18,17 @@ package software.amazon.cloudwatchlogs.emf.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import software.amazon.cloudwatchlogs.emf.Constants;
 
 public class MetricsContextTest {
 
@@ -76,6 +79,59 @@ public class MetricsContextTest {
     }
 
     @Test
+    public void testSerializeAMetricWith101DataPoints() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        int dataPointCount = 101;
+        int expectedEventCount = 2;
+        String metricName = "metric";
+        for (int i = 0; i < dataPointCount; i++) {
+            mc.putMetric(metricName, i);
+        }
+
+        List<String> events = mc.serialize();
+        assertEquals(expectedEventCount, events.size());
+        List<MetricDefinition> allMetrics = new ArrayList<>();
+        for (String event : events) {
+            allMetrics.addAll(parseMetrics(event));
+        }
+        List<Double> expectedValues = new ArrayList<>();
+        for (int i = 0; i < Constants.MAX_DATAPOINTS_PER_METRIC; i++) {
+            expectedValues.add((double) i);
+        }
+        assertEquals(expectedValues, allMetrics.get(0).getValues());
+        assertTrue(allMetrics.get(1).getValues().equals(Arrays.asList(100.0)));
+    }
+
+    @Test
+    public void testSerializeMetricsWith101DataPoints() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        int dataPointCount = 101;
+        int expectedEventCount = 2;
+        String metricName = "metric1";
+        for (int i = 0; i < dataPointCount; i++) {
+            mc.putMetric(metricName, i);
+        }
+        mc.putMetric("metric2", 2);
+
+        List<String> events = mc.serialize();
+        assertEquals(expectedEventCount, events.size());
+
+        List<MetricDefinition> metricsFromEvent1 = parseMetrics(events.get(0));
+        List<MetricDefinition> metricsFromEvent2 = parseMetrics(events.get(1));
+
+        assertEquals(2, metricsFromEvent1.size());
+        List<Double> expectedValues = new ArrayList<>();
+        for (int i = 0; i < Constants.MAX_DATAPOINTS_PER_METRIC; i++) {
+            expectedValues.add((double) i);
+        }
+        assertEquals(expectedValues, metricsFromEvent1.get(0).getValues());
+        assertEquals(Arrays.asList(2.0), metricsFromEvent1.get(1).getValues());
+
+        assertEquals(1, metricsFromEvent2.size());
+        assertEquals(Arrays.asList(100.0), metricsFromEvent2.get(0).getValues());
+    }
+
+    @Test
     public void testSerializeZeroMetric() throws JsonProcessingException {
         MetricsContext mc = new MetricsContext();
         mc.putDimension(DimensionSet.of("Region", "IAD"));
@@ -106,8 +162,12 @@ public class MetricsContextTest {
         for (Map<String, String> metric : metrics) {
             String name = metric.get("Name");
             Unit unit = Unit.fromValue(metric.get("Unit"));
-            double value = (double) metadata_map.get(name);
-            metricDefinitions.add(new MetricDefinition(name, unit, value));
+            Object value = metadata_map.get(name);
+            if (value instanceof ArrayList) {
+                metricDefinitions.add(new MetricDefinition(name, unit, (ArrayList) value));
+            } else {
+                metricDefinitions.add(new MetricDefinition(name, unit, (double) value));
+            }
         }
         return metricDefinitions;
     }

@@ -22,4 +22,6 @@ public class Constants {
     public static final String UNKNOWN = "Unknown";
 
     public static final int MAX_METRICS_PER_EVENT = 100;
+
+    public static final int MAX_DATAPOINTS_PER_METRIC = 100;
 }
