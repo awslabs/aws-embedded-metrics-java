@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.logger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -199,6 +200,54 @@ public class MetricsLoggerTest {
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.flush();
         expectDimension("Name", "Test");
+    }
+
+    @Test
+    public void testFlushPreserveDimensions() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions(DimensionSet.of("Name", "Test"));
+        logger.flush();
+        expectDimension("Name", "Test");
+
+        logger.flush();
+        expectDimension("Name", "Test");
+    }
+
+    @Test
+    public void testFlushDoesntPreserveMetrics() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions(DimensionSet.of("Name", "Test"));
+        logger.putMetric("Count", 1.0);
+        logger.flush();
+        assertTrue(sink.getLogEvents().get(0).contains("Count"));
+
+        logger.flush();
+        assertFalse(sink.getLogEvents().get(0).contains("Count"));
+    }
+
+
+    @Test
+    public void testNoDimensionsAfterSetEmptyDimensionSet() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+
+        logger.setDimensions();
+        logger.flush();
+
+        List<DimensionSet> dimensions = sink.getContext().getDimensions();
+        assertEquals(0, dimensions.size());
+    }
+
+    @Test
+    public void testNoDimensionsAfterSetEmptyDimensionSetWithMultipleFlush() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+
+        logger.setDimensions();
+        logger.flush();
+
+        assertEquals(0, sink.getContext().getDimensions().size());
+
+        logger.flush();
+        assertEquals(0, sink.getContext().getDimensions().size());
     }
 
     private void expectDimension(String dimension, String value) {

@@ -37,6 +37,12 @@ public class MetricsContext {
         metricDirective = rootNode.getAws().createMetricDirective();
     }
 
+    public MetricsContext(MetricDirective metricDirective) {
+        this();
+        this.rootNode.getAws().setMetricDirective(metricDirective);
+        this.metricDirective = metricDirective;
+    }
+
     public MetricsContext(
             String namespace,
             Map<String, Object> properties,
@@ -191,11 +197,7 @@ public class MetricsContext {
 
     /** @return Creates an independently flushable context. */
     public MetricsContext createCopyWithContext() {
-        return new MetricsContext(
-                this.metricDirective.getNamespace(),
-                this.rootNode.getProperties(),
-                this.metricDirective.getDimensions(),
-                this.metricDirective.getDefaultDimensions());
+        return new MetricsContext(metricDirective.copyWithoutMetrics());
     }
 
     /**
