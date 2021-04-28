@@ -225,7 +225,6 @@ public class MetricsLoggerTest {
         assertFalse(sink.getLogEvents().get(0).contains("Count"));
     }
 
-
     @Test
     public void testNoDimensionsAfterSetEmptyDimensionSet() {
         MetricsLogger logger = new MetricsLogger(envProvider);
