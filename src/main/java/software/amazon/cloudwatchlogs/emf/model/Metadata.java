@@ -70,6 +70,11 @@ class Metadata {
         return newMetricDirective;
     }
 
+    void setMetricDirective(MetricDirective metricDirective) {
+        cloudWatchMetrics = new ArrayList<>();
+        cloudWatchMetrics.add(metricDirective);
+    }
+
     /**
      * Test if there's any metric added.
      *

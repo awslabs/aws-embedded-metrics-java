@@ -115,4 +115,18 @@ class MetricDirective {
     boolean hasNoMetrics() {
         return this.getMetrics().isEmpty();
     }
+
+    /**
+     * Create a copy of the metric directive without having the existing metrics
+     *
+     * @return A object of metric directive
+     */
+    MetricDirective copyWithoutMetrics() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.setDefaultDimensions(this.defaultDimensions);
+        metricDirective.setDimensions(this.dimensions);
+        metricDirective.setNamespace(this.namespace);
+        metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+        return metricDirective;
+    }
 }
