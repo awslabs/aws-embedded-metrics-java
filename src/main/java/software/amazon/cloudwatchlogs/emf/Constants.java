@@ -24,4 +24,27 @@ public class Constants {
     public static final int MAX_METRICS_PER_EVENT = 100;
 
     public static final int MAX_DATAPOINTS_PER_METRIC = 100;
+
+    /**
+     * The max number of messages to hold in memory in case of transient socket errors. The maximum
+     * message size is 256 KB meaning the maximum size of this buffer would be 25,600 MB
+     */
+    public static final int DEFAULT_ASYNC_BUFFER_SIZE = 100;
+
+    /**
+     * How many times to retry an individual message. We eventually give up vs. retrying
+     * indefinitely in case there is something inherent to the message that is causing the failures.
+     * Giving up results in data loss, but also helps us reduce the risk of a poison pill blocking
+     * all process telemetry.
+     */
+    public static final int MAX_ATTEMPTS_PER_MESSAGE = 100;
+
+    /** Starting backoff millis when a transient socket failure is encountered. */
+    public static final int MIN_BACKOFF_MILLIS = 50;
+
+    /** Max backoff millis when a transient socket failure is encountered. */
+    public static final int MAX_BACKOFF_MILLIS = 2000;
+
+    /** Maximum amount of random jitter to apply to retries */
+    public static final int MAX_BACKOFF_JITTER = 20;
 }

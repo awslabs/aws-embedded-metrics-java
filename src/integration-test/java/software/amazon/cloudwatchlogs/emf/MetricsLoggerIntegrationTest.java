@@ -31,7 +31,8 @@ import software.amazon.awssdk.services.cloudwatch.model.GetMetricStatisticsReque
 import software.amazon.awssdk.services.cloudwatch.model.Statistic;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
-import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.environment.DefaultEnvironment;
+import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
@@ -56,56 +57,64 @@ public class MetricsLoggerIntegrationTest {
 
     @Test(timeout = 120_000)
     public void testSingleFlushOverTCP() throws InterruptedException {
+        Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "TCP-SingleFlush";
         int expectedSamples = 1;
         config.setAgentEndpoint("tcp://127.0.0.1:25888");
 
-        logMetric(metricName);
+        logMetric(env, metricName);
+        env.getSink().shutdown().join();
 
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
     @Test(timeout = 300_000)
     public void testMultipleFlushesOverTCP() throws InterruptedException {
+        Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "TCP-MultipleFlushes";
         int expectedSamples = 3;
         config.setAgentEndpoint("tcp://127.0.0.1:25888");
 
-        logMetric(metricName);
-        logMetric(metricName);
+        logMetric(env, metricName);
+        logMetric(env, metricName);
         Thread.sleep(500);
-        logMetric(metricName);
+        logMetric(env, metricName);
+        env.getSink().shutdown().join();
 
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
     @Test(timeout = 120_000)
     public void testSingleFlushOverUDP() throws InterruptedException {
+        Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "UDP-SingleFlush";
         int expectedSamples = 1;
         config.setAgentEndpoint("udp://127.0.0.1:25888");
 
-        logMetric(metricName);
+        logMetric(env, metricName);
+        env.getSink().shutdown().join();
 
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
     @Test(timeout = 300_000)
     public void testMultipleFlushOverUDP() throws InterruptedException {
+        Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "UDP-MultipleFlush";
         int expectedSamples = 3;
         config.setAgentEndpoint("udp://127.0.0.1:25888");
 
-        logMetric(metricName);
-        logMetric(metricName);
+        logMetric(env, metricName);
+        logMetric(env, metricName);
         Thread.sleep(500);
-        logMetric(metricName);
+        logMetric(env, metricName);
+        env.getSink().shutdown().join();
 
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
-    private void logMetric(String metricName) {
-        MetricsLogger logger = new MetricsLogger(new EnvironmentProvider());
+    private void logMetric(Environment env, String metricName) {
+        MetricsLogger logger = new MetricsLogger(env);
         logger.putDimensions(dimensions);
         logger.putMetric(metricName, 100, Unit.MILLISECONDS);
         logger.flush();

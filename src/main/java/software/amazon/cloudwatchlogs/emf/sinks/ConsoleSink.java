@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.concurrent.CompletableFuture;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,5 +41,10 @@ public class ConsoleSink implements ISink {
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize a MetricsContext: ", e);
         }
+    }
+
+    @Override
+    public CompletableFuture<Void> shutdown() {
+        return CompletableFuture.completedFuture(null);
     }
 }

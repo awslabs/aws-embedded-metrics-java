@@ -26,7 +26,7 @@ import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 
 @Slf4j
-class EC2Environment extends AgentBasedEnvironment {
+public class EC2Environment extends AgentBasedEnvironment {
     private Configuration config;
     private EC2Metadata metadata;
     private ResourceFetcher fetcher;

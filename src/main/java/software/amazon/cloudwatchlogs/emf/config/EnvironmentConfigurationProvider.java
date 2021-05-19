@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.config;
 
+import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.environment.Environments;
 import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
@@ -27,21 +28,21 @@ public class EnvironmentConfigurationProvider {
 
     public static Configuration getConfig() {
         if (config == null) {
-            config =
-                    new Configuration(
-                            getEnvVar(ConfigurationKeys.SERVICE_NAME),
-                            getEnvVar(ConfigurationKeys.SERVICE_TYPE),
-                            getEnvVar(ConfigurationKeys.LOG_GROUP_NAME),
-                            getEnvVar(ConfigurationKeys.LOG_STREAM_NAME),
-                            getEnvVar(ConfigurationKeys.AGENT_ENDPOINT),
-                            getEnvironmentOverride());
+            config = createConfig();
         }
         return config;
     }
 
-    private static String getEnvVar(String key) {
-        String name = String.join("", ConfigurationKeys.ENV_VAR_PREFIX, "_", key);
-        return getEnv(name);
+    static Configuration createConfig() {
+        return new Configuration(
+                getEnvVar(ConfigurationKeys.SERVICE_NAME),
+                getEnvVar(ConfigurationKeys.SERVICE_TYPE),
+                getEnvVar(ConfigurationKeys.LOG_GROUP_NAME),
+                getEnvVar(ConfigurationKeys.LOG_STREAM_NAME),
+                getEnvVar(ConfigurationKeys.AGENT_ENDPOINT),
+                getEnvironmentOverride(),
+                getIntOrDefault(
+                        ConfigurationKeys.ASYNC_BUFFER_SIZE, Constants.DEFAULT_ASYNC_BUFFER_SIZE));
     }
 
     private static Environments getEnvironmentOverride() {
@@ -55,6 +56,24 @@ public class EnvironmentConfigurationProvider {
         } catch (Exception e) {
             return Environments.Unknown;
         }
+    }
+
+    private static int getIntOrDefault(String key, int defaultValue) {
+        String value = getEnvVar(key);
+        if (StringUtils.isNullOrEmpty(value)) {
+            return defaultValue;
+        }
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static String getEnvVar(String key) {
+        String name = String.join("", ConfigurationKeys.ENV_VAR_PREFIX, "_", key);
+        return getEnv(name);
     }
 
     private static String getEnv(String name) {

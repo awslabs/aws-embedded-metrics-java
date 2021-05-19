@@ -24,7 +24,7 @@ import software.amazon.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
 @Slf4j
-class LocalEnvironment implements Environment {
+public class LocalEnvironment implements Environment {
     private ISink sink;
     private Configuration config;
 

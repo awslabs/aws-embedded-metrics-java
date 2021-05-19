@@ -27,4 +27,5 @@ public class ConfigurationKeys {
     public static final String LOG_STREAM_NAME = "LOG_STREAM_NAME";
     public static final String AGENT_ENDPOINT = "AGENT_ENDPOINT";
     public static final String ENVIRONMENT_OVERRIDE = "ENVIRONMENT";
+    public static final String ASYNC_BUFFER_SIZE = "ASYNC_BUFFER_SIZE";
 }

@@ -18,8 +18,10 @@ package software.amazon.cloudwatchlogs.emf.config;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.environment.Environments;
 import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
@@ -54,6 +56,9 @@ public class Configuration {
      */
     @Setter Environments environmentOverride;
 
+    /** Queue length for asynchronous sinks. */
+    @Setter @Getter int asyncBufferSize = Constants.DEFAULT_ASYNC_BUFFER_SIZE;
+
     public Optional<String> getServiceName() {
         return getStringOptional(serviceName);
     }
@@ -85,6 +90,6 @@ public class Configuration {
         if (StringUtils.isNullOrEmpty(value)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(value);
+        return Optional.of(value);
     }
 }

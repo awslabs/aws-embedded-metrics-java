@@ -18,7 +18,6 @@ package software.amazon.cloudwatchlogs.emf.config;
 
 import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -40,14 +39,30 @@ public class EnvironmentConfigurationProviderTest {
         putEnv("AWS_EMF_LOG_STREAM_NAME", "TestLogStream");
         putEnv("AWS_EMF_AGENT_ENDPOINT", "Endpoint");
         putEnv("AWS_EMF_ENVIRONMENT", "Agent");
-        Configuration config = EnvironmentConfigurationProvider.getConfig();
+        putEnv("AWS_EMF_ASYNC_BUFFER_SIZE", "9999");
+
+        Configuration config = EnvironmentConfigurationProvider.createConfig();
 
         assertEquals(config.getServiceName().get(), "TestServiceName");
         assertEquals(config.getServiceType().get(), "TestServiceType");
         assertEquals(config.getLogGroupName().get(), "TestLogGroup");
         assertEquals(config.getLogStreamName().get(), "TestLogStream");
         assertEquals(config.getAgentEndpoint().get(), "Endpoint");
-        Assert.assertEquals(config.getEnvironmentOverride(), Environments.Agent);
+        assertEquals(config.getEnvironmentOverride(), Environments.Agent);
+        assertEquals(config.getAsyncBufferSize(), 9999);
+    }
+
+    @Test
+    public void invalidEnvironmentValuesFallbackToExpectedDefaults() {
+        // arrange
+        PowerMockito.mockStatic(SystemWrapper.class);
+
+        // act
+        putEnv("AWS_EMF_ASYNC_BUFFER_SIZE", "NaN");
+
+        // assert
+        Configuration config = EnvironmentConfigurationProvider.createConfig();
+        assertEquals(100, config.getAsyncBufferSize());
     }
 
     private void putEnv(String key, String value) {

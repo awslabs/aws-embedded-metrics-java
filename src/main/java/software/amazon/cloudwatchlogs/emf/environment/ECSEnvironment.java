@@ -32,7 +32,7 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
 @Slf4j
-class ECSEnvironment extends AgentBasedEnvironment {
+public class ECSEnvironment extends AgentBasedEnvironment {
     private Configuration config;
     private ECSMetadata metadata;
     private ResourceFetcher fetcher;
@@ -42,6 +42,10 @@ class ECSEnvironment extends AgentBasedEnvironment {
     private static final String ECS_CONTAINER_METADATA_URI = "ECS_CONTAINER_METADATA_URI";
     private static final String FLUENT_HOST = "FLUENT_HOST";
     private static final String ENVIRONMENT_TYPE = "AWS::ECS::Container";
+
+    public ECSEnvironment(Configuration config) {
+        this(config, new ResourceFetcher());
+    }
 
     ECSEnvironment(Configuration config, ResourceFetcher fetcher) {
         super(config);

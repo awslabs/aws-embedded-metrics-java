@@ -23,10 +23,11 @@ import software.amazon.cloudwatchlogs.emf.sinks.AgentSink;
 import software.amazon.cloudwatchlogs.emf.sinks.Endpoint;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 import software.amazon.cloudwatchlogs.emf.sinks.SocketClientFactory;
+import software.amazon.cloudwatchlogs.emf.sinks.retry.FibonacciRetryStrategy;
 
 @Slf4j
 public abstract class AgentBasedEnvironment implements Environment {
-    private Configuration config;
+    private final Configuration config;
     private ISink sink;
 
     public AgentBasedEnvironment(Configuration config) {
@@ -68,7 +69,13 @@ public abstract class AgentBasedEnvironment implements Environment {
                             getLogGroupName(),
                             getLogStreamName(),
                             endpoint,
-                            new SocketClientFactory());
+                            new SocketClientFactory(),
+                            config.getAsyncBufferSize(),
+                            () ->
+                                    new FibonacciRetryStrategy(
+                                            Constants.MIN_BACKOFF_MILLIS,
+                                            Constants.MAX_BACKOFF_MILLIS,
+                                            Constants.MAX_BACKOFF_JITTER));
         }
         return sink;
     }

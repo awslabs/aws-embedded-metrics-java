@@ -40,6 +40,12 @@ public class MetricsLogger {
         this(new EnvironmentProvider());
     }
 
+    public MetricsLogger(Environment environment) {
+        context = new MetricsContext();
+        environmentFuture = CompletableFuture.completedFuture(environment);
+        environmentProvider = null; // TODO: should do some refactoring here
+    }
+
     public MetricsLogger(EnvironmentProvider environmentProvider) {
         this(environmentProvider, new MetricsContext());
     }
