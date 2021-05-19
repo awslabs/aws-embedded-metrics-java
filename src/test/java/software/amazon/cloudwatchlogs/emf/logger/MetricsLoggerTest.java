@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Assert;
@@ -116,6 +117,21 @@ public class MetricsLoggerTest {
         logger.flush();
 
         Assert.assertEquals(sink.getContext().getNamespace(), namespace);
+    }
+
+    @Test
+    public void testFlushWithDefaultTimestamp() {
+        logger.flush();
+        Assert.assertNotNull(sink.getContext().getTimestamp());
+    }
+
+    @Test
+    public void testSetTimestamp() {
+        Instant now = Instant.now();
+        logger.setTimestamp(now);
+        logger.flush();
+
+        Assert.assertEquals(sink.getContext().getTimestamp(), now);
     }
 
     @Test
