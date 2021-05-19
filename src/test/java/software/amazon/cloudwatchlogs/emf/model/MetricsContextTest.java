@@ -192,6 +192,6 @@ public class MetricsContextTest {
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
-        return new JsonMapper().readValue(event, new TypeReference<>() {});
+        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
     }
 }
