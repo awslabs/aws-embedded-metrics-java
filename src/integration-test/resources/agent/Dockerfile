@@ -1,5 +1,5 @@
 
-FROM debian:latest
+FROM public.ecr.aws/lts/ubuntu:latest
 
 RUN apt-get update &&  \
     apt-get install -y ca-certificates curl && \
