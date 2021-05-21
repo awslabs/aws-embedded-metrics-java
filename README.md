@@ -158,6 +158,16 @@ Examples:
 setNamespace("MyApplication")
 ```
 
+- MetricsLogger **setTimestamp**(Instant timestamp)
+
+Sets the timestamp of the metrics. If not set, current time of the client will be used.
+
+Examples:
+
+```java
+setTimestamp(Instant.now())
+```
+
 - **flush**()
 
 Flushes the current MetricsContext to the configured sink and resets all properties, dimensions and metric values. The namespace and default dimensions will be preserved across flushes.

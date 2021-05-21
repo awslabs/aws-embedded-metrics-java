@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.time.Instant;
 import java.util.*;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
@@ -193,6 +194,20 @@ public class MetricsContext {
      */
     public void putMetadata(String key, Object value) {
         rootNode.getAws().putCustomMetadata(key, value);
+    }
+
+    /** @return timestamp field from the metadata. */
+    public Instant getTimestamp() {
+        return rootNode.getAws().getTimestamp();
+    }
+
+    /**
+     * Update timestamp field in the metadata
+     *
+     * @param timestamp value of timestamp to be set
+     */
+    public void setTimestamp(Instant timestamp) {
+        rootNode.getAws().setTimestamp(timestamp);
     }
 
     /** @return Creates an independently flushable context. */

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -140,19 +141,37 @@ public class MetricsContextTest {
         int expectedEventCount = 1;
         assertEquals(expectedEventCount, events.size());
 
-        JsonMapper objectMapper = new JsonMapper();
-        Map<String, Object> metadata_map =
-                objectMapper.readValue(events.get(0), new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> rootNode = parseRootNode(events.get(0));
         // If there's no metric added, the _aws would be filtered out from the log event
-        assertFalse(metadata_map.containsKey("_aws"));
+        assertFalse(rootNode.containsKey("_aws"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testSetTimestamp() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        mc.putMetric("Metric", 0);
+
+        Instant now = Instant.now();
+        mc.setTimestamp(now);
+
+        List<String> events = mc.serialize();
+
+        int expectedEventCount = 1;
+        assertEquals(expectedEventCount, events.size());
+        Map<String, Object> rootNode = parseRootNode(events.get(0));
+
+        assertTrue(rootNode.containsKey("_aws"));
+        Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
+
+        assertTrue(metadata.containsKey("Timestamp"));
+        assertEquals(metadata.get("Timestamp"), now.toEpochMilli());
     }
 
     @SuppressWarnings("unchecked")
     private ArrayList<MetricDefinition> parseMetrics(String event) throws JsonProcessingException {
-        JsonMapper objectMapper = new JsonMapper();
-        Map<String, Object> metadata_map =
-                objectMapper.readValue(event, new TypeReference<Map<String, Object>>() {});
-        Map<String, Object> metadata = (Map<String, Object>) metadata_map.get("_aws");
+        Map<String, Object> rootNode = parseRootNode(event);
+        Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
         ArrayList<Map<String, Object>> metricDirectives =
                 (ArrayList<Map<String, Object>>) metadata.get("CloudWatchMetrics");
         ArrayList<Map<String, String>> metrics =
@@ -162,7 +181,7 @@ public class MetricsContextTest {
         for (Map<String, String> metric : metrics) {
             String name = metric.get("Name");
             Unit unit = Unit.fromValue(metric.get("Unit"));
-            Object value = metadata_map.get(name);
+            Object value = rootNode.get(name);
             if (value instanceof ArrayList) {
                 metricDefinitions.add(new MetricDefinition(name, unit, (ArrayList) value));
             } else {
@@ -170,5 +189,9 @@ public class MetricsContextTest {
             }
         }
         return metricDefinitions;
+    }
+
+    private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
+        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
     }
 }

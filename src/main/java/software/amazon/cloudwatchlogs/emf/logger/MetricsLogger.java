@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.logger;
 
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
@@ -162,6 +163,17 @@ public class MetricsLogger {
      */
     public MetricsLogger setNamespace(String namespace) {
         this.context.setNamespace(namespace);
+        return this;
+    }
+
+    /**
+     * Set the timestamp to be used for metrics.
+     *
+     * @param timestamp value of timestamp to be set
+     * @return the current logger
+     */
+    public MetricsLogger setTimestamp(Instant timestamp) {
+        this.context.setTimestamp(timestamp);
         return this;
     }
 
