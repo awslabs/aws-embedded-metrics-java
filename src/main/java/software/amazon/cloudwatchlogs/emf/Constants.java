@@ -27,7 +27,7 @@ public class Constants {
 
     /**
      * The max number of messages to hold in memory in case of transient socket errors. The maximum
-     * message size is 256 KB meaning the maximum size of this buffer would be 25,600 MB
+     * message size is 256 KB meaning the maximum size of this buffer would be 25.6 MB
      */
     public static final int DEFAULT_ASYNC_BUFFER_SIZE = 100;
 
