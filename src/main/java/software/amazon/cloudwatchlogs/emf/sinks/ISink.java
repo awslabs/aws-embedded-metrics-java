@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.sinks;
 
+import java.util.concurrent.CompletableFuture;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 
 /** Interface for sinking log items to CloudWatch. */
@@ -27,4 +28,14 @@ public interface ISink {
      * @param context MetricsContext
      */
     void accept(MetricsContext context);
+
+    /**
+     * Shutdown the sink. The returned {@link CompletableFuture} will be completed when all queued
+     * events have been flushed. After this is called, no more metrics can be sent through this sink
+     * and attempting to continue to re-use the sink will result in undefined behavior.
+     *
+     * @return a future that completes when the shutdown has completed successfully and all pending
+     *     messages have been sent to the destination.
+     */
+    CompletableFuture<Void> shutdown();
 }

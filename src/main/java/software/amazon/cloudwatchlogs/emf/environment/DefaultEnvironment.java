@@ -22,10 +22,10 @@ import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 
 @Slf4j
-class DefaultEnvironment extends AgentBasedEnvironment {
+public class DefaultEnvironment extends AgentBasedEnvironment {
     private Configuration config;
 
-    DefaultEnvironment(Configuration config) {
+    public DefaultEnvironment(Configuration config) {
         super(config);
         this.config = config;
     }

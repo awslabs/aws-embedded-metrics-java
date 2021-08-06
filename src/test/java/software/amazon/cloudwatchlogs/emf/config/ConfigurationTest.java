@@ -35,7 +35,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testReturnEmptyIfNotSet() {
+    public void testReturnEmptyOrDefaultIfNotSet() {
         assertFalse(config.getAgentEndpoint().isPresent());
         assertFalse(config.getLogGroupName().isPresent());
         assertFalse(config.getLogStreamName().isPresent());
@@ -43,6 +43,7 @@ public class ConfigurationTest {
         assertFalse(config.getServiceName().isPresent());
 
         assertEquals(config.getEnvironmentOverride(), Environments.Unknown);
+        assertEquals(config.getAsyncBufferSize(), 100);
     }
 
     @Test
@@ -70,12 +71,15 @@ public class ConfigurationTest {
         String expectedServiceType = faker.letterify("????");
         String expectedServiceName = faker.letterify("????");
         Environments expectedEnvironment = Environments.Agent;
+        int expectedAsyncBufferSize = faker.number().randomDigit();
+
         config.setAgentEndpoint(expectedEndpoint);
         config.setLogGroupName(expectedLogGroupName);
         config.setLogStreamName(expectedLogStreamName);
         config.setServiceType(expectedServiceType);
         config.setServiceName(expectedServiceName);
         config.setEnvironmentOverride(expectedEnvironment);
+        config.setAsyncBufferSize(expectedAsyncBufferSize);
 
         assertEquals(config.getAgentEndpoint().get(), expectedEndpoint);
         assertEquals(config.getLogGroupName().get(), expectedLogGroupName);
@@ -83,5 +87,6 @@ public class ConfigurationTest {
         assertEquals(config.getServiceType().get(), expectedServiceType);
         assertEquals(config.getServiceName().get(), expectedServiceName);
         assertEquals(config.getEnvironmentOverride(), expectedEnvironment);
+        assertEquals(config.getAsyncBufferSize(), expectedAsyncBufferSize);
     }
 }

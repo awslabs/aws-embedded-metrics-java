@@ -6,6 +6,7 @@
 Generate CloudWatch metrics embedded within structured log events. The embedded metrics will be extracted so that you can visualize and alarm on them for real-time incident detection. This allows you to monitor aggregated values while preserving the detailed log event context that generates them.
 - [Use Cases](#use-cases)
 - [Usage](#usage)
+- [Graceful Shutdown](#graceful-shutdown)
 - [API](#api)
 - [Examples](#examples)
 - [Development](#development)
@@ -25,7 +26,6 @@ Generate CloudWatch metrics embedded within structured log events. The embedded 
 
 To use a metric logger, you need to manually create and flush the logger.
 
-
 ```java
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
@@ -43,6 +43,30 @@ class Example {
 ```
 
 You can find the artifact location and examples of how to include it in your project at [Maven Central](https://search.maven.org/artifact/software.amazon.cloudwatchlogs/aws-embedded-metrics)
+
+## Graceful Shutdown
+
+**Since:** 2.0.0-beta-1
+
+In any environment, other than AWS Lambda, we recommend running an out-of-process agent (the CloudWatch Agent or
+FireLens / Fluent-Bit) to collect the EMF events. When using an out-of-process agent, this package will buffer the data
+asynchronously in process to handle any transient communication issues with the agent. This means that when the `MetricsLogger`
+gets flushed, data may not be safely persisted yet. To gracefully shutdown the environment, you can call shutdown on the
+environment's sink. A full example can be found in the [`examples`](examples) directory.
+
+```java
+// create an environment singleton, this should be re-used across loggers
+DefaultEnvironment environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
+
+MetricsLogger logger = new MetricsLogger(environment);
+logger.setDimensions(DimensionSet.of("Operation", "ProcessRecords"));
+logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);
+logger.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
+logger.flush();
+
+// flush the sink, waiting up to 10s before giving up
+environment.getSink().shutdown().orTimeout(10_000L, TimeUnit.MILLISECONDS);
+```
 
 ## API
 

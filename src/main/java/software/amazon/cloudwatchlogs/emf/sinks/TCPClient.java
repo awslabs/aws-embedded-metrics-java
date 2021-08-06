@@ -31,17 +31,17 @@ public class TCPClient implements SocketClient {
     private boolean shouldConnect = true;
 
     public TCPClient(Endpoint endpoint) {
-        socket = createSocket();
         this.endpoint = endpoint;
     }
 
     private void connect() {
         try {
+            socket = createSocket();
             socket.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
             shouldConnect = false;
         } catch (Exception e) {
-            log.error("Failed to connect to the socket due to the exception: ", e);
             shouldConnect = true;
+            throw new RuntimeException("Failed to connect to the socket.", e);
         }
     }
 
@@ -51,7 +51,7 @@ public class TCPClient implements SocketClient {
 
     @Override
     public synchronized void sendMessage(String message) {
-        if (socket.isClosed() || shouldConnect) {
+        if (socket == null || socket.isClosed() || shouldConnect) {
             connect();
         }
 
@@ -59,19 +59,16 @@ public class TCPClient implements SocketClient {
         try {
             os = socket.getOutputStream();
         } catch (IOException e) {
-            log.error("Failed to open output stream: ", e);
-            connect();
-            return;
+            shouldConnect = true;
+            throw new RuntimeException(
+                    "Failed to write message to the socket. Failed to open output stream.", e);
         }
 
         try {
             os.write(message.getBytes());
-        } catch (IOException e) {
-            log.error("Could not send write request due to IOException: ", e);
-            connect();
         } catch (Exception e) {
-            log.error("Could not send write request due to Exception: ", e);
-            connect();
+            shouldConnect = true;
+            throw new RuntimeException("Failed to write message to the socket.", e);
         }
     }
 

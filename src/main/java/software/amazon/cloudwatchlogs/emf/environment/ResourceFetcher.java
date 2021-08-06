@@ -29,7 +29,7 @@ import software.amazon.cloudwatchlogs.emf.util.IOUtils;
 import software.amazon.cloudwatchlogs.emf.util.Jackson;
 
 @Slf4j
-class ResourceFetcher {
+public class ResourceFetcher {
 
     /** Fetch a json object from a given uri and deserialize it to the specified class: clazz. */
     <T> T fetch(URI endpoint, Class<T> clazz) {

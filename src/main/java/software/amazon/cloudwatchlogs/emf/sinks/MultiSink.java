@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.sinks;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
@@ -29,12 +30,22 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
  */
 @Builder
 public class MultiSink implements ISink {
-    @Singular @NonNull private List<ISink> sinks;
+    @Singular @NonNull private final List<ISink> sinks;
 
     @Override
     public void accept(MetricsContext context) {
         for (ISink sink : sinks) {
             sink.accept(context);
         }
+    }
+
+    @Override
+    public CompletableFuture<Void> shutdown() {
+        @SuppressWarnings("rawtypes")
+        final CompletableFuture[] list = new CompletableFuture[sinks.size()];
+        for (int i = 0; i < sinks.size(); i++) {
+            list[i] = sinks.get(i).shutdown();
+        }
+        return CompletableFuture.allOf(list);
     }
 }
