@@ -49,9 +49,11 @@ public class EC2EnvironmentTest {
         environment = new EC2Environment(config, fetcher);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testProbeReturnFalse() {
-        when(fetcher.fetch(any(), any())).thenThrow(new EMFClientException("Invalid URL"));
+        when(fetcher.fetch(any(), any(), (Class<Object>) any(), any()))
+                .thenThrow(new EMFClientException("Invalid URL"));
 
         assertFalse(environment.probe());
     }
@@ -71,8 +73,10 @@ public class EC2EnvironmentTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testGetTypeReturnDefined() {
-        when(fetcher.fetch(any(), any())).thenReturn(new EC2Environment.EC2Metadata());
+        when(fetcher.fetch(any(), any(), (Class<Object>) any(), any()))
+                .thenReturn(new EC2Environment.EC2Metadata());
         environment.probe();
         assertEquals(environment.getType(), "AWS::EC2::Instance");
     }
@@ -87,10 +91,11 @@ public class EC2EnvironmentTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testConfigureContext() {
         EC2Environment.EC2Metadata metadata = new EC2Environment.EC2Metadata();
         getRandomMetadata(metadata);
-        when(fetcher.fetch(any(), any())).thenReturn(metadata);
+        when(fetcher.fetch(any(), any(), (Class<Object>) any(), any())).thenReturn(metadata);
         environment.probe();
 
         MetricsContext context = new MetricsContext();
