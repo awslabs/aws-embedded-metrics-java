@@ -28,7 +28,7 @@ allprojects {
 		targetCompatibility = '1.8'
 	}
 
-	version = '1.0.5'
+	version = '1.0.6'
 }
 
 java {
@@ -64,6 +64,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
 	implementation 'org.slf4j:slf4j-api:1.7.30'
+	implementation 'org.javatuples:javatuples:1.2'
 
 	// Use JUnit test framework
 	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
