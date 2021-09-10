@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import lombok.Data;
+import org.javatuples.Pair;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -95,6 +97,33 @@ public class ResourceFetcherTest {
     }
 
     @Test
+    public void testReadDataWithHeaders200Response() {
+        Pair<String, String> mockHeader = new Pair<>("X-mock-header-key", "headerValue");
+        generateStub(200, "{\"name\":\"test\",\"size\":10}");
+        TestData data =
+                fetcher.fetch(
+                        endpoint, "GET", TestData.class, Collections.singletonList(mockHeader));
+
+        verify(
+                getRequestedFor(urlEqualTo(endpoint_path))
+                        .withHeader("X-mock-header-key", equalTo("headerValue")));
+        assertEquals(data.name, "test");
+        assertEquals(data.size, 10);
+    }
+
+    @Test
+    public void testWithProvidedMethodAndHeadersWith200Response() {
+        generatePutStub(200, "putResponseData");
+        Pair<String, String> mockHeader = new Pair<>("X-mock-header-key", "headerValue");
+        String data = fetcher.fetch(endpoint, "PUT", Collections.singletonList(mockHeader));
+
+        verify(
+                putRequestedFor(urlEqualTo(endpoint_path))
+                        .withHeader("X-mock-header-key", equalTo("headerValue")));
+        assertEquals(data, "putResponseData");
+    }
+
+    @Test
     public void testReadCaseInsensitiveDataWith200Response() {
         generateStub(200, "{\"Name\":\"test\",\"Size\":10}");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -128,6 +157,17 @@ public class ResourceFetcherTest {
     private void generateStub(int statusCode, String message) {
         stubFor(
                 get(urlPathEqualTo(endpoint_path))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(statusCode)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withHeader("charset", "utf-8")
+                                        .withBody(message)));
+    }
+
+    private void generatePutStub(int statusCode, String message) {
+        stubFor(
+                put(urlPathEqualTo(endpoint_path))
                         .willReturn(
                                 aResponse()
                                         .withStatus(statusCode)
