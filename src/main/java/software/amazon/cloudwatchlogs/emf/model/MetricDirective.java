@@ -51,12 +51,16 @@ class MetricDirective {
         shouldUseDefaultDimension = true;
     }
 
+    /**
+     * Adds a dimension set to the end of the collection.
+     *
+     * @param dimensionSet
+     */
     void putDimensionSet(DimensionSet dimensionSet) {
-        if (dimensions.stream()
-                .anyMatch(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()))) {
-            return;
-        }
-
+        // Duplicate dimensions sets are removed before being added to the end of the collection.
+        // This ensures only latest dimension value is used as a target member on the root EMF node.
+        // This operation is O(n^2), but acceptable given sets are capped at 10 dimensions
+        dimensions.removeIf(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()));
         dimensions.add(dimensionSet);
     }
 
