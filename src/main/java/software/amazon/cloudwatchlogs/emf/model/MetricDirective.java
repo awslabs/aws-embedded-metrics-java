@@ -52,6 +52,11 @@ class MetricDirective {
     }
 
     void putDimensionSet(DimensionSet dimensionSet) {
+        if (dimensions.stream()
+                .anyMatch(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()))) {
+            return;
+        }
+
         dimensions.add(dimensionSet);
     }
 
