@@ -31,12 +31,13 @@ public class TCPClient implements SocketClient {
     private boolean shouldConnect = true;
 
     public TCPClient(Endpoint endpoint) {
-        socket = createSocket();
         this.endpoint = endpoint;
     }
 
     private void connect() {
         try {
+            // Avoid "socket already connected" error (https://issues.amazon.com/issues/P54323886)
+            socket = createSocket();
             socket.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
             shouldConnect = false;
         } catch (Exception e) {
@@ -51,7 +52,7 @@ public class TCPClient implements SocketClient {
 
     @Override
     public synchronized void sendMessage(String message) {
-        if (socket.isClosed() || shouldConnect) {
+        if (socket == null || socket.isClosed() || shouldConnect) {
             connect();
         }
 

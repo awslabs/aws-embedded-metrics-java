@@ -325,6 +325,7 @@ We have 2 different types of tests:
 	export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
 	export AWS_SECRET_ACCESS_KEY=YOUR_ACCESS_KEY
 	export AWS_REGION=us-west-2
+ 	export AWS_SESSION_TOKEN=Your_AWS_SESSION_TOKEN
 	./gradlew integ
 	```
 
