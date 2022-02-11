@@ -329,7 +329,7 @@ We have 2 different types of tests:
 	./gradlew integ
 	```
 
-	**NOTE**: You need to replace the access key id and access key with your own AWS credentials.
+	**NOTE**: You need to replace the access key id and access key with your own AWS credentials. Another option is using IAM user access key pair without session token.
 
 ### Formatting
 

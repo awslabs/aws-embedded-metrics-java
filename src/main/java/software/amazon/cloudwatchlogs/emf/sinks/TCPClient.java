@@ -36,7 +36,6 @@ public class TCPClient implements SocketClient {
 
     private void connect() {
         try {
-            // Avoid "socket already connected" error (https://issues.amazon.com/issues/P54323886)
             socket = createSocket();
             socket.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
             shouldConnect = false;
