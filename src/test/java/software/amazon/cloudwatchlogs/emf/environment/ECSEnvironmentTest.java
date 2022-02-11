@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -68,7 +69,7 @@ public class ECSEnvironmentTest {
         String uri = "http://ecs-metata.com";
         PowerMockito.when(SystemWrapper.getenv("ECS_CONTAINER_METADATA_URI")).thenReturn(uri);
         ECSEnvironment.ECSMetadata metadata = new ECSEnvironment.ECSMetadata();
-        when(fetcher.fetch(any(), any(), any())).thenReturn(metadata);
+        when(fetcher.fetch(any(), (ObjectMapper) any(), any())).thenReturn(metadata);
 
         assertTrue(environment.probe());
     }
@@ -81,7 +82,7 @@ public class ECSEnvironmentTest {
         ECSEnvironment.ECSMetadata metadata = new ECSEnvironment.ECSMetadata();
         metadata.image = "testAccount.dkr.ecr.us-west-2.amazonaws.com/testImage:latest";
         metadata.labels = new HashMap<>();
-        when(fetcher.fetch(any(), any(), any())).thenReturn(metadata);
+        when(fetcher.fetch(any(), (ObjectMapper) any(), any())).thenReturn(metadata);
 
         assertTrue(environment.probe());
         assertEquals(environment.getName(), "testImage:latest");
@@ -122,7 +123,8 @@ public class ECSEnvironmentTest {
         PowerMockito.when(SystemWrapper.getenv("FLUENT_HOST")).thenReturn(fluentHost);
 
         environment.probe();
-        when(fetcher.fetch(any(), any(), any())).thenReturn(new ECSEnvironment.ECSMetadata());
+        when(fetcher.fetch(any(), (ObjectMapper) any(), any()))
+                .thenReturn(new ECSEnvironment.ECSMetadata());
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(config, times(1)).setAgentEndpoint(argument.capture());
         assertEquals(
@@ -155,7 +157,7 @@ public class ECSEnvironmentTest {
         PowerMockito.when(SystemWrapper.getenv("ECS_CONTAINER_METADATA_URI")).thenReturn(uri);
         ECSEnvironment.ECSMetadata metadata = new ECSEnvironment.ECSMetadata();
         getRandomMetadata(metadata);
-        when(fetcher.fetch(any(), any(), any())).thenReturn(metadata);
+        when(fetcher.fetch(any(), (ObjectMapper) any(), any())).thenReturn(metadata);
 
         environment.probe();
 
