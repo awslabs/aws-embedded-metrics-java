@@ -48,4 +48,50 @@ public class TCPClientTest {
 
         assertEquals(bos.toString(), message);
     }
+
+    @Test
+    public void testSendMessageWithGetOSException_THEN_createSocketTwice() throws IOException {
+        Socket socket = mock(Socket.class);
+        doNothing().when(socket).connect(any());
+        when(socket.getOutputStream()).thenThrow(IOException.class);
+
+        Endpoint endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+        TCPClient client =
+                new TCPClient(endpoint) {
+                    @Override
+                    protected Socket createSocket() {
+                        return socket;
+                    }
+                };
+
+        TCPClient spyClient = spy(client);
+
+        String message = "Test message";
+        spyClient.sendMessage(message);
+        verify(spyClient, atLeast(2)).createSocket();
+    }
+
+    @Test
+    public void testSendMessageWithWriteOSException_THEN_createSocketTwice() throws IOException {
+        Socket socket = mock(Socket.class);
+        doNothing().when(socket).connect(any());
+        ByteArrayOutputStream bos = mock(ByteArrayOutputStream.class);
+        when(socket.getOutputStream()).thenReturn(bos);
+        doThrow(IOException.class).when(bos).write(any());
+
+        Endpoint endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+        TCPClient client =
+                new TCPClient(endpoint) {
+                    @Override
+                    protected Socket createSocket() {
+                        return socket;
+                    }
+                };
+
+        TCPClient spyClient = spy(client);
+
+        String message = "Test message";
+        spyClient.sendMessage(message);
+        verify(spyClient, atLeast(2)).createSocket();
+    }
 }

@@ -324,11 +324,12 @@ We have 2 different types of tests:
 	```sh
 	export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
 	export AWS_SECRET_ACCESS_KEY=YOUR_ACCESS_KEY
+	export AWS_SESSION_TOKEN=YOUR_AWS_SESSION_TOKEN
 	export AWS_REGION=us-west-2
 	./gradlew integ
 	```
 
-	**NOTE**: You need to replace the access key id and access key with your own AWS credentials.
+	**NOTE**: You need to replace the access key id and access key with your own AWS credentials. Another option is using IAM user access key pair without session token.
 
 ### Formatting
 
