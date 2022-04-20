@@ -17,9 +17,9 @@
 package software.amazon.cloudwatchlogs.emf.sinks;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 /** A client that would connect to a TCP socket. */
@@ -27,8 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TCPClient implements SocketClient {
 
     private final Endpoint endpoint;
-    private Socket socket;
+    private SocketChannel socketChannel;
     private boolean shouldConnect = true;
+
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(1);
 
     public TCPClient(Endpoint endpoint) {
         this.endpoint = endpoint;
@@ -36,8 +38,8 @@ public class TCPClient implements SocketClient {
 
     private void connect() {
         try {
-            socket = createSocket();
-            socket.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
+            socketChannel = SocketChannel.open();
+            socketChannel.connect(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
             shouldConnect = false;
         } catch (Exception e) {
             shouldConnect = true;
@@ -45,27 +47,23 @@ public class TCPClient implements SocketClient {
         }
     }
 
-    protected Socket createSocket() {
-        return new Socket();
-    }
-
     @Override
     public synchronized void sendMessage(String message) {
-        if (socket == null || socket.isClosed() || shouldConnect) {
+        if (socketChannel == null || !socketChannel.isConnected() || shouldConnect) {
             connect();
         }
 
-        OutputStream os;
         try {
-            os = socket.getOutputStream();
-        } catch (IOException e) {
-            shouldConnect = true;
-            throw new RuntimeException(
-                    "Failed to write message to the socket. Failed to open output stream.", e);
-        }
+            socketChannel.configureBlocking(true);
+            socketChannel.write(ByteBuffer.wrap(message.getBytes()));
 
-        try {
-            os.write(message.getBytes());
+            // Execute a non-blocking, single-byte read to detect if there was a connection closure.
+            //   No actual data is expected to be read.
+            readBuffer.clear();
+
+            socketChannel.configureBlocking(false);
+            socketChannel.read(readBuffer);
+
         } catch (Exception e) {
             shouldConnect = true;
             throw new RuntimeException("Failed to write message to the socket.", e);
@@ -74,8 +72,8 @@ public class TCPClient implements SocketClient {
 
     @Override
     public void close() throws IOException {
-        if (socket != null) {
-            socket.close();
+        if (socketChannel != null) {
+            socketChannel.close();
         }
     }
 }

@@ -16,36 +16,63 @@
 
 package software.amazon.cloudwatchlogs.emf.sinks;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThrows;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
 public class TCPClientTest {
 
     @Test
     public void testSendMessage() throws IOException {
-        Socket socket = mock(Socket.class);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(bos);
-        doNothing().when(socket).connect(any());
         Endpoint endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+        InetSocketAddress socketAddress =
+                new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
 
-        TCPClient client =
-                new TCPClient(endpoint) {
-                    @Override
-                    protected Socket createSocket() {
-                        return socket;
-                    }
-                };
+        try (ServerSocketChannel serverListener = ServerSocketChannel.open()) {
+            serverListener.bind(socketAddress);
 
-        String message = "Test message";
-        client.sendMessage(message);
+            try (TCPClient client = new TCPClient(endpoint)) {
+                String message = "Test message";
+                client.sendMessage(message);
 
-        assertEquals(bos.toString(), message);
+                byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+                ByteBuffer receiveBuffer = ByteBuffer.allocate(messageBytes.length);
+
+                try (SocketChannel serverChannel = serverListener.accept()) {
+                    serverChannel.read(receiveBuffer);
+                }
+
+                assertArrayEquals(receiveBuffer.array(), messageBytes);
+            }
+        }
+    }
+
+    @Test
+    public void testDetectSocketClosure() throws IOException {
+        Endpoint endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+        InetSocketAddress socketAddress =
+                new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
+
+        try (ServerSocketChannel serverListener = ServerSocketChannel.open()) {
+            serverListener.bind(socketAddress);
+
+            try (TCPClient client = new TCPClient(endpoint)) {
+
+                String message = "Test message";
+                client.sendMessage(message);
+
+                SocketChannel serverChannel = serverListener.accept();
+                serverChannel.close();
+
+                assertThrows(RuntimeException.class, () -> client.sendMessage(message));
+            }
+        }
     }
 }
