@@ -1,0 +1,47 @@
+[
+  {
+    "name": "example",
+    "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/<image-name>:latest",
+    "environment": [{
+      "name": "AWS_EMF_AGENT_ENDPOINT",
+      "value": "tcp://127.0.0.1:25888"
+    }
+    ],
+    "essential": true,
+    "logConfiguration": {
+      "logDriver": "awsfirelens",
+      "options": {
+        "Name": "cloudwatch",
+        "region": "<region>",
+        "log_key": "log",
+        "log_group_name": "aws-emf-ecs-firelens-example-metrics",
+        "auto_create_group": "true",
+        "log_stream_prefix": "emf-",
+        "retry_limit": "2",
+        "log_format": "json/emf"
+      }
+    }
+  },
+  {
+    "name": "fluent-bit",
+    "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/<Firelens-custom-conf-image>:latest",
+    "essential": true,
+    "firelensConfiguration": {
+      "type": "fluentbit",
+      "options": {
+        "config-file-type": "file",
+        "config-file-value": "/extra.conf",
+        "enable-ecs-log-metadata": "false"
+      }
+    },
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "firelens-container",
+        "awslogs-region": "<region>",
+        "awslogs-create-group": "true",
+        "awslogs-stream-prefix": "firelens"
+      }
+    }
+  }
+]

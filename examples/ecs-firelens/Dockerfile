@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-slim
+FROM openjdk:11
 RUN mkdir -p /app
 
 # copy the source files over
