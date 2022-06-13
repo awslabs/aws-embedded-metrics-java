@@ -2,11 +2,6 @@
   {
     "name": "example",
     "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/<image-name>:latest",
-    "environment": [{
-      "name": "AWS_EMF_AGENT_ENDPOINT",
-      "value": "tcp://127.0.0.1:25888"
-    }
-    ],
     "essential": true,
     "logConfiguration": {
       "logDriver": "awsfirelens",
