@@ -18,16 +18,16 @@ package software.amazon.cloudwatchlogs.emf.exception;
 
 import software.amazon.cloudwatchlogs.emf.Constants;
 
-public class DimensionsExceededException extends RuntimeException {
+public class DimensionSetExceededException extends RuntimeException {
 
-    public DimensionsExceededException() {
+    public DimensionSetExceededException() {
         super(
                 "Maximum number of dimensions allowed are "
-                        + Constants.MAX_DIMENSIONS
+                        + Constants.MAX_DIMENSION_SET_SIZE
                         + ". Account for default dimensions if not using setDimensions.");
     }
 
-    public DimensionsExceededException(String message) {
+    public DimensionSetExceededException(String message) {
         super(message);
     }
 }

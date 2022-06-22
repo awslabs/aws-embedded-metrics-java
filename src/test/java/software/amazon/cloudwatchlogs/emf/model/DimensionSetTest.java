@@ -16,29 +16,62 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
-import software.amazon.cloudwatchlogs.emf.exception.DimensionsExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 public class DimensionSetTest {
+    @Test
+    public void testAddDimension() {
+        int dimensionsToBeAdded = 30;
+        DimensionSet dimensionSet = generateDimensionSet(dimensionsToBeAdded);
+
+        assertEquals(dimensionsToBeAdded, dimensionSet.getDimensionKeys().size());
+    }
+
     @Test
     public void testAddDimensionLimitExceeded() {
         Exception exception =
                 assertThrows(
-                        DimensionsExceededException.class,
+                        DimensionSetExceededException.class,
                         () -> {
-                            DimensionSet dimensionSet = new DimensionSet();
-                            int dimensionsToBeAdded = 33;
+                            int dimensionSetSize = 33;
+                            generateDimensionSet(dimensionSetSize);
+                        });
 
-                            for (int i = 0; i < dimensionsToBeAdded; i++) {
-                                dimensionSet.addDimension("Dimension" + i, "value" + i);
-                            }
+        String expectedMessage = "Maximum number of dimensions";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    public void testMergeDimensionSets() {
+        Exception exception =
+                assertThrows(
+                        DimensionSetExceededException.class,
+                        () -> {
+                            int dimensionSetSize = 28;
+                            int otherDimensionSetSize = 5;
+                            DimensionSet dimensionSet = generateDimensionSet(dimensionSetSize);
+                            DimensionSet otherDimensionSet =
+                                    generateDimensionSet(otherDimensionSetSize);
+                            dimensionSet.add(otherDimensionSet);
                         });
         String expectedMessage = "Maximum number of dimensions";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    private DimensionSet generateDimensionSet(int numOfDimensions) {
+        DimensionSet dimensionSet = new DimensionSet();
+
+        for (int i = 0; i < numOfDimensions; i++) {
+            dimensionSet.addDimension("Dimension" + i, "value" + i);
+        }
+
+        return dimensionSet;
     }
 }

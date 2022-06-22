@@ -23,7 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
-import software.amazon.cloudwatchlogs.emf.exception.DimensionsExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 /** A combination of dimension values. */
 public class DimensionSet {
@@ -151,8 +151,8 @@ public class DimensionSet {
      * @param value Value of the dimension
      */
     public void addDimension(String dimension, String value) {
-        if (this.getDimensionKeys().size() == Constants.MAX_DIMENSIONS) {
-            throw new DimensionsExceededException();
+        if (this.getDimensionKeys().size() >= Constants.MAX_DIMENSION_SET_SIZE) {
+            throw new DimensionSetExceededException();
         }
 
         this.getDimensionRecords().put(dimension, value);
@@ -169,8 +169,8 @@ public class DimensionSet {
         DimensionSet mergedDimensionSet = new DimensionSet();
         int mergedDimensionSetSize =
                 this.getDimensionKeys().size() + other.dimensionRecords.keySet().size();
-        if (mergedDimensionSetSize > Constants.MAX_DIMENSIONS) {
-            throw new DimensionsExceededException();
+        if (mergedDimensionSetSize > Constants.MAX_DIMENSION_SET_SIZE) {
+            throw new DimensionSetExceededException();
         }
 
         mergedDimensionSet.dimensionRecords.putAll(dimensionRecords);
