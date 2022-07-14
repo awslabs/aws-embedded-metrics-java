@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +56,7 @@ class Metadata {
     Metadata() {
         cloudWatchMetrics = new ArrayList<>();
         timestamp = Instant.now();
-        customFields = new HashMap<>();
+        customFields = new ConcurrentHashMap<>();
     }
 
     /**

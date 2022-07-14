@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
@@ -45,7 +46,7 @@ class RootNode {
 
     RootNode() {
         aws = new Metadata();
-        properties = new HashMap<>();
+        properties = new ConcurrentHashMap<>();
         objectMapper.setFilterProvider(filterProvider);
     }
 
