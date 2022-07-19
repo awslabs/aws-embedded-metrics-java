@@ -37,8 +37,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publishing 10000 metrics with single thread.
-     * no lock: 0.844 ms/op; RW lock: 0.896 ms/op; S lock: 0.884 ms/op
+     * Publishing 10000 metrics with single thread. no lock: 0.844 ms/op; RW lock: 0.896 ms/op; S
+     * lock: 0.884 ms/op
      */
     @Benchmark
     public void measurePutMetric() {
@@ -50,10 +50,7 @@ public class MetricsLoggerBenchmark {
         }
     }
 
-    /**
-     * Flush with single thread.
-     * no lock: 0.148 ms/op; RW lock: 0.148 ms/op; S lock: 0.147 ms/op
-     */
+    /** Flush with single thread. no lock: 0.148 ms/op; RW lock: 0.148 ms/op; S lock: 0.147 ms/op */
     @Benchmark
     public void measureFlush() {
         logger = new MetricsLogger(envProvider);
@@ -64,8 +61,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Invoke all methods 100 times with single thread.
-     * no lock: 6.946 ms/op; RW lock: 6.988 ms/op; S lock: 6.823 ms/op
+     * Invoke all methods 100 times with single thread. no lock: 6.946 ms/op; RW lock: 6.988 ms/op;
+     * S lock: 6.823 ms/op
      */
     @Benchmark
     public void measureAllMethods() {
@@ -83,8 +80,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 5 threads.
-     * no lock: 0.758 ms/op; RW lock: 2.816 ms/op; S lock: 2.247 ms/op
+     * Publish 10000 metrics with 5 threads. no lock: 0.758 ms/op; RW lock: 2.816 ms/op; S lock:
+     * 2.247 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -93,8 +91,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 10 threads.
-     * no lock: 0.949 ms/op; RW lock: 3.823 ms/op; S lock: 3.078 ms/op
+     * Publish 10000 metrics with 10 threads. no lock: 0.949 ms/op; RW lock: 3.823 ms/op; S lock:
+     * 3.078 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -103,8 +102,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 20 threads.
-     * no lock: 1.610 ms/op; RW lock: 3.349 ms/op; S lock: 2.644 ms/op
+     * Publish 10000 metrics with 20 threads. no lock: 1.610 ms/op; RW lock: 3.349 ms/op; S lock:
+     * 2.644 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -113,8 +113,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 50 threads.
-     * no lock: 4.161 ms/op; RW lock: 4.107 ms/op; S lock: 4.184 ms/op
+     * Publish 10000 metrics with 50 threads. no lock: 4.161 ms/op; RW lock: 4.107 ms/op; S lock:
+     * 4.184 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -123,8 +124,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 100 threads.
-     * no lock: 8.648 ms/op; RW lock: 9.071 ms/op; S lock: 8.576 ms/op
+     * Publish 10000 metrics with 100 threads. no lock: 8.648 ms/op; RW lock: 9.071 ms/op; S lock:
+     * 8.576 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -133,8 +135,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 5 threads.
-     * no lock: 7.529 ms/op; RW lock: 22.742 ms/op; S lock: 23.304 ms/op
+     * Flush 1000 times with 5 threads. no lock: 7.529 ms/op; RW lock: 22.742 ms/op; S lock: 23.304
+     * ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -143,8 +146,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 10 threads.
-     * no lock: 12.900 ms/op; RW lock: 25.015 ms/op; S lock: 24.778 ms/op
+     * Flush 1000 times with 10 threads. no lock: 12.900 ms/op; RW lock: 25.015 ms/op; S lock:
+     * 24.778 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -153,8 +157,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 20 threads.
-     * no lock: 6.537 ms/op; RW lock: 25.705 ms/op; S lock: 26.465 ms/op
+     * Flush 1000 times with 20 threads. no lock: 6.537 ms/op; RW lock: 25.705 ms/op; S lock: 26.465
+     * ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -163,8 +168,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 50 threads.
-     * no lock: 24.985 ms/op; RW lock: 31.453 ms/op; S lock: 31.965 ms/op
+     * Flush 1000 times with 50 threads. no lock: 24.985 ms/op; RW lock: 31.453 ms/op; S lock:
+     * 31.965 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -173,8 +179,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 100 threads.
-     * no lock: 34.527 ms/op; RW lock: 39.606 ms/op; S lock: 40.007 ms/op
+     * Flush 1000 times with 100 threads. no lock: 34.527 ms/op; RW lock: 39.606 ms/op; S lock:
+     * 40.007 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -183,8 +190,9 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 1000 threads.
-     * no lock: 116.047 ms/op; RW lock: 141.227 ms/op; S lock: 141.597 ms/op
+     * Flush 1000 times with 1000 threads. no lock: 116.047 ms/op; RW lock: 141.227 ms/op; S lock:
+     * 141.597 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -195,10 +203,10 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 5 threads.
-     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective):
-     * 84.041 ± 24.965 ms/op;
-     * RW lock: 264.439 ± 8.070 ms/op; S lock: 264.630 ± 24.252 ms/op
+     * Execute all methods for 1000 times with 5 threads. no lock (need to sync getAllDimensions() &
+     * getAllDimensionKeys() in MetricsDirective): 84.041 ± 24.965 ms/op; RW lock: 264.439 ± 8.070
+     * ms/op; S lock: 264.630 ± 24.252 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -207,10 +215,10 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 10 threads.
-     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective):
-     * 41.174 ± 6.084 ms/op;
-     * RW lock: 263.103 ± 15.141 ms/op; S lock: 256.267 ± 30.922 ms/op
+     * Execute all methods for 1000 times with 10 threads. no lock (need to sync getAllDimensions()
+     * & getAllDimensionKeys() in MetricsDirective): 41.174 ± 6.084 ms/op; RW lock: 263.103 ± 15.141
+     * ms/op; S lock: 256.267 ± 30.922 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -219,10 +227,10 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 100 threads.
-     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective):
-     * 35.779 ± 2.414 ms/op;
-     * RW lock: 315.340 ± 16.074 ms/op; S lock: 288.459 ± 5.801 ms/op
+     * Execute all methods for 1000 times with 100 threads. no lock (need to sync getAllDimensions()
+     * & getAllDimensionKeys() in MetricsDirective): 35.779 ± 2.414 ms/op; RW lock: 315.340 ± 16.074
+     * ms/op; S lock: 288.459 ± 5.801 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -233,10 +241,10 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 500 threads.
-     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective):
-     * 81.785 ± 11.616 ms/op;
-     * RW lock: 346.697 ± 51.133 ms/op; S lock: 368.981 ± 161.049 ms/op
+     * Execute all methods for 1000 times with 500 threads. no lock (need to sync getAllDimensions()
+     * & getAllDimensionKeys() in MetricsDirective): 81.785 ± 11.616 ms/op; RW lock: 346.697 ±
+     * 51.133 ms/op; S lock: 368.981 ± 161.049 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark
@@ -247,10 +255,10 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 1000 threads.
-     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective):
-     * 218.505 ± 178.808 ms/op;
-     * RW lock: 436.380 ± 317.130 ms/op; S lock: 390.074 ± 100 ms/op
+     * Execute all methods for 1000 times with 1000 threads. no lock (need to sync
+     * getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 218.505 ± 178.808 ms/op; RW
+     * lock: 436.380 ± 317.130 ms/op; S lock: 390.074 ± 100 ms/op
+     *
      * @throws InterruptedException
      */
     @Benchmark

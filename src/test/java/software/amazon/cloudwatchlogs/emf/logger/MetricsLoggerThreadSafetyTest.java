@@ -74,8 +74,7 @@ public class MetricsLoggerThreadSafetyTest {
 
         logger.flush();
         for (int i = 0; i < 100; i++) {
-            Assert.assertEquals(
-                    sink.getContext().getProperty("Property-" + i), String.valueOf(i));
+            Assert.assertEquals(sink.getContext().getProperty("Property-" + i), String.valueOf(i));
         }
     }
 
@@ -108,8 +107,7 @@ public class MetricsLoggerThreadSafetyTest {
         // check size
         Assert.assertEquals(sink.getContext().getDimensions().size(), 100);
         for (DimensionSet dim : dimensions) {
-            Assert.assertEquals(
-                    dim.getDimensionKeys().size(), 4); // there are 3 default dimensions
+            Assert.assertEquals(dim.getDimensionKeys().size(), 4); // there are 3 default dimensions
         }
         // check content
         Collections.sort(
@@ -152,8 +150,7 @@ public class MetricsLoggerThreadSafetyTest {
         Assert.assertEquals(sink.getContext().getDimensions().size(), 100);
         for (DimensionSet dim : dimensions) {
             Assert.assertEquals(
-                    dim.getDimensionKeys().size(),
-                    1); // there are no default dimensions after set
+                    dim.getDimensionKeys().size(), 1); // there are no default dimensions after set
         }
         // check content
         Collections.sort(
