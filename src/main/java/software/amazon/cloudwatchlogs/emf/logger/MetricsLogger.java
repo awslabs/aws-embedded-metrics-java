@@ -18,6 +18,7 @@ package software.amazon.cloudwatchlogs.emf.logger;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -35,6 +36,7 @@ public class MetricsLogger {
     private MetricsContext context;
     private CompletableFuture<Environment> environmentFuture;
     private EnvironmentProvider environmentProvider;
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     public MetricsLogger() {
         this(new EnvironmentProvider());
@@ -67,10 +69,16 @@ public class MetricsLogger {
             log.info("Failed to resolve environment. Fallback to default environment: ", ex);
             environment = environmentProvider.getDefaultEnvironment();
         }
-        ISink sink = environment.getSink();
-        configureContextForEnvironment(context, environment);
-        sink.accept(context);
-        context = context.createCopyWithContext();
+
+        rwl.writeLock().lock();
+        try {
+            ISink sink = environment.getSink();
+            configureContextForEnvironment(context, environment);
+            sink.accept(context);
+            context = context.createCopyWithContext();
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     /**
@@ -83,8 +91,13 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putProperty(String key, Object value) {
-        this.context.putProperty(key, value);
-        return this;
+        rwl.readLock().lock();
+        try {
+            this.context.putProperty(key, value);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
@@ -99,8 +112,13 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putDimensions(DimensionSet dimensions) {
-        context.putDimension(dimensions);
-        return this;
+        rwl.readLock().lock();
+        try {
+            context.putDimension(dimensions);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
@@ -113,8 +131,13 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
-        context.setDimensions(dimensionSets);
-        return this;
+        rwl.readLock().lock();
+        try {
+            context.setDimensions(dimensionSets);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
@@ -128,8 +151,13 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetric(String key, double value, Unit unit) {
-        this.context.putMetric(key, value, unit);
-        return this;
+        rwl.readLock().lock();
+        try {
+            this.context.putMetric(key, value, unit);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
@@ -142,7 +170,7 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetric(String key, double value) {
-        this.context.putMetric(key, value, Unit.NONE);
+        this.putMetric(key, value, Unit.NONE);
         return this;
     }
 
@@ -157,8 +185,13 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetadata(String key, Object value) {
-        this.context.putMetadata(key, value);
-        return this;
+        rwl.readLock().lock();
+        try {
+            this.context.putMetadata(key, value);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
