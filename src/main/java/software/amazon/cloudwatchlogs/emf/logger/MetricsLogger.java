@@ -18,6 +18,8 @@ package software.amazon.cloudwatchlogs.emf.logger;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -35,6 +37,8 @@ public class MetricsLogger {
     private MetricsContext context;
     private CompletableFuture<Environment> environmentFuture;
     private EnvironmentProvider environmentProvider;
+
+    @Getter @Setter private boolean flushPreserveDimensions = true;
 
     public MetricsLogger() {
         this(new EnvironmentProvider());
@@ -67,10 +71,14 @@ public class MetricsLogger {
             log.info("Failed to resolve environment. Fallback to default environment: ", ex);
             environment = environmentProvider.getDefaultEnvironment();
         }
+
         ISink sink = environment.getSink();
         configureContextForEnvironment(context, environment);
         sink.accept(context);
-        context = context.createCopyWithContext();
+        context =
+                flushPreserveDimensions
+                        ? context.createCopyWithContext()
+                        : context.createCopyWithContextWithoutDimensions();
     }
 
     /**
@@ -114,6 +122,18 @@ public class MetricsLogger {
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
         context.setDimensions(dimensionSets);
+        return this;
+    }
+
+    /**
+     * Clear all custom dimensions on this MetricsLogger instance. The state of whether default
+     * dimensions should be used can be changed by this method.
+     *
+     * @param preserveDefault indicates whether default dimensions should be used
+     * @return the current logger
+     */
+    public MetricsLogger resetDimensions(boolean preserveDefault) {
+        context.resetDimensions(preserveDefault);
         return this;
     }
 

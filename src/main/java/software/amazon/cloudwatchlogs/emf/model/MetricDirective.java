@@ -99,6 +99,16 @@ class MetricDirective {
     }
 
     /**
+     * Clear existing custom dimensions.
+     *
+     * @param preserveDefault indicates whether default dimensions should be used
+     */
+    void resetDimensions(boolean preserveDefault) {
+        shouldUseDefaultDimension = preserveDefault;
+        dimensions = Collections.synchronizedList(new ArrayList<>());
+    }
+
+    /**
      * Return all the dimension sets. If there's a default dimension set, the custom dimensions are
      * prepended with the default dimensions.
      */
@@ -136,6 +146,21 @@ class MetricDirective {
         metricDirective.setDimensions(this.dimensions);
         metricDirective.setNamespace(this.namespace);
         metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+        return metricDirective;
+    }
+
+    /**
+     * Create a copy of the metric directive without having the existing metrics and custom
+     * dimensions. The original state of default dimensions are preserved.
+     *
+     * @return an object of metric directive
+     */
+    MetricDirective copyWithoutMetricsAndDimensions() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.setDefaultDimensions(this.defaultDimensions);
+        metricDirective.setNamespace(this.namespace);
+        metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+
         return metricDirective;
     }
 }

@@ -187,6 +187,15 @@ public class MetricsContext {
     }
 
     /**
+     * Reset the dimensions. This would clear all custom dimensions.
+     *
+     * @param preserveDefault indicates whether default dimensions should be used
+     */
+    public void resetDimensions(boolean preserveDefault) {
+        metricDirective.resetDimensions(preserveDefault);
+    }
+
+    /**
      * Add a key-value pair to the metadata
      *
      * @param key the name of the key
@@ -213,6 +222,11 @@ public class MetricsContext {
     /** @return Creates an independently flushable context. */
     public MetricsContext createCopyWithContext() {
         return new MetricsContext(metricDirective.copyWithoutMetrics());
+    }
+
+    /** @return Creates an independently flushable context without metrics and custom dimensions */
+    public MetricsContext createCopyWithContextWithoutDimensions() {
+        return new MetricsContext(metricDirective.copyWithoutMetricsAndDimensions());
     }
 
     /**
