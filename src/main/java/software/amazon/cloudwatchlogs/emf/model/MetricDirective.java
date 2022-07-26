@@ -105,7 +105,7 @@ class MetricDirective {
      */
     void resetDimensions(boolean preserveDefault) {
         shouldUseDefaultDimension = preserveDefault;
-        dimensions = Collections.synchronizedList(new ArrayList<>());
+        dimensions = new ArrayList<>();
     }
 
     /**

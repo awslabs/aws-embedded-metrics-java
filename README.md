@@ -203,7 +203,24 @@ setTimestamp(Instant.now())
 
 - **flush**()
 
-Flushes the current MetricsContext to the configured sink and resets all properties and metric values. The namespace and default dimensions will be preserved across flushes. The default behavior is to preserve all custom dimensions as well, but this can be disabled by invoking `flushPreserveDimensions(false)`.
+Flushes the current MetricsContext to the configured sink and resets all properties and metric values. The namespace and default dimensions will be preserved across flushes. The default behavior is to preserve all custom dimensions as well, but this can be disabled by invoking `setFlushPreserveDimensions(false)`.
+
+Example:
+
+```java
+flush();  // default dimensions and custom domensions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();  // only default dimnesions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();
+resetDimensions(false);  // no dimensions will be preserved after each flush()
+```
 
 ### Configuration
 
