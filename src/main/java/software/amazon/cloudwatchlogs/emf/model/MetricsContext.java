@@ -188,6 +188,7 @@ public class MetricsContext {
 
     /**
      * Update the dimensions. Default dimensions are preserved optionally.
+     *
      * @param preserveDefault indicates whether default dimensions should be used
      * @param dimensionSets the dimensionSets to set
      */

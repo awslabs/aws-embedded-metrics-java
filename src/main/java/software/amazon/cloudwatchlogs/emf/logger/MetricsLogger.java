@@ -126,7 +126,9 @@ public class MetricsLogger {
     }
 
     /**
-     * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve default dimensions.
+     * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve
+     * default dimensions.
+     *
      * @param preserveDefault indicates whether default dimensions should be used
      * @param dimensionSets the dimensionSets to set
      * @return the current logger
