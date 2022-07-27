@@ -99,6 +99,16 @@ class MetricDirective {
     }
 
     /**
+     * Override existing dimensions. Default dimensions are preserved optionally.
+     * @param preserveDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to be set
+     */
+    void setDimensions(boolean preserveDefault, List<DimensionSet> dimensionSets) {
+        shouldUseDefaultDimension = preserveDefault;
+        dimensions = new ArrayList<>(dimensionSets);
+    }
+
+    /**
      * Clear existing custom dimensions.
      *
      * @param preserveDefault indicates whether default dimensions should be used

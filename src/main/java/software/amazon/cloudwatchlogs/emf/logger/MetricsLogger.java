@@ -114,7 +114,7 @@ public class MetricsLogger {
     /**
      * Overwrite all dimensions on this MetricsLogger instance.
      *
-     * @param dimensionSets the dimensionSets to set.
+     * @param dimensionSets the dimensionSets to set
      * @see <a
      *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension">CloudWatch
      *     Dimensions</a>
@@ -122,6 +122,17 @@ public class MetricsLogger {
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
         context.setDimensions(dimensionSets);
+        return this;
+    }
+
+    /**
+     * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve default dimensions.
+     * @param preserveDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to set
+     * @return the current logger
+     */
+    public MetricsLogger setDimensions(boolean preserveDefault, DimensionSet... dimensionSets) {
+        context.setDimensions(preserveDefault, dimensionSets);
         return this;
     }
 

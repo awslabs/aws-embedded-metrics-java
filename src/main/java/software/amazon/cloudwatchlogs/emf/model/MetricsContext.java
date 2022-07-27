@@ -187,6 +187,15 @@ public class MetricsContext {
     }
 
     /**
+     * Update the dimensions. Default dimensions are preserved optionally.
+     * @param preserveDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to set
+     */
+    public void setDimensions(boolean preserveDefault, DimensionSet... dimensionSets) {
+        metricDirective.setDimensions(preserveDefault, Arrays.asList(dimensionSets));
+    }
+
+    /**
      * Reset the dimensions. This would clear all custom dimensions.
      *
      * @param preserveDefault indicates whether default dimensions should be used

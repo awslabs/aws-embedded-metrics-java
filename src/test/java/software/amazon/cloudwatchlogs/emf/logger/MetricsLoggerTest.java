@@ -142,6 +142,21 @@ public class MetricsLoggerTest {
     }
 
     @Test
+    public void testSetDimensionsAndPreserveDefault() {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.setDimensions(true, DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        Assert.assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
+    }
+
+    @Test
     public void testSetNamespace() {
 
         String namespace = "testNamespace";
