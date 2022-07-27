@@ -13,13 +13,19 @@ public class MetricDirectiveThreadSafetyTest {
     public void testConcurrentPutMetricWithDifferentKey() throws InterruptedException {
         MetricDirective metricDirective = new MetricDirective();
         Thread[] threads = new Thread[100];
+        long targetTimestampToRun = System.currentTimeMillis() + 500; // all threads should target running on this timestamp
+
         for (int i = 0; i < 100; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
-                                    metricDirective.putMetric("Metric-" + id, id);
+                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());  // try to make all threads run at same time
+                                    for (int j = 0; j < 1000; j++) {
+                                        int metricId = 1000 * id + j;
+                                        metricDirective.putMetric("Metric-" + metricId, metricId);
+                                    }
                                 } catch (Throwable e) {
                                     throwable = e;
                                 }
@@ -31,8 +37,8 @@ public class MetricDirectiveThreadSafetyTest {
             t.join();
         }
 
-        assertEquals(metricDirective.getAllMetrics().size(), 100);
-        for (int i = 0; i < 100; i++) {
+        assertEquals(metricDirective.getAllMetrics().size(), 100000);
+        for (int i = 0; i < 100000; i++) {
             assertEquals(
                     metricDirective.getMetrics().get("Metric-" + i).getValues().get(0), i, 1e-5);
         }
@@ -42,13 +48,19 @@ public class MetricDirectiveThreadSafetyTest {
     public void testConcurrentPutMetricWithSameKey() throws InterruptedException {
         MetricDirective metricDirective = new MetricDirective();
         Thread[] threads = new Thread[100];
+        long targetTimestampToRun = System.currentTimeMillis() + 500;
+
         for (int i = 0; i < 100; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
-                                    metricDirective.putMetric("Metric", id);
+                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
+                                    for (int j = 0; j < 1000; j++) {
+                                        int metricId = 1000 * id + j;
+                                        metricDirective.putMetric("Metric", metricId);
+                                    }
                                 } catch (Throwable e) {
                                     throwable = e;
                                 }
@@ -63,7 +75,7 @@ public class MetricDirectiveThreadSafetyTest {
         assertEquals(metricDirective.getAllMetrics().size(), 1);
         MetricDefinition md = metricDirective.getAllMetrics().toArray(new MetricDefinition[0])[0];
         Collections.sort(md.getValues());
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100000; i++) {
             assertEquals(md.getValues().get(i), i, 1e-5);
         }
     }

@@ -13,13 +13,19 @@ public class MetricsContextThreadSafetyTest {
     public void testConcurrentPutMetaData() throws InterruptedException {
         MetricsContext mc = new MetricsContext();
         Thread[] threads = new Thread[100];
+        long targetTimestampToRun = System.currentTimeMillis() + 500;
+
         for (int i = 0; i < 100; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
-                                    mc.putMetadata("MetaData-" + id, String.valueOf(id));
+                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
+                                    for (int j = 0; j < 1000; j++) {
+                                        int metaDataId = 1000 * id + j;
+                                        mc.putMetadata("MetaData-" + metaDataId, metaDataId);
+                                    }
                                 } catch (Throwable e) {
                                     throwable = e;
                                 }
@@ -32,9 +38,9 @@ public class MetricsContextThreadSafetyTest {
         }
 
         Map<String, Object> metaData = mc.getRootNode().getAws().getCustomMetadata();
-        assertEquals(metaData.size(), 100);
-        for (int i = 0; i < 100; i++) {
-            assertEquals(metaData.get("MetaData-" + i), String.valueOf(i));
+        assertEquals(metaData.size(), 100000);
+        for (int i = 0; i < 100000; i++) {
+            assertEquals(metaData.get("MetaData-" + i), i);
         }
     }
 
