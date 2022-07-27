@@ -208,12 +208,12 @@ Flushes the current MetricsContext to the configured sink and resets all propert
 Example:
 
 ```java
-flush();  // default dimensions and custom domensions will be preserved after each flush()
+flush();  // default dimensions and custom dimensions will be preserved after each flush()
 ```
 
 ```java
 setFlushPreserveDimensions(false);
-flush();  // only default dimnesions will be preserved after each flush()
+flush();  // only default dimensions will be preserved after each flush()
 ```
 
 ```java
