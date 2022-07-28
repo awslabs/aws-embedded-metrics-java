@@ -35,14 +35,13 @@ public class MetricsLoggerThreadSafetyTest {
     private EnvironmentProvider envProvider;
     private SinkShunt sink;
     private Environment environment;
-    private volatile Throwable throwable;
+    private volatile Throwable throwable = null;
 
     @Before
     public void setUp() {
         envProvider = mock(EnvironmentProvider.class);
         environment = mock(Environment.class);
         sink = new SinkShunt();
-        throwable = null;
 
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
@@ -184,15 +183,16 @@ public class MetricsLoggerThreadSafetyTest {
         when(environment.getSink()).thenReturn(groupedSink);
 
         logger = new MetricsLogger(envProvider);
-        Thread[] threads = new Thread[100];
-        long targetTimestampToRun = System.currentTimeMillis() + 500;
+        Thread[] threads = new Thread[300];
+        long targetTimestampToRun = System.currentTimeMillis() + 1000;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 300; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
+                                    // try to putMetric() and flush() at the same time
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
                                     logger.putMetric("Metric-" + id, id);
                                     logger.flush();
@@ -209,16 +209,16 @@ public class MetricsLoggerThreadSafetyTest {
 
         ArrayList<MetricDefinitionCopy> allMetrics = new ArrayList<>();
         for (List<String> events : groupedSink.getLogEventList()) {
-            ArrayList<MetricDefinitionCopy> metrics = parseMetrics(events);
+            ArrayList<MetricDefinitionCopy> metrics = parseAllMetrics(events);
             allMetrics.addAll(metrics);
         }
 
-        assertEquals(allMetrics.size(), 100);
+        assertEquals(allMetrics.size(), 300);
         for (MetricDefinitionCopy metric : allMetrics) {
             assertEquals(metric.getValues().size(), 1);
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 300; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
             assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
         }
@@ -233,19 +233,21 @@ public class MetricsLoggerThreadSafetyTest {
         when(environment.getSink()).thenReturn(groupedSink);
 
         logger = new MetricsLogger(envProvider);
-        long targetTimestampToRun = System.currentTimeMillis() + 500;
+        Random rand = new Random();
 
-        Thread[] threads = new Thread[100];
-        for (int i = 0; i < 100; i++) {
+        Thread[] threads = new Thread[500];
+        for (int i = 0; i < 500; i++) {
             final int id = i;
+            int randTime = rand.nextInt(1000);
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
                                     // half threads do putMetric(), half do flush()
-                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
+                                    // sleep to introduce more chaos in thread ordering
+                                    Thread.sleep(randTime);
                                     if (id % 2 == 0) {
-                                        for (int j = id; j < id + 2; j++) {
+                                        for (int j = id * 500; j < id * 500 + 1000; j++) {
                                             logger.putMetric("Metric-" + j, j);
                                         }
                                     } else {
@@ -265,16 +267,16 @@ public class MetricsLoggerThreadSafetyTest {
 
         ArrayList<MetricDefinitionCopy> allMetrics = new ArrayList<>();
         for (List<String> events : groupedSink.getLogEventList()) {
-            ArrayList<MetricDefinitionCopy> metrics = parseMetrics(events);
+            ArrayList<MetricDefinitionCopy> metrics = parseAllMetrics(events);
             allMetrics.addAll(metrics);
         }
 
-        assertEquals(allMetrics.size(), 100);
+        assertEquals(allMetrics.size(), 250000);
         for (MetricDefinitionCopy metric : allMetrics) {
             assertEquals(metric.getValues().size(), 1);
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 250000; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
             assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
         }
@@ -288,24 +290,26 @@ public class MetricsLoggerThreadSafetyTest {
         when(environment.getSink()).thenReturn(groupedSink);
 
         logger = new MetricsLogger(envProvider);
-//        Random rand = new Random();
-        long targetTimestampToRun = System.currentTimeMillis() + 500;
+        Random rand = new Random();
 
-        Thread[] threads = new Thread[100];
-        for (int i = 0; i < 100; i++) {
+        Thread[] threads = new Thread[600];
+        for (int i = 0; i < 600; i++) {
             final int id = i;
-//            int randTime = rand.nextInt(1000);
+            int randTime = rand.nextInt(1000);
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
-//                                    Thread.sleep(randTime);
-                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
-                                    if (id < 30) {
-                                        logger.putDimensions(
-                                                DimensionSet.of("Dim", String.valueOf(id)));
-                                    } else if (id < 40) {
-                                        logger.putProperty("Property-" + id, id);
+                                    Thread.sleep(randTime);
+                                    if (id < 200) {
+                                        for (int j = id * 100; j < id * 100 + 100; j++) {
+                                            logger.putDimensions(
+                                                    DimensionSet.of("Dim", String.valueOf(j)));
+                                        }
+                                    } else if (id < 400) {
+                                        for (int k = id * 100; k < id * 100 + 100; k++) {
+                                            logger.putProperty("Property-" + k, k);
+                                        }
                                     } else {
                                         logger.flush();
                                     }
@@ -324,71 +328,93 @@ public class MetricsLoggerThreadSafetyTest {
         int contextNum = groupedSink.getContexts().size();
         MetricsContext finalContext = groupedSink.getContexts().get(contextNum - 1);
         List<DimensionSet> dimensions = finalContext.getDimensions();
-        // check size
-        assertEquals(dimensions.size(), 30);
+
+        // check dimension size
+        assertEquals(dimensions.size(), 20000);
         for (DimensionSet dim : dimensions) {
             Assert.assertEquals(dim.getDimensionKeys().size(), 4); // there are 3 default dimensions
         }
-        // check content
+        // check dimension content
         Collections.sort(
                 dimensions,
                 Comparator.comparingInt(d -> Integer.parseInt(d.getDimensionValue("Dim"))));
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 2000; i++) {
             Assert.assertEquals(dimensions.get(i).getDimensionValue("Dim"), String.valueOf(i));
         }
 
+        // check property
         int propertyCnt = 0;
         for (MetricsContext mc : groupedSink.getContexts()) {
-            propertyCnt += mc.getProperty("Property-30") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-31") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-32") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-33") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-34") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-35") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-36") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-37") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-38") == null ? 0 : 1;
-            propertyCnt += mc.getProperty("Property-39") == null ? 0 : 1;
+            for (int i = 20000; i < 40000; i++) {
+                propertyCnt += mc.getProperty("Property-" + i) == null ? 0 : 1;
+            }
         }
-        assertEquals(propertyCnt, 10);
+        assertEquals(propertyCnt, 20000);
     }
 
     @After
     public void tearDown() throws Throwable {
         if (throwable != null) throw throwable;
+        throwable = null;  // reset throwable to prevent repeat throwing
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
         return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
     }
 
-    @SuppressWarnings("unchecked")
-    // can not parse all metrics if metric number exceeds MAX_METRICS_PER_EVENT
-    private ArrayList<MetricDefinitionCopy> parseMetrics(List<String> events)
-            throws JsonProcessingException {
-        Map<String, Object> rootNode = parseRootNode(events.get(0));
-        Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
+    @Test
+    public void testParseMetrics() throws JsonProcessingException {
+        for (int i = 0; i < 150; i++) {
+            logger.putMetric("Metric-" + i, i);
+        }
+        logger.flush();
 
-        if (metadata == null) {
-            return new ArrayList<>();
+        ArrayList<MetricDefinitionCopy> metrics = parseAllMetrics(sink.getLogEvents());
+        System.out.println(metrics.size());
+        for (String line : sink.getLogEvents()) {
+            System.out.println(line);
         }
 
-        ArrayList<Map<String, Object>> metricDirectives =
-                (ArrayList<Map<String, Object>>) metadata.get("CloudWatchMetrics");
-        ArrayList<Map<String, String>> metrics =
-                (ArrayList<Map<String, String>>) metricDirectives.get(0).get("Metrics");
+        for (MetricDefinitionCopy metric : metrics) {
+            assertEquals(metric.getValues().size(), 1);
+        }
+        Collections.sort(metrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
+        for (int i = 0; i < 150; i++) {
+            assertEquals(metrics.get(i).getName(), "Metric-" + i);
+            assertEquals(metrics.get(i).getValues().get(0), i, 1e-5);
+        }
+    }
 
+    @SuppressWarnings("unchecked")
+    // can parse all metrics even if metric number exceeds MAX_METRICS_PER_EVENT
+    private ArrayList<MetricDefinitionCopy> parseAllMetrics(List<String> events)
+            throws JsonProcessingException {
         ArrayList<MetricDefinitionCopy> metricDefinitions = new ArrayList<>();
-        for (Map<String, String> metric : metrics) {
-            String name = metric.get("Name");
-            Unit unit = Unit.fromValue(metric.get("Unit"));
-            Object value = rootNode.get(name);
-            if (value instanceof ArrayList) {
-                metricDefinitions.add(new MetricDefinitionCopy(name, unit, (ArrayList) value));
-            } else {
-                metricDefinitions.add(new MetricDefinitionCopy(name, unit, (double) value));
+        for (String event : events) {
+            Map<String, Object> rootNode = parseRootNode(event);
+            Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
+
+            if (metadata == null) {
+                continue;
+            }
+
+            ArrayList<Map<String, Object>> metricDirectives =
+                    (ArrayList<Map<String, Object>>) metadata.get("CloudWatchMetrics");
+            ArrayList<Map<String, String>> metrics =
+                    (ArrayList<Map<String, String>>) metricDirectives.get(0).get("Metrics");
+
+            for (Map<String, String> metric : metrics) {
+                String name = metric.get("Name");
+                Unit unit = Unit.fromValue(metric.get("Unit"));
+                Object value = rootNode.get(name);
+                if (value instanceof ArrayList) {
+                    metricDefinitions.add(new MetricDefinitionCopy(name, unit, (ArrayList) value));
+                } else {
+                    metricDefinitions.add(new MetricDefinitionCopy(name, unit, (double) value));
+                }
             }
         }
+
         return metricDefinitions;
     }
 

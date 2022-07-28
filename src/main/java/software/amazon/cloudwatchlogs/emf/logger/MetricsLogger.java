@@ -19,6 +19,8 @@ package software.amazon.cloudwatchlogs.emf.logger;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
+
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -91,13 +93,10 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putProperty(String key, Object value) {
-        rwl.readLock().lock();
-        try {
+        return applyReadLock(() -> {
             this.context.putProperty(key, value);
             return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        });
     }
 
     /**
@@ -112,13 +111,10 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putDimensions(DimensionSet dimensions) {
-        rwl.readLock().lock();
-        try {
+        return applyReadLock(() -> {
             context.putDimension(dimensions);
             return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        });
     }
 
     /**
@@ -131,13 +127,10 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
-        rwl.readLock().lock();
-        try {
+        return applyReadLock(() -> {
             context.setDimensions(dimensionSets);
             return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        });
     }
 
     /**
@@ -151,13 +144,10 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetric(String key, double value, Unit unit) {
-        rwl.readLock().lock();
-        try {
+        return applyReadLock(() -> {
             this.context.putMetric(key, value, unit);
             return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        });
     }
 
     /**
@@ -185,13 +175,10 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetadata(String key, Object value) {
-        rwl.readLock().lock();
-        try {
+        return applyReadLock(() -> {
             this.context.putMetadata(key, value);
             return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        });
     }
 
     /**
@@ -226,5 +213,14 @@ public class MetricsLogger {
         defaultDimension.addDimension("ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
         environment.configureContext(context);
+    }
+
+    private MetricsLogger applyReadLock(Supplier<MetricsLogger> any) {
+        rwl.readLock().lock();
+        try {
+            return any.get();
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 }

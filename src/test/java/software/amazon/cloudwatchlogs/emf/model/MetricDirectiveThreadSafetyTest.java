@@ -83,5 +83,6 @@ public class MetricDirectiveThreadSafetyTest {
     @After
     public void tearDown() throws Throwable {
         if (throwable != null) throw throwable;
+        throwable = null;
     }
 }
