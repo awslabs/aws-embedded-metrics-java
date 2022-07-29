@@ -14,16 +14,20 @@
  *   limitations under the License.
  */
 
-package software.amazon.cloudwatchlogs.emf;
+package software.amazon.cloudwatchlogs.emf.exception;
 
-public class Constants {
-    public static final int DEFAULT_AGENT_PORT = 25888;
+import software.amazon.cloudwatchlogs.emf.Constants;
 
-    public static final String UNKNOWN = "Unknown";
+public class DimensionSetExceededException extends RuntimeException {
 
-    public static final int MAX_METRICS_PER_EVENT = 100;
+    public DimensionSetExceededException() {
+        super(
+                "Maximum number of dimensions allowed are "
+                        + Constants.MAX_DIMENSION_SET_SIZE
+                        + ". Account for default dimensions if not using setDimensions.");
+    }
 
-    public static final int MAX_DIMENSION_SET_SIZE = 30;
-
-    public static final int MAX_DATAPOINTS_PER_METRIC = 100;
+    public DimensionSetExceededException(String message) {
+        super(message);
+    }
 }
