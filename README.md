@@ -362,6 +362,14 @@ To auto fix code style, run
 ./gradlew :spotlessApply
 ```
 
+### Benchmark
+
+We use [JMH](https://github.com/openjdk/jmh) as our framework for concurrency performance benchmarking. Benchmarks can be run by:
+```
+./gradlew jmh
+```
+To run a single benchmark, consider using JMH plugins. For example, [JMH plugin for IntelliJ IDEA](https://github.com/artyushov/idea-jmh-plugin)
+
 ## License
 
 This project is licensed under the Apache-2.0 License.
