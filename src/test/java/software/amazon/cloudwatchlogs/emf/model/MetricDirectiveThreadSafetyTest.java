@@ -13,7 +13,9 @@ public class MetricDirectiveThreadSafetyTest {
     public void testConcurrentPutMetricWithDifferentKey() throws InterruptedException {
         MetricDirective metricDirective = new MetricDirective();
         Thread[] threads = new Thread[100];
-        long targetTimestampToRun = System.currentTimeMillis() + 500; // all threads should target running on this timestamp
+        long targetTimestampToRun =
+                System.currentTimeMillis()
+                        + 500; // all threads should target running on this timestamp
 
         for (int i = 0; i < 100; i++) {
             final int id = i;
@@ -21,7 +23,12 @@ public class MetricDirectiveThreadSafetyTest {
                     new Thread(
                             () -> {
                                 try {
-                                    Thread.sleep(targetTimestampToRun - System.currentTimeMillis());  // try to make all threads run at same time
+                                    Thread.sleep(
+                                            targetTimestampToRun
+                                                    - System.currentTimeMillis()); // try to make
+                                    // all threads
+                                    // run at same
+                                    // time
                                     for (int j = 0; j < 1000; j++) {
                                         int metricId = 1000 * id + j;
                                         metricDirective.putMetric("Metric-" + metricId, metricId);

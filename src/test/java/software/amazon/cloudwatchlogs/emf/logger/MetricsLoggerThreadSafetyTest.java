@@ -64,7 +64,9 @@ public class MetricsLoggerThreadSafetyTest {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
                                     for (int j = 0; j < 1000; j++) {
                                         int propertyId = 1000 * id + j;
-                                        logger.putProperty("Property-" + propertyId, String.valueOf(propertyId));
+                                        logger.putProperty(
+                                                "Property-" + propertyId,
+                                                String.valueOf(propertyId));
                                     }
                                 } catch (Throwable e) {
                                     throwable = e; // ensure no exceptions are thrown
@@ -98,7 +100,9 @@ public class MetricsLoggerThreadSafetyTest {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
                                     for (int j = 0; j < 1000; j++) {
                                         int dimensionId = 1000 * id + j;
-                                        logger.putDimensions(DimensionSet.of("Dim", String.valueOf(dimensionId)));
+                                        logger.putDimensions(
+                                                DimensionSet.of(
+                                                        "Dim", String.valueOf(dimensionId)));
                                     }
                                 } catch (Throwable e) {
                                     throwable = e;
@@ -144,7 +148,9 @@ public class MetricsLoggerThreadSafetyTest {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
                                     for (int j = 0; j < 1000; j++) {
                                         int dimensionId = 1000 * id + j + 1;
-                                        logger.putDimensions(DimensionSet.of("Dim", String.valueOf(dimensionId)));
+                                        logger.putDimensions(
+                                                DimensionSet.of(
+                                                        "Dim", String.valueOf(dimensionId)));
                                     }
                                 } catch (Throwable e) {
                                     throwable = e;
@@ -355,7 +361,7 @@ public class MetricsLoggerThreadSafetyTest {
     @After
     public void tearDown() throws Throwable {
         if (throwable != null) throw throwable;
-        throwable = null;  // reset throwable to prevent repeat throwing
+        throwable = null; // reset throwable to prevent repeat throwing
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
