@@ -38,6 +38,11 @@ public class MetricsLogger {
     private MetricsContext context;
     private CompletableFuture<Environment> environmentFuture;
     private EnvironmentProvider environmentProvider;
+    /**
+     * This lock is used to create an internal sync context for flush() method in multi-threaded situations.
+     * Flush() acquires write lock, other methods (accessing mutable shared data with flush()) acquires read lock.
+     * This makes sure flush() is executed exclusively, while other methods can be executed concurrently.
+     */
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     public MetricsLogger() {
