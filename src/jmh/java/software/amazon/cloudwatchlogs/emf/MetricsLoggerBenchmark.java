@@ -80,19 +80,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 5 threads. no lock: 0.758 ms/op; RW lock: 2.816 ms/op; S lock:
-     * 2.247 ms/op
-     *
-     * @throws InterruptedException
-     */
-    @Benchmark
-    public void measurePutMetricWith5Threads() throws InterruptedException {
-        measurePutMetricWithNThreads(5);
-    }
-
-    /**
-     * Publish 10000 metrics with 10 threads. no lock: 0.949 ms/op; RW lock: 3.823 ms/op; S lock:
-     * 3.078 ms/op
+     * Each thread publishes 1000 metrics, 10 threads in total.
+     * no lock: 0.949 ms/op; RW lock: 3.823 ms/op; S lock: 3.078 ms/op
      *
      * @throws InterruptedException
      */
@@ -102,8 +91,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 20 threads. no lock: 1.610 ms/op; RW lock: 3.349 ms/op; S lock:
-     * 2.644 ms/op
+     * Each thread publishes 1000 metrics, 20 threads in total.
+     * no lock: 1.860 ms/op; RW lock: 9.806 ms/op; S lock: 7.929 ms/op
      *
      * @throws InterruptedException
      */
@@ -113,8 +102,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 50 threads. no lock: 4.161 ms/op; RW lock: 4.107 ms/op; S lock:
-     * 4.184 ms/op
+     * Each thread publishes 1000 metrics, 50 threads in total.
+     * no lock: 6.548 ms/op; RW lock: 28.754 ms/op; S lock: 24.700 ms/op
      *
      * @throws InterruptedException
      */
@@ -124,30 +113,32 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Publish 10000 metrics with 100 threads. no lock: 8.648 ms/op; RW lock: 9.071 ms/op; S lock:
-     * 8.576 ms/op
+     * Each thread publishes 1000 metrics, 200 threads in total.
+     * no lock: 37.662 ms/op; RW lock: 135.824 ms/op; S lock: 114.467 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
-    public void measurePutMetricWith100Threads() throws InterruptedException {
-        measurePutMetricWithNThreads(100);
+    public void measurePutMetricWith200Threads() throws InterruptedException {
+        measurePutMetricWithNThreads(200);
     }
 
     /**
-     * Flush 1000 times with 5 threads. no lock: 7.529 ms/op; RW lock: 22.742 ms/op; S lock: 23.304
-     * ms/op
+     * Each thread publishes 1000 metrics, 500 threads in total.
+     * no lock: 90.148 ms/op; RW lock: 345.197 ms/op; S lock: 287.908 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
-    public void measureFlushWith5Threads() throws InterruptedException {
-        measureFlushWithNThreads(5);
+    @Warmup(time = 10)
+    @Measurement(time = 10)
+    public void measurePutMetricWith500Threads() throws InterruptedException {
+        measurePutMetricWithNThreads(500);
     }
 
     /**
-     * Flush 1000 times with 10 threads. no lock: 12.900 ms/op; RW lock: 25.015 ms/op; S lock:
-     * 24.778 ms/op
+     * Each thread flushes 100 times, 10 threads in total.
+     * no lock: 12.900 ms/op; RW lock: 25.015 ms/op; S lock: 24.778 ms/op
      *
      * @throws InterruptedException
      */
@@ -157,8 +148,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 20 threads. no lock: 6.537 ms/op; RW lock: 25.705 ms/op; S lock: 26.465
-     * ms/op
+     * Each thread flushes 100 times, 20 threads in total.
+     * no lock: 20.824 ms/op; RW lock: 47.123 ms/op; S lock: 48.511 ms/op
      *
      * @throws InterruptedException
      */
@@ -168,8 +159,8 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 50 threads. no lock: 24.985 ms/op; RW lock: 31.453 ms/op; S lock:
-     * 31.965 ms/op
+     * Each thread flushes 100 times, 50 threads in total.
+     * no lock: 77.463 ms/op; RW lock: 121.857 ms/op; S lock: 125.212 ms/op
      *
      * @throws InterruptedException
      */
@@ -179,45 +170,33 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Flush 1000 times with 100 threads. no lock: 34.527 ms/op; RW lock: 39.606 ms/op; S lock:
-     * 40.007 ms/op
+     * Each thread flushes 100 times, 200 threads in total.
+     * no lock: 390.252 ms/op; RW lock: 474.439 ms/op; S lock: 488.809 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
-    public void measureFlushWith100Threads() throws InterruptedException {
-        measureFlushWithNThreads(100);
+    public void measureFlushWith200Threads() throws InterruptedException {
+        measureFlushWithNThreads(200);
     }
 
     /**
-     * Flush 1000 times with 1000 threads. no lock: 116.047 ms/op; RW lock: 141.227 ms/op; S lock:
-     * 141.597 ms/op
+     * Each thread flushes 100 times, 500 threads in total.
+     * no lock: 300.280 ms/op; RW lock: 1161.098 ms/op; S lock: 1247.972 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
     @Warmup(time = 10)
     @Measurement(time = 10)
-    public void measureFlushWith1000Threads() throws InterruptedException {
-        measureFlushWithNThreads(1000);
+    public void measureFlushWith500Threads() throws InterruptedException {
+        measureFlushWithNThreads(500);
     }
 
     /**
-     * Execute all methods for 1000 times with 5 threads. no lock (need to sync getAllDimensions() &
-     * getAllDimensionKeys() in MetricsDirective): 84.041 ± 24.965 ms/op; RW lock: 264.439 ± 8.070
-     * ms/op; S lock: 264.630 ± 24.252 ms/op
-     *
-     * @throws InterruptedException
-     */
-    @Benchmark
-    public void measureAllMethodsWith5Threads() throws InterruptedException {
-        measureAllMethodsWithNThreads(5);
-    }
-
-    /**
-     * Execute all methods for 1000 times with 10 threads. no lock (need to sync getAllDimensions()
-     * & getAllDimensionKeys() in MetricsDirective): 41.174 ± 6.084 ms/op; RW lock: 263.103 ± 15.141
-     * ms/op; S lock: 256.267 ± 30.922 ms/op
+     * Each thread executes all methods 100 times, 10 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 7.215 ms/op;
+     * RW lock: 32.159; S lock: 34.226
      *
      * @throws InterruptedException
      */
@@ -227,23 +206,47 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 100 threads. no lock (need to sync getAllDimensions()
-     * & getAllDimensionKeys() in MetricsDirective): 35.779 ± 2.414 ms/op; RW lock: 315.340 ± 16.074
-     * ms/op; S lock: 288.459 ± 5.801 ms/op
+     * Each thread executes all methods 100 times, 20 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 11.833 ms/op;
+     * RW lock: 60.510 ms/op; S lock: 75.125 ms/op
+     *
+     * @throws InterruptedException
+     */
+    @Benchmark
+    public void measureAllMethodsWith20Threads() throws InterruptedException {
+        measureAllMethodsWithNThreads(20);
+    }
+
+    /**
+     * Each thread executes all methods 100 times, 50 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 36.051 ms/op;
+     * RW lock: 150.022 ms/op; S lock: 244.934 ms/op
+     *
+     * @throws InterruptedException
+     */
+    @Benchmark
+    public void measureAllMethodsWith50Threads() throws InterruptedException {
+        measureAllMethodsWithNThreads(50);
+    }
+
+    /**
+     * Each thread executes all methods 100 times, 200 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 108.775 ms/op;
+     * RW lock: 629.826 ms/op; S lock: 1220.959 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
     @Warmup(time = 10)
     @Measurement(time = 10)
-    public void measureAllMethodsWith100Threads() throws InterruptedException {
-        measureAllMethodsWithNThreads(100);
+    public void measureAllMethodsWith200Threads() throws InterruptedException {
+        measureAllMethodsWithNThreads(200);
     }
 
     /**
-     * Execute all methods for 1000 times with 500 threads. no lock (need to sync getAllDimensions()
-     * & getAllDimensionKeys() in MetricsDirective): 81.785 ± 11.616 ms/op; RW lock: 346.697 ±
-     * 51.133 ms/op; S lock: 368.981 ± 161.049 ms/op
+     * Each thread executes all methods 100 times, 500 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 335.183 ms/op;
+     * RW lock: 1741.003 ms/op; S lock: 4192.327 ms/op
      *
      * @throws InterruptedException
      */
@@ -255,15 +258,15 @@ public class MetricsLoggerBenchmark {
     }
 
     /**
-     * Execute all methods for 1000 times with 1000 threads. no lock (need to sync
-     * getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 218.505 ± 178.808 ms/op; RW
-     * lock: 436.380 ± 317.130 ms/op; S lock: 390.074 ± 100 ms/op
+     * Each thread executes all methods 100 times, 1000 threads in total.
+     * no lock (need to sync getAllDimensions() & getAllDimensionKeys() in MetricsDirective): 575.339 ms/op;
+     * RW lock: 3230.403 ms/op; S lock: 13519.459 ms/op
      *
      * @throws InterruptedException
      */
     @Benchmark
-    @Warmup(time = 10)
-    @Measurement(time = 10)
+    @Warmup(time = 20)
+    @Measurement(time = 20)
     public void measureAllMethodsWith1000Threads() throws InterruptedException {
         measureAllMethodsWithNThreads(1000);
     }
@@ -271,10 +274,10 @@ public class MetricsLoggerBenchmark {
     private void measurePutMetricWithNThreads(int n) throws InterruptedException {
         logger = new MetricsLogger(envProvider);
         Thread[] threads = new Thread[n];
+        int batchSize = 1000;
 
         for (int i = 0; i < n; i++) {
             final int id = i;
-            int batchSize = 10000 / n;
             threads[i] =
                     new Thread(
                             () -> {
@@ -293,10 +296,10 @@ public class MetricsLoggerBenchmark {
     private void measureFlushWithNThreads(int n) throws InterruptedException {
         logger = new MetricsLogger(envProvider);
         Thread[] threads = new Thread[n];
+        int batchSize = 100;
 
         for (int i = 0; i < n; i++) {
             final int id = i;
-            int batchSize = 1000 / n;
             threads[i] =
                     new Thread(
                             () -> {
@@ -317,19 +320,20 @@ public class MetricsLoggerBenchmark {
     private void measureAllMethodsWithNThreads(int n) throws InterruptedException {
         logger = new MetricsLogger(envProvider);
         Thread[] threads = new Thread[n];
+        int batchSize = 100;
 
         for (int i = 0; i < n; i++) {
             final int id = i;
-            int batchSize = 1000 / n;
             threads[i] =
                     new Thread(
                             () -> {
                                 for (int j = batchSize * id; j < batchSize * id + batchSize; j++) {
-                                    logger.putMetadata("MetaData-" + id, id);
-                                    logger.putProperty("Property-" + id, id);
-                                    logger.putDimensions(
-                                            DimensionSet.of("Dim-" + id, String.valueOf(id)));
                                     logger.putMetric("Metric-" + j, j);
+                                    logger.putProperty("Property-" + j, j);
+                                    logger.putMetadata("MetaData-" + j, j);
+                                    logger.setDimensions(
+                                            DimensionSet.of("Dim-" + j, String.valueOf(j)));
+
                                     logger.flush();
                                 }
                             });
