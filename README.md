@@ -320,7 +320,7 @@ AWS_EMF_AGENT_ENDPOINT="udp://127.0.0.1:1000"
 
 ### Internal Synchronization
 
-The MetricsLogger class is thread-safe. Specifically, the generalized multi-threading use cases for this library are:
+The MetricsLogger class is thread-safe. Specifically, the generalized multi-threading use cases for this library are: 
 
 1. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into one or more async contexts where new metrics or metadata can be added concurrently; Join the async contexts (e.g. Future.get()) and flush the metrics.
 2. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into an async context; Flush from the async context concurrently.
