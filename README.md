@@ -300,7 +300,7 @@ Example:
 AWS_EMF_ENVIRONMENT="Local"
 ```
 
-**AgentEndpoint**: For agent-based platforms, you may optionally configure the endpoint to reach the agent on. 
+**AgentEndpoint**: For agent-based platforms, you may optionally configure the endpoint to reach the agent on.
 
 Example:
 
