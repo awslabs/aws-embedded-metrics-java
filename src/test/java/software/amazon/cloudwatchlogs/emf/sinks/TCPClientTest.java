@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import org.junit.Test;
 
@@ -47,5 +48,21 @@ public class TCPClientTest {
         client.sendMessage(message);
 
         assertEquals(bos.toString(), message);
+    }
+
+    @Test(timeout = 5000)
+    public void testSendMessageWithSocketServer() throws IOException {
+        TCPClient client = new TCPClient(new Endpoint("0.0.0.0", 9999, Protocol.TCP));
+        ServerSocket server = new ServerSocket(9999);
+        client.sendMessage("Test message");
+        Socket socket = server.accept();
+
+        byte[] bytes = new byte[1024];
+        int read = socket.getInputStream().read(bytes);
+        String message = new String(bytes, 0, read);
+        socket.close();
+        server.close();
+
+        assertEquals("Test message", message);
     }
 }
