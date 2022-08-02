@@ -129,24 +129,24 @@ public class MetricsLogger {
      * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve
      * default dimensions.
      *
-     * @param preserveDefault indicates whether default dimensions should be used
+     * @param useDefault indicates whether default dimensions should be used
      * @param dimensionSets the dimensionSets to set
      * @return the current logger
      */
-    public MetricsLogger setDimensions(boolean preserveDefault, DimensionSet... dimensionSets) {
-        context.setDimensions(preserveDefault, dimensionSets);
+    public MetricsLogger setDimensions(boolean useDefault, DimensionSet... dimensionSets) {
+        context.setDimensions(useDefault, dimensionSets);
         return this;
     }
 
     /**
-     * Clear all custom dimensions on this MetricsLogger instance. The state of whether default
-     * dimensions should be used can be changed by this method.
+     * Clear all custom dimensions on this MetricsLogger instance. Whether default dimensions should
+     * be used can be configured by the input parameter.
      *
-     * @param preserveDefault indicates whether default dimensions should be used
+     * @param useDefault indicates whether default dimensions should be used
      * @return the current logger
      */
-    public MetricsLogger resetDimensions(boolean preserveDefault) {
-        context.resetDimensions(preserveDefault);
+    public MetricsLogger resetDimensions(boolean useDefault) {
+        context.resetDimensions(useDefault);
         return this;
     }
 
