@@ -46,8 +46,9 @@ public class TCPClientTest {
 
         String message = "Test message";
         client.sendMessage(message);
+        client.close();
 
-        assertEquals(bos.toString(), message);
+        assertEquals(message, bos.toString().trim());
     }
 
     @Test(timeout = 5000)
@@ -63,6 +64,6 @@ public class TCPClientTest {
         socket.close();
         server.close();
 
-        assertEquals("Test message", message);
+        assertEquals("Test message", message.trim());
     }
 }

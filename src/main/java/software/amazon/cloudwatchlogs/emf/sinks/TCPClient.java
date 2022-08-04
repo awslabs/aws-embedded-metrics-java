@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 
 /** A client that would connect to a TCP socket. */
@@ -30,8 +29,6 @@ public class TCPClient implements SocketClient {
     private final Endpoint endpoint;
     private Socket socket;
     private boolean shouldConnect = true;
-    private final LinkedList<String> retryQueue = new LinkedList<>();
-    private String lastMessageSent;
 
     public TCPClient(Endpoint endpoint) {
         this.endpoint = endpoint;
@@ -61,28 +58,17 @@ public class TCPClient implements SocketClient {
             os = socket.getOutputStream();
         } catch (IOException e) {
             shouldConnect = true;
-            retryQueue.add(message);
             throw new RuntimeException(
                     "Failed to write message to the socket. Failed to open output stream.", e);
         }
 
         try {
-            while (!retryQueue.isEmpty()) {
-                String retryMessage = retryQueue.peek();
-                os.write(retryMessage.getBytes());
-                retryQueue.pop();
-            }
+            // Write a space to the socket to verify connection before sending event
+            os.write(32);
 
             os.write(message.getBytes());
-            lastMessageSent = message;
         } catch (IOException e) {
-            // For broken pipe exception, retry last sent message
-            if (e.getMessage().contains("Broken pipe")) {
-                retryQueue.add(lastMessageSent);
-            }
-
             shouldConnect = true;
-            retryQueue.add(message);
             throw new RuntimeException("Failed to write message to the socket.", e);
         }
     }
