@@ -51,9 +51,7 @@ public class TCPClient implements SocketClient {
 
     @Override
     public synchronized void sendMessage(String message) {
-        if (socket == null || socket.isClosed() || shouldConnect) {
-            connect();
-        }
+        checkConnection();
 
         OutputStream os;
         try {
@@ -65,10 +63,19 @@ public class TCPClient implements SocketClient {
         }
 
         try {
+            // Write a space to the socket to verify connection before sending event
+            os.write(32);
+
             os.write(message.getBytes());
-        } catch (Exception e) {
+        } catch (IOException e) {
             shouldConnect = true;
             throw new RuntimeException("Failed to write message to the socket.", e);
+        }
+    }
+
+    private void checkConnection() {
+        if (socket == null || socket.isClosed() || shouldConnect) {
+            connect();
         }
     }
 
