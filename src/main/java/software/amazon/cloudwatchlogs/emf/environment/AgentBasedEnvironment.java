@@ -45,7 +45,17 @@ public abstract class AgentBasedEnvironment implements Environment {
 
     @Override
     public String getLogGroupName() {
-        return config.getLogGroupName().orElse(getName() + "-metrics");
+        if (config.getLogGroupName().isPresent()) {
+            return config.getLogGroupName().get();
+        } else {
+            String serviceName = getName();
+            // for ECS services, replace "repo:tag" format with "repo-tag" to satisfy
+            // log group regex
+            if (serviceName.indexOf(':') != -1) {
+                serviceName = serviceName.replaceAll(":", "-");
+            }
+            return serviceName + "-metrics";
+        }
     }
 
     public String getLogStreamName() {
