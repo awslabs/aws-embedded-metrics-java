@@ -151,6 +151,14 @@ public class ECSEnvironmentTest {
     }
 
     @Test
+    public void testGetLogGroupNameReplaceColon() {
+        String serviceName = "testRepo:testTag";
+        when(config.getServiceName()).thenReturn(Optional.of(serviceName));
+
+        assertEquals(environment.getLogGroupName(), "testRepo-testTag-metrics");
+    }
+
+    @Test
     public void testConfigureContext() throws UnknownHostException {
         PowerMockito.mockStatic(SystemWrapper.class);
         String uri = "http://ecs-metata.com";
