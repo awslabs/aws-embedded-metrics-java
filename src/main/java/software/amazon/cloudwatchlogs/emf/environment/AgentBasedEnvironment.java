@@ -51,9 +51,7 @@ public abstract class AgentBasedEnvironment implements Environment {
             String serviceName = getName();
             // for ECS services, replace "repo:tag" format with "repo-tag" to satisfy
             // log group regex
-            if (serviceName.indexOf(':') != -1) {
-                serviceName = serviceName.replaceAll(":", "-");
-            }
+            serviceName = serviceName.replaceAll(":", "-");
             return serviceName + "-metrics";
         }
     }
