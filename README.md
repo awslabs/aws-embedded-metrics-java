@@ -117,7 +117,7 @@ putProperty("Device", new HashMap<String, String>() {{
 
 Adds a new set of dimensions that will be associated with all metric values.
 
-**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
+**WARNING**: Each dimension set will result in a new CloudWatch metric (even dimension sets with the same values).
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 
@@ -137,7 +137,7 @@ putDimensions(DimensionSet.of("Operation", "Aggregator", "DeviceType", "Actuator
 
 Explicitly override all dimensions. This will remove the default dimensions.
 
-**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
+**WARNING**:Each dimension set will result in a new CloudWatch metric (even dimension sets with the same values).
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 

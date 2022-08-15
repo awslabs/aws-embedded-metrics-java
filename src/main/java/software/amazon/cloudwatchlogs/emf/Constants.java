@@ -23,6 +23,8 @@ public class Constants {
 
     public static final int MAX_METRICS_PER_EVENT = 100;
 
+    public static final int MAX_DIMENSION_SET_SIZE = 30;
+
     public static final int MAX_DATAPOINTS_PER_METRIC = 100;
 
     /**
