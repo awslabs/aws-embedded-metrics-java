@@ -161,8 +161,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[\"Instance\",\"Region\"],[\"Instance\"],[\"Region\"],[]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[\"Instance\",\"Region\"],[\"Instance\"],[\"Region\"],[]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
