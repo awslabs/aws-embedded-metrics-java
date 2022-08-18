@@ -316,6 +316,24 @@ config.setAgentEndpoint("udp://127.0.0.1:1000");
 AWS_EMF_AGENT_ENDPOINT="udp://127.0.0.1:1000"
 ```
 
+## Thread-safety
+
+### Internal Synchronization
+
+The MetricsLogger class is thread-safe. Specifically, the generalized multi-threading use cases for this library are:
+
+1. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into one or more async contexts where new metrics or metadata can be added concurrently; Join the async contexts (e.g. Future.get()) and flush the metrics.
+2. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into an async context; Flush from the async context concurrently.
+
+Thread-safety for the first use case is achieved by introducing concurrent internal data structures and atomic operations associated with these models, to ensure the access to shared mutable resources are always synchronized.
+
+Thread-safety for the second use case is achieved by using a ReentrantReadWriteLock. This lock is used to create an internal sync context for flush() method in multi-threading situations. `flush()` acquires write lock, while other methods (which have access to mutable shared data with `flush()`) acquires read lock. This makes sure `flush()` is always executed exclusively, while other methods can be executed concurrently.
+
+### Use Cases that are Not Covered
+
+With all the internal synchronization measures, however, there're still certain multi-threading use cases that are not covered by this library, which might require external synchronizations or other protection measures.
+This is due to the fact that the execution order of APIs are not determined in async contexts. For example, if user needs to associate a given set of properties with a metric in each thread, the results are not guaranteed since the execution order of `putProperty()` is not determined across threads. In such cases, we recommend using a different MetricsLogger instance for different threads, so that no resources are shared and no thread-safety problem would ever happen. Note that this can often be simplified by using a ThreadLocal variable.
+
 ## Examples
 
 Check out the [examples](https://github.com/awslabs/aws-embedded-metrics-java/tree/master/examples) directory to get started.
@@ -361,6 +379,14 @@ To auto fix code style, run
 ```
 ./gradlew :spotlessApply
 ```
+
+### Benchmark
+
+We use [JMH](https://github.com/openjdk/jmh) as our framework for concurrency performance benchmarking. Benchmarks can be run by:
+```
+./gradlew jmh
+```
+To run a single benchmark, consider using JMH plugins. For example, [JMH plugin for IntelliJ IDEA](https://github.com/artyushov/idea-jmh-plugin)
 
 ## License
 

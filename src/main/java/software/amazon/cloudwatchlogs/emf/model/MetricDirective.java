@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.*;
 
@@ -45,8 +46,8 @@ class MetricDirective {
 
     MetricDirective() {
         namespace = "aws-embedded-metrics";
-        metrics = new HashMap<>();
-        dimensions = new ArrayList<>();
+        metrics = new ConcurrentHashMap<>();
+        dimensions = Collections.synchronizedList(new ArrayList<>());
         defaultDimensions = new DimensionSet();
         shouldUseDefaultDimension = true;
     }
@@ -60,11 +61,15 @@ class MetricDirective {
     }
 
     void putMetric(String key, double value, Unit unit) {
-        if (metrics.containsKey(key)) {
-            metrics.get(key).addValue(value);
-        } else {
-            metrics.put(key, new MetricDefinition(key, unit, value));
-        }
+        metrics.compute(
+                key,
+                (k, v) -> {
+                    if (v == null) return new MetricDefinition(key, unit, value);
+                    else {
+                        v.addValue(value);
+                        return v;
+                    }
+                });
     }
 
     @JsonProperty("Metrics")
@@ -86,7 +91,7 @@ class MetricDirective {
      */
     void setDimensions(List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = false;
-        dimensions = new ArrayList<>(dimensionSets);
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
     }
 
     /**

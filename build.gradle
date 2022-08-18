@@ -18,6 +18,7 @@ plugins {
 	id 'com.diffplug.spotless' version '5.8.2'
 	id 'maven-publish'
 	id 'signing'
+	id "me.champeau.jmh" version "0.6.6"
 }
 
 group "software.amazon.cloudwatchlogs"
@@ -78,6 +79,10 @@ dependencies {
 	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+	implementation 'org.openjdk.jmh:jmh-core:1.29'
+	implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.29'
+	jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.29'
 }
 
 spotless {
@@ -124,7 +129,7 @@ tasks.withType(JavaCompile) {
 }
 
 tasks.named('wrapper') {
-	gradleVersion = '6.5.1'
+	gradleVersion = '7.4.2'
 	distributionType = Wrapper.DistributionType.ALL
 }
 
