@@ -51,19 +51,22 @@ public class MetricsLoggerThreadSafetyTest {
 
     @Test
     public void testConcurrentPutProperty() throws InterruptedException {
+        final int N_THREAD = 100;
+        final int N_PUT_PROPERTY = 1000;
+
         logger = new MetricsLogger(envProvider);
-        Thread[] threads = new Thread[100];
+        Thread[] threads = new Thread[N_THREAD];
         long targetTimestampToRun = System.currentTimeMillis() + 500;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
-                                    for (int j = 0; j < 1000; j++) {
-                                        int propertyId = 1000 * id + j;
+                                    for (int j = 0; j < N_PUT_PROPERTY; j++) {
+                                        int propertyId = N_PUT_PROPERTY * id + j;
                                         logger.putProperty(
                                                 "Property-" + propertyId,
                                                 String.valueOf(propertyId));
@@ -80,29 +83,36 @@ public class MetricsLoggerThreadSafetyTest {
         }
 
         logger.flush();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < N_THREAD * N_PUT_PROPERTY; i++) {
             Assert.assertEquals(sink.getContext().getProperty("Property-" + i), String.valueOf(i));
         }
     }
 
     @Test
     public void testConcurrentPutDimension() throws InterruptedException {
+        final int N_THREAD = 100;
+        final int N_PUT_DIMENSIONS = 100;
+
         logger = new MetricsLogger(envProvider);
-        Thread[] threads = new Thread[100];
+        // disable default dimensions
+        logger.resetDimensions(false);
+
+        Thread[] threads = new Thread[N_THREAD];
         long targetTimestampToRun = System.currentTimeMillis() + 500;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
-                                    for (int j = 0; j < 1000; j++) {
-                                        int dimensionId = 1000 * id + j;
+                                    for (int j = 0; j < N_PUT_DIMENSIONS; j++) {
+                                        int dimensionId = N_PUT_DIMENSIONS * id + j;
                                         logger.putDimensions(
                                                 DimensionSet.of(
-                                                        "Dim", String.valueOf(dimensionId)));
+                                                        String.valueOf(dimensionId),
+                                                        String.valueOf(dimensionId)));
                                     }
                                 } catch (Throwable e) {
                                     throwable = e;
@@ -119,38 +129,45 @@ public class MetricsLoggerThreadSafetyTest {
 
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
         // check size
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 100000);
+        Assert.assertEquals(sink.getContext().getDimensions().size(), N_THREAD * N_PUT_DIMENSIONS);
         for (DimensionSet dim : dimensions) {
-            Assert.assertEquals(dim.getDimensionKeys().size(), 4); // there are 3 default dimensions
+            Assert.assertEquals(
+                    dim.getDimensionKeys().size(), 1); // default dimensions are disabled
         }
         // check content
         Collections.sort(
                 dimensions,
-                Comparator.comparingInt(d -> Integer.parseInt(d.getDimensionValue("Dim"))));
-        for (int i = 0; i < 100000; i++) {
-            Assert.assertEquals(dimensions.get(i).getDimensionValue("Dim"), String.valueOf(i));
+                Comparator.comparingInt(
+                        dim -> Integer.parseInt(dim.getDimensionKeys().iterator().next())));
+        for (int i = 0; i < N_THREAD * N_PUT_DIMENSIONS; i++) {
+            Assert.assertEquals(
+                    dimensions.get(i).getDimensionValue(String.valueOf(i)), String.valueOf(i));
         }
     }
 
     @Test
     public void testConcurrentPutDimensionAfterSetDimension() throws InterruptedException {
+        final int N_THREAD = 100;
+        final int N_PUT_DIMENSIONS = 100;
+
         logger = new MetricsLogger(envProvider);
-        logger.setDimensions(DimensionSet.of("Dim", "0"));
+        logger.setDimensions(DimensionSet.of("0", "0"));
         long targetTimestampToRun = System.currentTimeMillis() + 500;
 
-        Thread[] threads = new Thread[100];
-        for (int i = 0; i < 100; i++) {
+        Thread[] threads = new Thread[N_THREAD];
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
-                                    for (int j = 0; j < 1000; j++) {
-                                        int dimensionId = 1000 * id + j + 1;
+                                    for (int j = 0; j < N_PUT_DIMENSIONS; j++) {
+                                        int dimensionId = N_PUT_DIMENSIONS * id + j + 1;
                                         logger.putDimensions(
                                                 DimensionSet.of(
-                                                        "Dim", String.valueOf(dimensionId)));
+                                                        String.valueOf(dimensionId),
+                                                        String.valueOf(dimensionId)));
                                     }
                                 } catch (Throwable e) {
                                     throwable = e;
@@ -167,7 +184,8 @@ public class MetricsLoggerThreadSafetyTest {
 
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
         // check size
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 100001);
+        Assert.assertEquals(
+                sink.getContext().getDimensions().size(), N_THREAD * N_PUT_DIMENSIONS + 1);
         for (DimensionSet dim : dimensions) {
             Assert.assertEquals(
                     dim.getDimensionKeys().size(), 1); // there are no default dimensions after set
@@ -175,24 +193,28 @@ public class MetricsLoggerThreadSafetyTest {
         // check content
         Collections.sort(
                 dimensions,
-                Comparator.comparingInt(d -> Integer.parseInt(d.getDimensionValue("Dim"))));
-        for (int i = 0; i < 100001; i++) {
-            Assert.assertEquals(dimensions.get(i).getDimensionValue("Dim"), String.valueOf(i));
+                Comparator.comparingInt(
+                        dim -> Integer.parseInt(dim.getDimensionKeys().iterator().next())));
+        for (int i = 0; i < N_THREAD * N_PUT_DIMENSIONS + 1; i++) {
+            Assert.assertEquals(
+                    dimensions.get(i).getDimensionValue(String.valueOf(i)), String.valueOf(i));
         }
     }
 
     @Test
     public void testConcurrentFlush() throws InterruptedException, JsonProcessingException {
+        final int N_THREAD = 300;
+
         GroupedSinkShunt groupedSink = new GroupedSinkShunt();
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
         when(environment.getSink()).thenReturn(groupedSink);
 
         logger = new MetricsLogger(envProvider);
-        Thread[] threads = new Thread[300];
+        Thread[] threads = new Thread[N_THREAD];
         long targetTimestampToRun = System.currentTimeMillis() + 1000;
 
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
@@ -219,12 +241,12 @@ public class MetricsLoggerThreadSafetyTest {
             allMetrics.addAll(metrics);
         }
 
-        assertEquals(allMetrics.size(), 300);
+        assertEquals(allMetrics.size(), N_THREAD);
         for (MetricDefinitionCopy metric : allMetrics) {
             assertEquals(metric.getValues().size(), 1);
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
             assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
         }
@@ -233,6 +255,9 @@ public class MetricsLoggerThreadSafetyTest {
     @Test
     public void testConcurrentFlushAndPutMetric()
             throws InterruptedException, JsonProcessingException {
+        final int N_THREAD = 500;
+        final int N_PUT_METRIC = 1000;
+
         GroupedSinkShunt groupedSink = new GroupedSinkShunt();
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
@@ -241,8 +266,8 @@ public class MetricsLoggerThreadSafetyTest {
         logger = new MetricsLogger(envProvider);
         Random rand = new Random();
 
-        Thread[] threads = new Thread[500];
-        for (int i = 0; i < 500; i++) {
+        Thread[] threads = new Thread[N_THREAD];
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             int randTime = rand.nextInt(1000);
             threads[i] =
@@ -253,7 +278,9 @@ public class MetricsLoggerThreadSafetyTest {
                                     // sleep to introduce more chaos in thread ordering
                                     Thread.sleep(randTime);
                                     if (id % 2 == 0) {
-                                        for (int j = id * 500; j < id * 500 + 1000; j++) {
+                                        for (int j = id * N_PUT_METRIC / 2;
+                                                j < id * N_PUT_METRIC / 2 + N_PUT_METRIC;
+                                                j++) {
                                             logger.putMetric("Metric-" + j, j);
                                         }
                                     } else {
@@ -277,12 +304,12 @@ public class MetricsLoggerThreadSafetyTest {
             allMetrics.addAll(metrics);
         }
 
-        assertEquals(allMetrics.size(), 250000);
+        assertEquals(allMetrics.size(), N_THREAD * N_PUT_METRIC / 2);
         for (MetricDefinitionCopy metric : allMetrics) {
             assertEquals(metric.getValues().size(), 1);
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
-        for (int i = 0; i < 250000; i++) {
+        for (int i = 0; i < N_THREAD * N_PUT_METRIC / 2; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
             assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
         }
@@ -290,16 +317,21 @@ public class MetricsLoggerThreadSafetyTest {
 
     @Test
     public void testConcurrentFlushAndMethodsOtherThanPutMetric() throws InterruptedException {
+        final int N_THREAD = 600;
+        final int N_PUT_DIMENSIONS = 100;
+        final int N_PUT_PROPERTY = 100;
+
         GroupedSinkShunt groupedSink = new GroupedSinkShunt();
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
         when(environment.getSink()).thenReturn(groupedSink);
 
         logger = new MetricsLogger(envProvider);
+        logger.resetDimensions(false);
         Random rand = new Random();
 
-        Thread[] threads = new Thread[600];
-        for (int i = 0; i < 600; i++) {
+        Thread[] threads = new Thread[N_THREAD];
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             int randTime = rand.nextInt(1000);
             threads[i] =
@@ -307,13 +339,18 @@ public class MetricsLoggerThreadSafetyTest {
                             () -> {
                                 try {
                                     Thread.sleep(randTime);
-                                    if (id < 200) {
-                                        for (int j = id * 100; j < id * 100 + 100; j++) {
+                                    if (id < N_THREAD / 3) {
+                                        for (int j = id * N_PUT_DIMENSIONS;
+                                                j < id * N_PUT_DIMENSIONS + N_PUT_DIMENSIONS;
+                                                j++) {
                                             logger.putDimensions(
-                                                    DimensionSet.of("Dim", String.valueOf(j)));
+                                                    DimensionSet.of(
+                                                            String.valueOf(j), String.valueOf(j)));
                                         }
-                                    } else if (id < 400) {
-                                        for (int k = id * 100; k < id * 100 + 100; k++) {
+                                    } else if (id < N_THREAD / 3 * 2) {
+                                        for (int k = id * N_PUT_PROPERTY;
+                                                k < id * N_PUT_PROPERTY + N_PUT_PROPERTY;
+                                                k++) {
                                             logger.putProperty("Property-" + k, k);
                                         }
                                     } else {
@@ -336,26 +373,30 @@ public class MetricsLoggerThreadSafetyTest {
         List<DimensionSet> dimensions = finalContext.getDimensions();
 
         // check dimension size
-        assertEquals(dimensions.size(), 20000);
+        assertEquals(dimensions.size(), N_THREAD * N_PUT_DIMENSIONS / 3);
         for (DimensionSet dim : dimensions) {
-            Assert.assertEquals(dim.getDimensionKeys().size(), 4); // there are 3 default dimensions
+            Assert.assertEquals(dim.getDimensionKeys().size(), 1); // there are 3 default dimensions
         }
         // check dimension content
         Collections.sort(
                 dimensions,
-                Comparator.comparingInt(d -> Integer.parseInt(d.getDimensionValue("Dim"))));
-        for (int i = 0; i < 2000; i++) {
-            Assert.assertEquals(dimensions.get(i).getDimensionValue("Dim"), String.valueOf(i));
+                Comparator.comparingInt(
+                        dim -> Integer.parseInt(dim.getDimensionKeys().iterator().next())));
+        for (int i = 0; i < N_THREAD * N_PUT_DIMENSIONS / 3; i++) {
+            Assert.assertEquals(
+                    dimensions.get(i).getDimensionValue(String.valueOf(i)), String.valueOf(i));
         }
 
         // check property
         int propertyCnt = 0;
         for (MetricsContext mc : groupedSink.getContexts()) {
-            for (int i = 20000; i < 40000; i++) {
+            for (int i = N_THREAD * N_PUT_PROPERTY / 3;
+                    i < N_THREAD * N_PUT_PROPERTY / 3 * 2;
+                    i++) {
                 propertyCnt += mc.getProperty("Property-" + i) == null ? 0 : 1;
             }
         }
-        assertEquals(propertyCnt, 20000);
+        assertEquals(propertyCnt, N_THREAD * N_PUT_PROPERTY / 3);
     }
 
     @After
@@ -366,29 +407,6 @@ public class MetricsLoggerThreadSafetyTest {
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
         return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
-    }
-
-    @Test
-    public void testParseMetrics() throws JsonProcessingException {
-        for (int i = 0; i < 150; i++) {
-            logger.putMetric("Metric-" + i, i);
-        }
-        logger.flush();
-
-        ArrayList<MetricDefinitionCopy> metrics = parseAllMetrics(sink.getLogEvents());
-        System.out.println(metrics.size());
-        for (String line : sink.getLogEvents()) {
-            System.out.println(line);
-        }
-
-        for (MetricDefinitionCopy metric : metrics) {
-            assertEquals(metric.getValues().size(), 1);
-        }
-        Collections.sort(metrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
-        for (int i = 0; i < 150; i++) {
-            assertEquals(metrics.get(i).getName(), "Metric-" + i);
-            assertEquals(metrics.get(i).getValues().get(0), i, 1e-5);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -425,7 +443,7 @@ public class MetricsLoggerThreadSafetyTest {
     }
 
     @AllArgsConstructor
-    private class MetricDefinitionCopy {
+    private static class MetricDefinitionCopy {
         @NonNull
         @Getter
         @JsonProperty("Name")

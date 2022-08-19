@@ -11,13 +11,16 @@ public class MetricDirectiveThreadSafetyTest {
 
     @Test
     public void testConcurrentPutMetricWithDifferentKey() throws InterruptedException {
+        final int N_THREAD = 100;
+        final int N_PUT_METRIC = 1000;
+
         MetricDirective metricDirective = new MetricDirective();
-        Thread[] threads = new Thread[100];
+        Thread[] threads = new Thread[N_THREAD];
         long targetTimestampToRun =
                 System.currentTimeMillis()
                         + 500; // all threads should target running on this timestamp
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
@@ -29,8 +32,8 @@ public class MetricDirectiveThreadSafetyTest {
                                     // all threads
                                     // run at same
                                     // time
-                                    for (int j = 0; j < 1000; j++) {
-                                        int metricId = 1000 * id + j;
+                                    for (int j = 0; j < N_PUT_METRIC; j++) {
+                                        int metricId = N_PUT_METRIC * id + j;
                                         metricDirective.putMetric("Metric-" + metricId, metricId);
                                     }
                                 } catch (Throwable e) {
@@ -44,8 +47,8 @@ public class MetricDirectiveThreadSafetyTest {
             t.join();
         }
 
-        assertEquals(metricDirective.getAllMetrics().size(), 100000);
-        for (int i = 0; i < 100000; i++) {
+        assertEquals(metricDirective.getAllMetrics().size(), N_THREAD * N_PUT_METRIC);
+        for (int i = 0; i < N_THREAD * N_PUT_METRIC; i++) {
             assertEquals(
                     metricDirective.getMetrics().get("Metric-" + i).getValues().get(0), i, 1e-5);
         }
@@ -53,19 +56,22 @@ public class MetricDirectiveThreadSafetyTest {
 
     @Test
     public void testConcurrentPutMetricWithSameKey() throws InterruptedException {
+        final int N_THREAD = 100;
+        final int N_PUT_METRIC = 1000;
+
         MetricDirective metricDirective = new MetricDirective();
-        Thread[] threads = new Thread[100];
+        Thread[] threads = new Thread[N_THREAD];
         long targetTimestampToRun = System.currentTimeMillis() + 500;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < N_THREAD; i++) {
             final int id = i;
             threads[i] =
                     new Thread(
                             () -> {
                                 try {
                                     Thread.sleep(targetTimestampToRun - System.currentTimeMillis());
-                                    for (int j = 0; j < 1000; j++) {
-                                        int metricId = 1000 * id + j;
+                                    for (int j = 0; j < N_PUT_METRIC; j++) {
+                                        int metricId = N_PUT_METRIC * id + j;
                                         metricDirective.putMetric("Metric", metricId);
                                     }
                                 } catch (Throwable e) {
@@ -82,7 +88,7 @@ public class MetricDirectiveThreadSafetyTest {
         assertEquals(metricDirective.getAllMetrics().size(), 1);
         MetricDefinition md = metricDirective.getAllMetrics().toArray(new MetricDefinition[0])[0];
         Collections.sort(md.getValues());
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < N_THREAD * N_PUT_METRIC; i++) {
             assertEquals(md.getValues().get(i), i, 1e-5);
         }
     }
