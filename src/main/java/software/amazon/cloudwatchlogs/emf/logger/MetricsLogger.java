@@ -20,6 +20,8 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -44,6 +46,8 @@ public class MetricsLogger {
      * methods can be executed concurrently.
      */
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+    @Getter @Setter private boolean flushPreserveDimensions = true;
 
     public MetricsLogger() {
         this(new EnvironmentProvider());
@@ -82,7 +86,10 @@ public class MetricsLogger {
             ISink sink = environment.getSink();
             configureContextForEnvironment(context, environment);
             sink.accept(context);
-            context = context.createCopyWithContext();
+            context =
+                    flushPreserveDimensions
+                            ? context.createCopyWithContext()
+                            : context.createCopyWithContextWithoutDimensions();
         } finally {
             rwl.writeLock().unlock();
         }
@@ -127,7 +134,7 @@ public class MetricsLogger {
     /**
      * Overwrite all dimensions on this MetricsLogger instance.
      *
-     * @param dimensionSets the dimensionSets to set.
+     * @param dimensionSets the dimensionSets to set
      * @see <a
      *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension">CloudWatch
      *     Dimensions</a>
@@ -139,6 +146,31 @@ public class MetricsLogger {
                     context.setDimensions(dimensionSets);
                     return this;
                 });
+    }
+
+    /**
+     * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve
+     * default dimensions.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to set
+     * @return the current logger
+     */
+    public MetricsLogger setDimensions(boolean useDefault, DimensionSet... dimensionSets) {
+        context.setDimensions(useDefault, dimensionSets);
+        return this;
+    }
+
+    /**
+     * Clear all custom dimensions on this MetricsLogger instance. Whether default dimensions should
+     * be used can be configured by the input parameter.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @return the current logger
+     */
+    public MetricsLogger resetDimensions(boolean useDefault) {
+        context.resetDimensions(useDefault);
+        return this;
     }
 
     /**

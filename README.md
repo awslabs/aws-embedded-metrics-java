@@ -166,6 +166,19 @@ setDimensions(
 )
 ```
 
+- MetricsLogger **setDimensions**(boolean useDefault, DimensionSet... dimensionSets)
+
+Override all custom dimensions, with an option to configure whether to use default dimensions.
+
+- MetricsLogger **resetDimensions**(boolean useDefault)
+
+Explicitly clear all custom dimensions. The behavior of whether default dimensions should be used can be configured by the input parameter.
+
+Examples:
+
+```java
+resetDimensions(false)  // this will clear all custom dimensions as well as disable default dimensions
+```
 
 - MetricsLogger **setNamespace**(String value)
 
@@ -194,7 +207,24 @@ setTimestamp(Instant.now())
 
 - **flush**()
 
-Flushes the current MetricsContext to the configured sink and resets all properties, dimensions and metric values. The namespace and default dimensions will be preserved across flushes.
+Flushes the current MetricsContext to the configured sink and resets all properties and metric values. The namespace and default dimensions will be preserved across flushes. Custom dimensions are preserved by default, but this behavior can be disabled by invoking `setFlushPreserveDimensions(false)`, so that no custom dimensions would be preserved after each flushing thereafter.
+
+Example:
+
+```java
+flush();  // default dimensions and custom dimensions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();  // only default dimensions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();
+resetDimensions(false);  // default dimensions are disabled; no dimensions will be preserved after each flush()
+```
 
 ### Configuration
 
