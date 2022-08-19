@@ -157,8 +157,11 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger setDimensions(boolean useDefault, DimensionSet... dimensionSets) {
-        context.setDimensions(useDefault, dimensionSets);
-        return this;
+        return applyReadLock(
+                () -> {
+                    context.setDimensions(useDefault, dimensionSets);
+                    return this;
+                });
     }
 
     /**
@@ -169,8 +172,11 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger resetDimensions(boolean useDefault) {
-        context.resetDimensions(useDefault);
-        return this;
+        return applyReadLock(
+                () -> {
+                    context.resetDimensions(useDefault);
+                    return this;
+                });
     }
 
     /**

@@ -111,7 +111,7 @@ class MetricDirective {
      */
     void setDimensions(boolean useDefault, List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = useDefault;
-        dimensions = new ArrayList<>(dimensionSets);
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
     }
 
     /**
@@ -121,7 +121,7 @@ class MetricDirective {
      */
     void resetDimensions(boolean useDefault) {
         shouldUseDefaultDimension = useDefault;
-        dimensions = new ArrayList<>();
+        dimensions = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**
