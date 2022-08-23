@@ -17,20 +17,15 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.time.Instant;
 import java.util.*;
-
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
 
-/**
- * Stores metrics and their associated properties and dimensions.
- */
+/** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
 
-    @Getter
-    private RootNode rootNode;
+    @Getter private RootNode rootNode;
 
     private MetricDirective metricDirective;
 
@@ -65,9 +60,7 @@ public class MetricsContext {
         }
     }
 
-    /**
-     * @return the namespace. If the namespace is not set, it would return a default value.
-     */
+    /** @return the namespace. If the namespace is not set, it would return a default value. */
     public String getNamespace() {
         return metricDirective.getNamespace();
     }
@@ -81,9 +74,7 @@ public class MetricsContext {
         metricDirective.setNamespace(namespace);
     }
 
-    /**
-     * @return the default dimension set.
-     */
+    /** @return the default dimension set. */
     public DimensionSet getDefaultDimensions() {
         return metricDirective.getDefaultDimensions();
     }
@@ -111,9 +102,9 @@ public class MetricsContext {
      * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS)
      * }</pre>
      *
-     * @param key   Name of the metric
+     * @param key Name of the metric
      * @param value Value of the metric
-     * @param unit  The unit of the metric
+     * @param unit The unit of the metric
      */
     public void putMetric(String key, double value, Unit unit) {
         metricDirective.putMetric(key, value, unit);
@@ -127,7 +118,7 @@ public class MetricsContext {
      * metricContext.putMetric("Count", 10)
      * }</pre>
      *
-     * @param key   Name of the metric
+     * @param key Name of the metric
      * @param value Value of the metric
      */
     public void putMetric(String key, double value) {
@@ -143,7 +134,7 @@ public class MetricsContext {
      * metricContext.putProperty("Location", 'US')
      * }</pre>
      *
-     * @param name  Name of the property
+     * @param name Name of the property
      * @param value Value of the property
      */
     public void putProperty(String name, Object value) {
@@ -175,15 +166,13 @@ public class MetricsContext {
      * }</pre>
      *
      * @param dimension the name of the dimension
-     * @param value     the value associated with the dimension
+     * @param value the value associated with the dimension
      */
     public void putDimension(String dimension, String value) {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
     }
 
-    /**
-     * @return the list of dimensions that has been added, including default dimensions.
-     */
+    /** @return the list of dimensions that has been added, including default dimensions. */
     public List<DimensionSet> getDimensions() {
         return metricDirective.getAllDimensions();
     }
@@ -219,16 +208,14 @@ public class MetricsContext {
     /**
      * Add a key-value pair to the metadata
      *
-     * @param key   the name of the key
+     * @param key the name of the key
      * @param value the value associated with the key
      */
     public void putMetadata(String key, Object value) {
         rootNode.getAws().putCustomMetadata(key, value);
     }
 
-    /**
-     * @return timestamp field from the metadata.
-     */
+    /** @return timestamp field from the metadata. */
     public Instant getTimestamp() {
         return rootNode.getAws().getTimestamp();
     }
@@ -242,9 +229,7 @@ public class MetricsContext {
         rootNode.getAws().setTimestamp(timestamp);
     }
 
-    /**
-     * @return Creates an independently flushable context.
-     */
+    /** @return Creates an independently flushable context. */
     public MetricsContext createCopyWithContext() {
         return new MetricsContext(metricDirective.copyWithoutMetrics());
     }

@@ -18,7 +18,6 @@ package software.amazon.cloudwatchlogs.emf.environment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -26,7 +25,6 @@ import java.net.Proxy;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
@@ -36,9 +34,7 @@ import software.amazon.cloudwatchlogs.emf.util.Jackson;
 @Slf4j
 public class ResourceFetcher {
 
-    /**
-     * Fetch a json object from a given uri and deserialize it to the specified class: clazz.
-     */
+    /** Fetch a json object from a given uri and deserialize it to the specified class: clazz. */
     <T> T fetch(URI endpoint, Class<T> clazz) {
         String response = doReadResource(endpoint, "GET", Collections.emptyList());
         return Jackson.fromJsonString(response, clazz);
@@ -53,9 +49,7 @@ public class ResourceFetcher {
         return Jackson.fromJsonString(response, clazz);
     }
 
-    /**
-     * Request a string from a given uri with the provided headers
-     */
+    /** Request a string from a given uri with the provided headers */
     String fetch(URI endpoint, String method, List<Pair<String, String>> headers) {
         return doReadResource(endpoint, method, headers);
     }

@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +89,8 @@ public class MetricsLoggerTest {
         logger.flush();
 
         Assert.assertEquals(1, sink.getContext().getDimensions().size());
-        Assert.assertNull(sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName));
+        Assert.assertNull(
+                sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName));
     }
 
     @Test
@@ -225,10 +225,11 @@ public class MetricsLoggerTest {
     @Test
     public void testUseDefaultEnvironmentOnResolverException() {
         String serviceType = "TestServiceType";
-        CompletableFuture<Environment> future = CompletableFuture.supplyAsync(
-                () -> {
-                    throw new RuntimeException("UnExpected");
-                });
+        CompletableFuture<Environment> future =
+                CompletableFuture.supplyAsync(
+                        () -> {
+                            throw new RuntimeException("UnExpected");
+                        });
         EnvironmentProvider envProvider = mock(EnvironmentProvider.class);
         when(envProvider.resolveEnvironment()).thenReturn(future);
         when(envProvider.getDefaultEnvironment()).thenReturn(environment);

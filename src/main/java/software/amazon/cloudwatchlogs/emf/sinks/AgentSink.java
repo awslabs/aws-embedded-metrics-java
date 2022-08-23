@@ -17,14 +17,12 @@
 package software.amazon.cloudwatchlogs.emf.sinks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
@@ -33,9 +31,7 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.retry.RetryStrategy;
 import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
-/**
- * An sink connecting to an agent over a socket.
- */
+/** An sink connecting to an agent over a socket. */
 @Slf4j
 public class AgentSink implements ISink {
     private final String logGroupName;

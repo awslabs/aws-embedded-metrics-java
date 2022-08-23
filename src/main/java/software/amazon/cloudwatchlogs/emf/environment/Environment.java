@@ -19,9 +19,7 @@ package software.amazon.cloudwatchlogs.emf.environment;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
-/**
- * A runtime environment (e.g. Lambda, EKS, ECS, EC2).
- */
+/** A runtime environment (e.g. Lambda, EKS, ECS, EC2). */
 public interface Environment {
 
     /**
@@ -52,13 +50,9 @@ public interface Environment {
      */
     String getLogGroupName();
 
-    /**
-     * @param context the context to configure with environment properties
-     */
+    /** @param context the context to configure with environment properties */
     void configureContext(MetricsContext context);
 
-    /**
-     * @return an appropriate sink for this environment
-     */
+    /** @return an appropriate sink for this environment */
     ISink getSink();
 }

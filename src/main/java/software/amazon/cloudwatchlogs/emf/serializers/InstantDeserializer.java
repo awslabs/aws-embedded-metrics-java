@@ -19,13 +19,10 @@ package software.amazon.cloudwatchlogs.emf.serializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-
 import java.io.IOException;
 import java.time.Instant;
 
-/**
- * Deserialize Instant from a Long epoch millisecond timestamp.
- */
+/** Deserialize Instant from a Long epoch millisecond timestamp. */
 public class InstantDeserializer extends StdDeserializer<Instant> {
     InstantDeserializer() {
         this(null);

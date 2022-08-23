@@ -22,13 +22,11 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
-
 import lombok.Data;
 import org.javatuples.Pair;
 import org.junit.Before;
@@ -42,8 +40,7 @@ public class ResourceFetcherTest {
     private static URI endpoint;
     private static final String endpoint_path = "/fake/endpoint";
 
-    @ClassRule
-    public static WireMockRule mockServer = new WireMockRule(0);
+    @ClassRule public static WireMockRule mockServer = new WireMockRule(0);
 
     @Before
     public void setUp() throws URISyntaxException {

@@ -21,11 +21,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.github.javafaker.Faker;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;

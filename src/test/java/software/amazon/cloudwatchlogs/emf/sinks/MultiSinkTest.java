@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CompletableFuture;
-
 import lombok.Getter;
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
@@ -47,8 +46,7 @@ public class MultiSinkTest {
 
     private static class TestSink implements ISink {
         private final CompletableFuture<Void> shutdownResult;
-        @Getter
-        int shutdowns = 0;
+        @Getter int shutdowns = 0;
 
         TestSink() {
             this.shutdownResult = CompletableFuture.completedFuture(null);
@@ -59,8 +57,7 @@ public class MultiSinkTest {
         }
 
         @Override
-        public void accept(MetricsContext context) {
-        }
+        public void accept(MetricsContext context) {}
 
         @Override
         public CompletableFuture<Void> shutdown() {

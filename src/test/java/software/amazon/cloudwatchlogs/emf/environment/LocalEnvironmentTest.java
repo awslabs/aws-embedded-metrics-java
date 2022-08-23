@@ -21,9 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.github.javafaker.Faker;
-
 import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;

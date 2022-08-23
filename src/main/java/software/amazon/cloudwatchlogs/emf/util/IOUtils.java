@@ -21,7 +21,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
 import org.slf4j.Logger;
 
 public class IOUtils {
@@ -65,7 +64,7 @@ public class IOUtils {
     /**
      * Closes the given Closeable quietly.
      *
-     * @param is  the given closeable
+     * @param is the given closeable
      * @param log logger used to log any failure should the close fail
      */
     public static void closeQuietly(Closeable is, Logger log) {

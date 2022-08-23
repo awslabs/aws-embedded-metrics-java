@@ -23,13 +23,10 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
 
@@ -194,7 +191,6 @@ public class MetricsContextTest {
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
-        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {
-        });
+        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
     }
 }

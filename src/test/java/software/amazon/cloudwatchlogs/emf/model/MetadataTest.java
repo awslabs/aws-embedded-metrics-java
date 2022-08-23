@@ -21,11 +21,9 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
-
 import org.junit.Test;
 
 public class MetadataTest {
@@ -39,8 +37,7 @@ public class MetadataTest {
         String output = objectMapper.writeValueAsString(metadata);
 
         Map<String, Object> metadata_map =
-                objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {
-                });
+                objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {});
 
         assertEquals(2, metadata_map.keySet().size());
         assertEquals(now.toEpochMilli(), metadata_map.get("Timestamp"));
@@ -60,8 +57,7 @@ public class MetadataTest {
         String output = objectMapper.writeValueAsString(metadata);
 
         Map<String, Object> metadata_map =
-                objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {
-                });
+                objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {});
 
         assertEquals(3, metadata_map.keySet().size());
         assertEquals(now.toEpochMilli(), metadata_map.get("Timestamp"));

@@ -17,15 +17,12 @@
 package software.amazon.cloudwatchlogs.emf.environment;
 
 import java.util.Optional;
-
 import software.amazon.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
-/**
- * An environment stands for the AWS Lambda environment.
- */
+/** An environment stands for the AWS Lambda environment. */
 public class LambdaEnvironment implements Environment {
     private static final String AWS_EXECUTION_ENV = "AWS_EXECUTION_ENV";
     private static final String LAMBDA_FUNCTION_NAME = "AWS_LAMBDA_FUNCTION_NAME";

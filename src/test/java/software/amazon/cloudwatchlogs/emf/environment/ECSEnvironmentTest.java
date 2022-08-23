@@ -22,13 +22,11 @@ import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +41,7 @@ import software.amazon.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ SystemWrapper.class })
+@PrepareForTest({SystemWrapper.class})
 public class ECSEnvironmentTest {
     private Configuration config;
     private ECSEnvironment environment;
@@ -129,7 +127,8 @@ public class ECSEnvironmentTest {
                 .thenReturn(new ECSEnvironment.ECSMetadata());
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(config, times(1)).setAgentEndpoint(argument.capture());
-        assertEquals("tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT, argument.getValue());
+        assertEquals(
+                "tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT, argument.getValue());
     }
 
     @Test
@@ -175,8 +174,10 @@ public class ECSEnvironmentTest {
         assertEquals(InetAddress.getLocalHost().getHostName(), context.getProperty("containerId"));
         assertEquals(metadata.getCreatedAt(), context.getProperty("createdAt"));
         assertEquals(metadata.getStartedAt(), context.getProperty("startedAt"));
-        assertEquals(metadata.labels.get("com.amazonaws.ecs.cluster"), context.getProperty("cluster"));
-        assertEquals(metadata.labels.get("com.amazonaws.ecs.task-arn"), context.getProperty("taskArn"));
+        assertEquals(
+                metadata.labels.get("com.amazonaws.ecs.cluster"), context.getProperty("cluster"));
+        assertEquals(
+                metadata.labels.get("com.amazonaws.ecs.task-arn"), context.getProperty("taskArn"));
     }
 
     private void getRandomMetadata(ECSEnvironment.ECSMetadata metadata) {

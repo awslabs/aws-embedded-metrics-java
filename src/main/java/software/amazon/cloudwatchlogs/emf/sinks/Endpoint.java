@@ -18,7 +18,6 @@ package software.amazon.cloudwatchlogs.emf.sinks;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,16 +30,11 @@ public class Endpoint {
     public static final Endpoint DEFAULT_TCP_ENDPOINT =
             new Endpoint("127.0.0.1", 25888, Protocol.TCP);
 
-    @Getter
-    @NonNull
-    private final String host;
+    @Getter @NonNull private final String host;
 
-    @Getter
-    private final int port;
+    @Getter private final int port;
 
-    @Getter
-    @NonNull
-    private final Protocol protocol;
+    @Getter @NonNull private final Protocol protocol;
 
     public static Endpoint fromURL(String endpoint) {
         URI parsedURI = null;

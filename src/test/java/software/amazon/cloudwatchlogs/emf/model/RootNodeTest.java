@@ -22,10 +22,8 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Test;
 
 public class RootNodeTest {
@@ -89,9 +87,9 @@ public class RootNodeTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> emf_logs = mc.serialize();
-        Map<String, Object> emf_map = objectMapper.readValue(
-                emf_logs.get(0), new TypeReference<Map<String, Object>>() {
-                });
+        Map<String, Object> emf_map =
+                objectMapper.readValue(
+                        emf_logs.get(0), new TypeReference<Map<String, Object>>() {});
 
         assertEquals(5, emf_map.keySet().size());
         assertEquals("us-east-1", emf_map.get("Region"));

@@ -19,14 +19,10 @@ package software.amazon.cloudwatchlogs.emf.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import java.io.IOException;
-
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
-/**
- * JSON serializer for Unit type.
- */
+/** JSON serializer for Unit type. */
 public class UnitSerializer extends StdSerializer<Unit> {
     UnitSerializer() {
         this(null);
@@ -37,7 +33,8 @@ public class UnitSerializer extends StdSerializer<Unit> {
     }
 
     @Override
-    public void serialize(Unit value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(Unit value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
         String str = value.toString();
         jgen.writeString(str);
     }

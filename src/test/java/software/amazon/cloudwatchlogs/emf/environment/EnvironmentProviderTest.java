@@ -22,9 +22,7 @@ import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.github.javafaker.Faker;
-
 import java.util.concurrent.CompletableFuture;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,7 +173,7 @@ public class EnvironmentProviderTest {
         DefaultEnvironment mockedDefaultEnv = mock(DefaultEnvironment.class);
         when(mockedDefaultEnv.probe()).thenReturn(true);
 
-        Environment[] envs = new Environment[]{mockedECSEnv, mockedEC2Env, mockedDefaultEnv};
+        Environment[] envs = new Environment[] {mockedECSEnv, mockedEC2Env, mockedDefaultEnv};
         FieldSetter.setField(
                 environmentProvider,
                 EnvironmentProvider.class.getDeclaredField("environments"),
@@ -185,7 +183,7 @@ public class EnvironmentProviderTest {
         environmentProvider.cleanResolvedEnvironment();
 
         Environment[] EC2FirstEnvs =
-                new Environment[]{mockedEC2Env, mockedECSEnv, mockedDefaultEnv};
+                new Environment[] {mockedEC2Env, mockedECSEnv, mockedDefaultEnv};
         FieldSetter.setField(
                 environmentProvider,
                 EnvironmentProvider.class.getDeclaredField("environments"),
@@ -213,7 +211,7 @@ public class EnvironmentProviderTest {
                                 return true;
                             }
                         });
-        Environment[] envs = new Environment[]{mockedLambdaEnv, mockedDefaultEnv, mockedEC2Env};
+        Environment[] envs = new Environment[] {mockedLambdaEnv, mockedDefaultEnv, mockedEC2Env};
 
         FieldSetter.setField(
                 environmentProvider,

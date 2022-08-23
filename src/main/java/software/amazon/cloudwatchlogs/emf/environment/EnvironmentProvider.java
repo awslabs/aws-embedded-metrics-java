@@ -20,15 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 
-/**
- * A provider that will detect the environment.
- */
+/** A provider that will detect the environment. */
 public class EnvironmentProvider {
     private static Environment cachedEnvironment;
     private final Configuration config = EnvironmentConfigurationProvider.getConfig();
@@ -39,8 +36,8 @@ public class EnvironmentProvider {
 
     // Ordering of this array matters
     private final Environment[] environments =
-            new Environment[]{
-                    lambdaEnvironment, ecsEnvironment, ec2Environment, defaultEnvironment
+            new Environment[] {
+                lambdaEnvironment, ecsEnvironment, ec2Environment, defaultEnvironment
             };
 
     public CompletableFuture<Environment> resolveEnvironment() {
@@ -67,9 +64,7 @@ public class EnvironmentProvider {
         return defaultEnvironment;
     }
 
-    /**
-     * A helper method to clean the cached environment in tests.
-     */
+    /** A helper method to clean the cached environment in tests. */
     void cleanResolvedEnvironment() {
         cachedEnvironment = null;
     }
