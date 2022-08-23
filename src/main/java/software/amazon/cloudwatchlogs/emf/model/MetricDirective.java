@@ -59,7 +59,16 @@ class MetricDirective {
         shouldUseDefaultDimension = true;
     }
 
+    /**
+     * Adds a dimension set to the end of the collection.
+     *
+     * @param dimensionSet
+     */
     void putDimensionSet(DimensionSet dimensionSet) {
+        // Duplicate dimensions sets are removed before being added to the end of the collection.
+        // This ensures only latest dimension value is used as a target member on the root EMF node.
+        // This operation is O(n^2), but acceptable given sets are capped at 10 dimensions
+        dimensions.removeIf(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()));
         dimensions.add(dimensionSet);
     }
 
@@ -95,6 +104,27 @@ class MetricDirective {
     void setDimensions(List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = false;
         dimensions = new ArrayList<>(dimensionSets);
+    }
+
+    /**
+     * Override existing dimensions. Default dimensions are preserved optionally.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to be set
+     */
+    void setDimensions(boolean useDefault, List<DimensionSet> dimensionSets) {
+        shouldUseDefaultDimension = useDefault;
+        dimensions = new ArrayList<>(dimensionSets);
+    }
+
+    /**
+     * Clear existing custom dimensions.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     */
+    void resetDimensions(boolean useDefault) {
+        shouldUseDefaultDimension = useDefault;
+        dimensions = new ArrayList<>();
     }
 
     /**
@@ -135,6 +165,21 @@ class MetricDirective {
         metricDirective.setDimensions(this.dimensions);
         metricDirective.setNamespace(this.namespace);
         metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+        return metricDirective;
+    }
+
+    /**
+     * Create a copy of the metric directive without having the existing metrics and custom
+     * dimensions. The original state of default dimensions are preserved.
+     *
+     * @return an object of metric directive
+     */
+    MetricDirective copyWithoutMetricsAndDimensions() {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.setDefaultDimensions(this.defaultDimensions);
+        metricDirective.setNamespace(this.namespace);
+        metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+
         return metricDirective;
     }
 }

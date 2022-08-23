@@ -94,6 +94,38 @@ public class MetricsLoggerTest {
     }
 
     @Test
+    public void testResetWithDefaultDimensions() {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.resetDimensions(true);
+        logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        Assert.assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
+    }
+
+    @Test
+    public void testResetWithoutDefaultDimensions() {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.resetDimensions(false);
+        logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 1);
+        Assert.assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
+    }
+
+    @Test
     public void testOverridePreviousDimensions() {
 
         String dimensionName = "dim";
@@ -107,6 +139,21 @@ public class MetricsLoggerTest {
         Assert.assertEquals(
                 dimensionValue,
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
+    }
+
+    @Test
+    public void testSetDimensionsAndPreserveDefault() {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.setDimensions(true, DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        Assert.assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
     }
 
     @Test
@@ -226,6 +273,20 @@ public class MetricsLoggerTest {
 
         logger.flush();
         expectDimension("Name", "Test");
+    }
+
+    @Test
+    public void testFlushDoesntPreserveDimensions() {
+        logger.putDimensions(DimensionSet.of("Name", "Test"));
+        logger.setFlushPreserveDimensions(false);
+
+        logger.flush();
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        expectDimension("Name", "Test");
+
+        logger.flush();
+        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 3);
+        expectDimension("Name", null);
     }
 
     @Test

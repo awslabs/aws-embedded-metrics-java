@@ -104,7 +104,7 @@ public class MetricDirectiveTest {
     }
 
     @Test
-    public void testPutMultipleDimensionSets() throws JsonProcessingException {
+    public void testPutDimensionSetWhenMultipleDimensionSets() throws JsonProcessingException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
         metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
@@ -113,6 +113,57 @@ public class MetricDirectiveTest {
 
         assertEquals(
                 "{\"Dimensions\":[[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
+    }
+
+    @Test
+    public void testPutDimensionSetWhenDuplicateDimensionSets() throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putDimensionSet(new DimensionSet());
+        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Instance", "inst-1", "Region", "us-east-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
+        metricDirective.putDimensionSet(new DimensionSet());
+        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Instance", "inst-1", "Region", "us-east-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        assertEquals(
+                "{\"Dimensions\":[[],[\"Region\"],[\"Instance\",\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
+    }
+
+    @Test
+    public void testPutDimensionSetWhenDuplicateDimensionSetsWillSortCorrectly()
+            throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putDimensionSet(new DimensionSet());
+        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Instance", "inst-1", "Region", "us-east-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
+        metricDirective.putDimensionSet(
+                DimensionSet.of("Instance", "inst-1", "Region", "us-east-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
+        metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
+        metricDirective.putDimensionSet(new DimensionSet());
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        assertEquals(
+                "{\"Dimensions\":[[\"Instance\",\"Region\"],[\"Instance\"],[\"Region\"],[]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
                 serializedMetricDirective);
     }
 
