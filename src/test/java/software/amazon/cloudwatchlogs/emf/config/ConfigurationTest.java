@@ -42,8 +42,8 @@ public class ConfigurationTest {
         assertFalse(config.getServiceType().isPresent());
         assertFalse(config.getServiceName().isPresent());
 
-        assertEquals(config.getEnvironmentOverride(), Environments.Unknown);
-        assertEquals(config.getAsyncBufferSize(), 100);
+        assertEquals(Environments.Unknown, config.getEnvironmentOverride());
+        assertEquals(100, config.getAsyncBufferSize());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ConfigurationTest {
         assertFalse(config.getLogStreamName().isPresent());
         assertFalse(config.getServiceType().isPresent());
         assertFalse(config.getServiceName().isPresent());
-        assertEquals(config.getEnvironmentOverride(), Environments.Unknown);
+        assertEquals(Environments.Unknown, config.getEnvironmentOverride());
     }
 
     @Test
@@ -81,12 +81,12 @@ public class ConfigurationTest {
         config.setEnvironmentOverride(expectedEnvironment);
         config.setAsyncBufferSize(expectedAsyncBufferSize);
 
-        assertEquals(config.getAgentEndpoint().get(), expectedEndpoint);
-        assertEquals(config.getLogGroupName().get(), expectedLogGroupName);
-        assertEquals(config.getLogStreamName().get(), expectedLogStreamName);
-        assertEquals(config.getServiceType().get(), expectedServiceType);
-        assertEquals(config.getServiceName().get(), expectedServiceName);
-        assertEquals(config.getEnvironmentOverride(), expectedEnvironment);
-        assertEquals(config.getAsyncBufferSize(), expectedAsyncBufferSize);
+        assertEquals(expectedEndpoint, config.getAgentEndpoint().get());
+        assertEquals(expectedLogGroupName, config.getLogGroupName().get());
+        assertEquals(expectedLogStreamName, config.getLogStreamName().get());
+        assertEquals(expectedServiceType, config.getServiceType().get());
+        assertEquals(expectedServiceName, config.getServiceName().get());
+        assertEquals(expectedEnvironment, config.getEnvironmentOverride());
+        assertEquals(expectedAsyncBufferSize, config.getAsyncBufferSize());
     }
 }

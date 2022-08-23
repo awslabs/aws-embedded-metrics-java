@@ -23,11 +23,13 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
 
@@ -100,7 +102,7 @@ public class MetricsContextTest {
             expectedValues.add((double) i);
         }
         assertEquals(expectedValues, allMetrics.get(0).getValues());
-        assertTrue(allMetrics.get(1).getValues().equals(Arrays.asList(100.0)));
+        assertEquals(List.of(100.0), allMetrics.get(1).getValues());
     }
 
     @Test
@@ -126,10 +128,10 @@ public class MetricsContextTest {
             expectedValues.add((double) i);
         }
         assertEquals(expectedValues, metricsFromEvent1.get(0).getValues());
-        assertEquals(Arrays.asList(2.0), metricsFromEvent1.get(1).getValues());
+        assertEquals(List.of(2.0), metricsFromEvent1.get(1).getValues());
 
         assertEquals(1, metricsFromEvent2.size());
-        assertEquals(Arrays.asList(100.0), metricsFromEvent2.get(0).getValues());
+        assertEquals(List.of(100.0), metricsFromEvent2.get(0).getValues());
     }
 
     @Test
@@ -165,7 +167,7 @@ public class MetricsContextTest {
         Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
 
         assertTrue(metadata.containsKey("Timestamp"));
-        assertEquals(metadata.get("Timestamp"), now.toEpochMilli());
+        assertEquals(now.toEpochMilli(), metadata.get("Timestamp"));
     }
 
     @SuppressWarnings("unchecked")
@@ -192,6 +194,7 @@ public class MetricsContextTest {
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {
-        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {});
+        return new JsonMapper().readValue(event, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

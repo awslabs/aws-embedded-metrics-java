@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class MetricsLoggerTest {
         logger.putProperty(propertyName, propertyValue);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getProperty(propertyName), propertyValue);
+        Assert.assertEquals(propertyValue, sink.getContext().getProperty(propertyName));
     }
 
     @Test
@@ -68,10 +69,10 @@ public class MetricsLoggerTest {
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
+        Assert.assertEquals(1, sink.getContext().getDimensions().size());
         Assert.assertEquals(
-                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
-                dimensionValue);
+                dimensionValue,
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
     }
 
     @Test
@@ -88,9 +89,8 @@ public class MetricsLoggerTest {
         logger.setDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
-        Assert.assertEquals(
-                sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName), null);
+        Assert.assertEquals(1, sink.getContext().getDimensions().size());
+        Assert.assertNull(sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName));
     }
 
     @Test
@@ -102,11 +102,11 @@ public class MetricsLoggerTest {
         logger.setDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
-        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 1);
+        Assert.assertEquals(1, sink.getContext().getDimensions().size());
+        Assert.assertEquals(1, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         Assert.assertEquals(
-                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
-                dimensionValue);
+                dimensionValue,
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class MetricsLoggerTest {
         logger.setNamespace(namespace);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getNamespace(), namespace);
+        Assert.assertEquals(namespace, sink.getContext().getNamespace());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class MetricsLoggerTest {
         logger.setTimestamp(now);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getTimestamp(), now);
+        Assert.assertEquals(now, sink.getContext().getTimestamp());
     }
 
     @Test
@@ -178,11 +178,10 @@ public class MetricsLoggerTest {
     @Test
     public void testUseDefaultEnvironmentOnResolverException() {
         String serviceType = "TestServiceType";
-        CompletableFuture<Environment> future =
-                CompletableFuture.supplyAsync(
-                        () -> {
-                            throw new RuntimeException("UnExpected");
-                        });
+        CompletableFuture<Environment> future = CompletableFuture.supplyAsync(
+                () -> {
+                    throw new RuntimeException("UnExpected");
+                });
         EnvironmentProvider envProvider = mock(EnvironmentProvider.class);
         when(envProvider.resolveEnvironment()).thenReturn(future);
         when(envProvider.getDefaultEnvironment()).thenReturn(environment);
@@ -202,8 +201,8 @@ public class MetricsLoggerTest {
         logger.flush();
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
 
-        assertTrue(dimensions.size() == 0);
-        assertTrue(sink.getLogEvents().size() == 1);
+        assertEquals(0, dimensions.size());
+        assertEquals(1, sink.getLogEvents().size());
 
         String logEvent = sink.getLogEvents().get(0);
         assertTrue(logEvent.contains("\"Dimensions\":[]"));
@@ -267,7 +266,7 @@ public class MetricsLoggerTest {
 
     private void expectDimension(String dimension, String value) {
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
-        assertEquals(dimensions.size(), 1);
-        assertEquals(dimensions.get(0).getDimensionValue(dimension), value);
+        assertEquals(1, dimensions.size());
+        assertEquals(value, dimensions.get(0).getDimensionValue(dimension));
     }
 }

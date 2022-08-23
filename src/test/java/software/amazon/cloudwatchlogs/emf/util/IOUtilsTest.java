@@ -21,9 +21,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.github.javafaker.Faker;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class IOUtilsTest {
         String str = faker.letterify("?????");
         ByteArrayInputStream is = new ByteArrayInputStream(str.getBytes());
 
-        assertEquals(IOUtils.toString(is), str);
+        assertEquals(str, IOUtils.toString(is));
     }
 
     @Test
@@ -44,7 +46,7 @@ public class IOUtilsTest {
 
         String str = faker.letterify("?????");
         ByteArrayInputStream is = new ByteArrayInputStream(str.getBytes());
-        assertArrayEquals(IOUtils.toByteArray(is), str.getBytes());
+        assertArrayEquals(str.getBytes(), IOUtils.toByteArray(is));
     }
 
     @Test

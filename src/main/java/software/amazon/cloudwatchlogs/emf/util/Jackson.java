@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
 
 public class Jackson {
+    private Jackson() {
+        throw new IllegalStateException("Utility class");
+    }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ObjectWriter writer = objectMapper.writer();
@@ -38,9 +41,9 @@ public class Jackson {
      * Returns the deserialized object from the given json string and target class; or null if the
      * given json string is null.
      *
-     * @param json the string to be deserialized
+     * @param json  the string to be deserialized
      * @param clazz the expected object class
-     * @param <T> the expected object type
+     * @param <T>   the expected object type
      * @return an object that is deserialized from the json string
      */
     public static <T> T fromJsonString(String json, Class<T> clazz) {

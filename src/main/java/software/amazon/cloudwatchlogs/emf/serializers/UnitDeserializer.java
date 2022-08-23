@@ -17,13 +17,16 @@
 package software.amazon.cloudwatchlogs.emf.serializers;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+
 import java.io.IOException;
+
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
-/** JSON deserializer for StandardUnit type. */
+/**
+ * JSON deserializer for StandardUnit type.
+ */
 public class UnitDeserializer extends StdDeserializer<Unit> {
     UnitDeserializer() {
         this(null);
@@ -34,11 +37,8 @@ public class UnitDeserializer extends StdDeserializer<Unit> {
     }
 
     @Override
-    public Unit deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
-
+    public Unit deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         String value = jp.getValueAsString();
-        Unit unit = Unit.fromValue(value);
-        return unit;
+        return Unit.fromValue(value);
     }
 }

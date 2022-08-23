@@ -16,8 +16,13 @@
 
 package software.amazon.cloudwatchlogs.emf.config;
 
-/** A wrapper class that can be used to mock 'System.getenv' with PowerMock. */
+/**
+ * A wrapper class that can be used to mock 'System.getenv' with PowerMock.
+ */
 public class SystemWrapper {
+    private SystemWrapper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static String getenv(String name) {
         return System.getenv(name);

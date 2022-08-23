@@ -18,11 +18,15 @@ package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import lombok.*;
 
-/** Represents the MetricDirective part of the EMF schema. */
+/**
+ * Represents the MetricDirective part of the EMF schema.
+ */
 @AllArgsConstructor
 class MetricDirective {
     @Setter
@@ -30,7 +34,11 @@ class MetricDirective {
     @JsonProperty("Namespace")
     private String namespace;
 
-    @JsonIgnore @Setter @Getter @With private Map<String, MetricDefinition> metrics;
+    @JsonIgnore
+    @Setter
+    @Getter
+    @With
+    private Map<String, MetricDefinition> metrics;
 
     @JsonIgnore
     @Getter(AccessLevel.PROTECTED)

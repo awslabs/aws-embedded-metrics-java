@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.config;
 
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,28 +26,43 @@ import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.environment.Environments;
 import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
-/** Configuration for EMF logger. */
+/**
+ * Configuration for EMF logger.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 public class Configuration {
 
-    /** The name of the service to use in the default dimensions. */
-    @Setter private String serviceName;
+    /**
+     * The name of the service to use in the default dimensions.
+     */
+    @Setter
+    private String serviceName;
 
-    /** The type of the service to use in the default dimensions. */
-    @Setter private String serviceType;
+    /**
+     * The type of the service to use in the default dimensions.
+     */
+    @Setter
+    private String serviceType;
 
     /**
      * The LogGroup name to use. This is only used for the Cloudwatch Agent in agent-based
      * environment.
      */
-    @Setter private String logGroupName;
+    @Setter
+    private String logGroupName;
 
-    /** The LogStream name to use. This will be ignored when using the Lambda scope. */
-    @Setter private String logStreamName;
+    /**
+     * The LogStream name to use. This will be ignored when using the Lambda scope.
+     */
+    @Setter
+    private String logStreamName;
 
-    /** The endpoint to use to connect to the CloudWatch Agent. */
-    @Setter private String agentEndpoint;
+    /**
+     * The endpoint to use to connect to the CloudWatch Agent.
+     */
+    @Setter
+    private String agentEndpoint;
 
     /**
      * Environment override. This will short circuit auto-environment detection. Valid values
@@ -54,10 +70,15 @@ public class Configuration {
      * metadata and sends over stdout - Agent: no decoration and sends over TCP - EC2: decorates
      * logs with EC2 metadata and sends over TCP
      */
-    @Setter Environments environmentOverride;
+    @Setter
+    Environments environmentOverride;
 
-    /** Queue length for asynchronous sinks. */
-    @Setter @Getter int asyncBufferSize = Constants.DEFAULT_ASYNC_BUFFER_SIZE;
+    /**
+     * Queue length for asynchronous sinks.
+     */
+    @Setter
+    @Getter
+    int asyncBufferSize = Constants.DEFAULT_ASYNC_BUFFER_SIZE;
 
     public Optional<String> getServiceName() {
         return getStringOptional(serviceName);

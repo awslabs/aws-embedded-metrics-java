@@ -22,11 +22,13 @@ import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +43,7 @@ import software.amazon.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SystemWrapper.class})
+@PrepareForTest({ SystemWrapper.class })
 public class ECSEnvironmentTest {
     private Configuration config;
     private ECSEnvironment environment;
@@ -85,7 +87,7 @@ public class ECSEnvironmentTest {
         when(fetcher.fetch(any(), (ObjectMapper) any(), any())).thenReturn(metadata);
 
         assertTrue(environment.probe());
-        assertEquals(environment.getName(), "testImage:latest");
+        assertEquals("testImage:latest", environment.getName());
     }
 
     @Test
@@ -93,25 +95,25 @@ public class ECSEnvironmentTest {
         String serviceName = "testService";
         when(config.getServiceName()).thenReturn(Optional.of(serviceName));
 
-        assertEquals(environment.getName(), serviceName);
+        assertEquals(serviceName, environment.getName());
     }
 
     @Test
     public void testGetNameReturnsUnknown() {
         when(config.getServiceName()).thenReturn(Optional.empty());
-        assertEquals(environment.getName(), Constants.UNKNOWN);
+        assertEquals(Constants.UNKNOWN, environment.getName());
     }
 
     @Test
     public void testGetType() {
-        assertEquals(environment.getType(), "AWS::ECS::Container");
+        assertEquals("AWS::ECS::Container", environment.getType());
     }
 
     @Test
     public void testGetTypeFromConfig() {
         String type = faker.letterify("????");
         when(config.getServiceType()).thenReturn(Optional.of(type));
-        assertEquals(environment.getType(), type);
+        assertEquals(type, environment.getType());
     }
 
     @Test
@@ -127,8 +129,7 @@ public class ECSEnvironmentTest {
                 .thenReturn(new ECSEnvironment.ECSMetadata());
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(config, times(1)).setAgentEndpoint(argument.capture());
-        assertEquals(
-                argument.getValue(), "tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT);
+        assertEquals("tcp://" + fluentHost + ":" + Constants.DEFAULT_AGENT_PORT, argument.getValue());
     }
 
     @Test
@@ -141,13 +142,12 @@ public class ECSEnvironmentTest {
 
         environment.probe();
 
-        assertEquals(environment.getLogGroupName(), "");
+        assertEquals("", environment.getLogGroupName());
     }
 
     @Test
     public void testGetLogGroupNameReturnNonEmpty() {
-
-        assertEquals(environment.getLogGroupName(), Constants.UNKNOWN + "-metrics");
+        assertEquals(Constants.UNKNOWN + "-metrics", environment.getLogGroupName());
     }
 
     @Test
@@ -164,17 +164,14 @@ public class ECSEnvironmentTest {
         MetricsContext context = new MetricsContext();
         environment.configureContext(context);
 
-        assertEquals(context.getProperty("containerId"), InetAddress.getLocalHost().getHostName());
-        assertEquals(context.getProperty("createdAt"), metadata.getCreatedAt());
-        assertEquals(context.getProperty("startedAt"), metadata.getStartedAt());
-        assertEquals(
-                context.getProperty("cluster"), metadata.labels.get("com.amazonaws.ecs.cluster"));
-        assertEquals(
-                context.getProperty("taskArn"), metadata.labels.get("com.amazonaws.ecs.task-arn"));
+        assertEquals(InetAddress.getLocalHost().getHostName(), context.getProperty("containerId"));
+        assertEquals(metadata.getCreatedAt(), context.getProperty("createdAt"));
+        assertEquals(metadata.getStartedAt(), context.getProperty("startedAt"));
+        assertEquals(metadata.labels.get("com.amazonaws.ecs.cluster"), context.getProperty("cluster"));
+        assertEquals(metadata.labels.get("com.amazonaws.ecs.task-arn"), context.getProperty("taskArn"));
     }
 
     private void getRandomMetadata(ECSEnvironment.ECSMetadata metadata) {
-
         metadata.createdAt = faker.date().past(1, TimeUnit.DAYS).toString();
         metadata.startedAt = faker.date().past(1, TimeUnit.DAYS).toString();
         metadata.image = faker.letterify("?????");

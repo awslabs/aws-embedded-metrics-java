@@ -20,16 +20,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitDeserializer;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitSerializer;
 
-/** Represents the MetricDefinition of the EMF schema. */
+/**
+ * Represents the MetricDefinition of the EMF schema.
+ */
 @AllArgsConstructor
 class MetricDefinition {
     @NonNull
@@ -43,7 +47,10 @@ class MetricDefinition {
     @JsonDeserialize(using = UnitDeserializer.class)
     private Unit unit;
 
-    @JsonIgnore @NonNull @Getter private List<Double> values;
+    @JsonIgnore
+    @NonNull
+    @Getter
+    private List<Double> values;
 
     MetricDefinition(String name) {
         this(name, Unit.NONE, new ArrayList<>());

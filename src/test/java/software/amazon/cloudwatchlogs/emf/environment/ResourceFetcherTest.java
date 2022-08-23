@@ -22,11 +22,13 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+
 import lombok.Data;
 import org.javatuples.Pair;
 import org.junit.Before;
@@ -40,7 +42,8 @@ public class ResourceFetcherTest {
     private static URI endpoint;
     private static final String endpoint_path = "/fake/endpoint";
 
-    @ClassRule public static WireMockRule mockServer = new WireMockRule(0);
+    @ClassRule
+    public static WireMockRule mockServer = new WireMockRule(0);
 
     @Before
     public void setUp() throws URISyntaxException {
@@ -92,8 +95,8 @@ public class ResourceFetcherTest {
         generateStub(200, "{\"name\":\"test\",\"size\":10}");
         TestData data = fetcher.fetch(endpoint, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
@@ -107,8 +110,8 @@ public class ResourceFetcherTest {
         verify(
                 getRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
@@ -120,7 +123,7 @@ public class ResourceFetcherTest {
         verify(
                 putRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data, "putResponseData");
+        assertEquals("putResponseData", data);
     }
 
     @Test
@@ -130,8 +133,8 @@ public class ResourceFetcherTest {
         objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         TestData data = fetcher.fetch(endpoint, objectMapper, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test

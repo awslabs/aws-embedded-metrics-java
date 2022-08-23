@@ -22,14 +22,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
 
-/** Represents the root of the EMF schema. */
+/**
+ * Represents the root of the EMF schema.
+ */
 @AllArgsConstructor
 @JsonFilter("emptyMetricFilter")
 class RootNode {
@@ -57,7 +61,9 @@ class RootNode {
         return properties;
     }
 
-    /** Return the target members that are referenced by metrics, dimensions and properties. */
+    /**
+     * Return the target members that are referenced by metrics, dimensions and properties.
+     */
     @JsonAnyGetter
     Map<String, Object> getTargetMembers() {
         Map<String, Object> targetMembers = new HashMap<>();
@@ -72,7 +78,9 @@ class RootNode {
         return targetMembers;
     }
 
-    /** Return a list of all dimensions that are referenced by each dimension set. */
+    /**
+     * Return a list of all dimensions that are referenced by each dimension set.
+     */
     Map<String, String> getDimensions() {
         Map<String, String> dimensions = new HashMap<>();
         for (MetricDirective mc : aws.getCloudWatchMetrics()) {

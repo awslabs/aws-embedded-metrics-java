@@ -25,9 +25,11 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
@@ -69,13 +71,14 @@ public class AgentSinkTest {
         Map<String, Object> emf_map =
                 objectMapper.readValue(
                         fixture.client.getMessages().get(0),
-                        new TypeReference<Map<String, Object>>() {});
+                        new TypeReference<Map<String, Object>>() {
+                        });
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
 
-        assertEquals(emf_map.get(prop), propValue);
-        assertEquals(emf_map.get("Time"), 10.0);
-        assertEquals(metadata.get("LogGroupName"), logGroupName);
-        assertEquals(metadata.get("LogStreamName"), logStreamName);
+        assertEquals(propValue, emf_map.get(prop));
+        assertEquals(10.0, emf_map.get("Time"));
+        assertEquals(logGroupName, metadata.get("LogGroupName"));
+        assertEquals(logStreamName, metadata.get("LogStreamName"));
     }
 
     @Test
@@ -102,7 +105,8 @@ public class AgentSinkTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> emf_map =
                 objectMapper.readValue(
-                        fixture.client.getMessages().get(0), new TypeReference<>() {});
+                        fixture.client.getMessages().get(0), new TypeReference<>() {
+                        });
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
 
         assertFalse(metadata.containsKey("LogGroupName"));
@@ -317,7 +321,8 @@ public class AgentSinkTest {
         }
 
         @Override
-        public void close() {}
+        public void close() {
+        }
     }
 
     class InstantRetryStrategy implements RetryStrategy {

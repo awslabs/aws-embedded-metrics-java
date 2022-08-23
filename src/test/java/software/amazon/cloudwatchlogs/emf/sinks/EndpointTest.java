@@ -44,7 +44,7 @@ public class EndpointTest {
         Endpoint endpoint = Endpoint.fromURL(unsupportedEndpoint);
         Endpoint endpointFromEmptyString = Endpoint.fromURL("");
 
-        assertEquals(endpoint, Endpoint.DEFAULT_TCP_ENDPOINT);
-        assertEquals(endpointFromEmptyString, Endpoint.DEFAULT_TCP_ENDPOINT);
+        assertEquals(Endpoint.DEFAULT_TCP_ENDPOINT, endpoint);
+        assertEquals(Endpoint.DEFAULT_TCP_ENDPOINT, endpointFromEmptyString);
     }
 }

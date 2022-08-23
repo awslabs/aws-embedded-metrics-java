@@ -47,12 +47,12 @@ public class LambdaEnvironmentTest {
         String expectedName = faker.name().name();
         when(SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME")).thenReturn(expectedName);
 
-        assertEquals(lambda.getName(), expectedName);
+        assertEquals(expectedName, lambda.getName());
     }
 
     @Test
     public void testGetTypeReturnCFNLambdaName() {
-        assertEquals(lambda.getType(), "AWS::Lambda::Function");
+        assertEquals("AWS::Lambda::Function", lambda.getType());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class LambdaEnvironmentTest {
         String expectedName = faker.name().name();
         when(SystemWrapper.getenv("AWS_LAMBDA_FUNCTION_NAME")).thenReturn(expectedName);
 
-        assertEquals(lambda.getLogGroupName(), expectedName);
+        assertEquals(expectedName, lambda.getLogGroupName());
     }
 
     @Test
@@ -78,9 +78,9 @@ public class LambdaEnvironmentTest {
 
         lambda.configureContext(mc);
 
-        assertEquals(mc.getProperty("executionEnvironment"), expectedEnv);
-        assertEquals(mc.getProperty("functionVersion"), expectedVersion);
-        assertEquals(mc.getProperty("logStreamId"), expectedLogName);
+        assertEquals(expectedEnv, mc.getProperty("executionEnvironment"));
+        assertEquals(expectedVersion, mc.getProperty("functionVersion"));
+        assertEquals(expectedLogName, mc.getProperty("logStreamId"));
         assertNull(mc.getProperty("traceId"));
     }
 
@@ -93,7 +93,7 @@ public class LambdaEnvironmentTest {
 
         lambda.configureContext(mc);
 
-        assertEquals(mc.getProperty("traceId"), expectedTraceId);
+        assertEquals(expectedTraceId, mc.getProperty("traceId"));
     }
 
     @Test
