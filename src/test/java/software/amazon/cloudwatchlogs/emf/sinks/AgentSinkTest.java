@@ -72,10 +72,10 @@ public class AgentSinkTest {
                         new TypeReference<Map<String, Object>>() {});
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
 
-        assertEquals(emf_map.get(prop), propValue);
-        assertEquals(emf_map.get("Time"), 10.0);
-        assertEquals(metadata.get("LogGroupName"), logGroupName);
-        assertEquals(metadata.get("LogStreamName"), logStreamName);
+        assertEquals(propValue, emf_map.get(prop));
+        assertEquals(10.0, emf_map.get("Time"));
+        assertEquals(logGroupName, metadata.get("LogGroupName"));
+        assertEquals(logStreamName, metadata.get("LogStreamName"));
     }
 
     @Test

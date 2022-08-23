@@ -39,33 +39,33 @@ public class DefaultEnvironmentTest {
     public void testGetName() {
         String serviceName = "TestService";
         when(configuration.getServiceName()).thenReturn(Optional.of(serviceName));
-        assertEquals(environment.getName(), serviceName);
+        assertEquals(serviceName, environment.getName());
     }
 
     @Test
     public void testGetNameWhenNotConfigured() {
         when(configuration.getServiceName()).thenReturn(Optional.empty());
-        assertEquals(environment.getName(), "Unknown");
+        assertEquals("Unknown", environment.getName());
     }
 
     @Test
     public void testGetType() {
         String serviceType = "TestServiceType";
         when(configuration.getServiceType()).thenReturn(Optional.of(serviceType));
-        assertEquals(environment.getType(), serviceType);
+        assertEquals(serviceType, environment.getType());
     }
 
     @Test
     public void testGetTypeWhenNotConfigured() {
         when(configuration.getServiceType()).thenReturn(Optional.empty());
-        assertEquals(environment.getType(), "Unknown");
+        assertEquals("Unknown", environment.getType());
     }
 
     @Test
     public void testGetLogStreamName() {
         String logStream = "TestLogStream";
         when(configuration.getLogStreamName()).thenReturn(Optional.of(logStream));
-        assertEquals(environment.getLogStreamName(), logStream);
+        assertEquals(logStream, environment.getLogStreamName());
     }
 
     @Test
@@ -73,14 +73,14 @@ public class DefaultEnvironmentTest {
         String serviceName = "TestService";
         when(configuration.getLogStreamName()).thenReturn(Optional.empty());
         when(configuration.getServiceName()).thenReturn(Optional.of(serviceName));
-        assertEquals(environment.getLogStreamName(), "");
+        assertEquals("", environment.getLogStreamName());
     }
 
     @Test
     public void testGetLogGroupName() {
         String logGroup = "TestLogGroup";
         when(configuration.getLogGroupName()).thenReturn(Optional.of(logGroup));
-        assertEquals(environment.getLogGroupName(), logGroup);
+        assertEquals(logGroup, environment.getLogGroupName());
     }
 
     @Test
@@ -88,6 +88,6 @@ public class DefaultEnvironmentTest {
         String serviceName = "TestService";
         when(configuration.getLogGroupName()).thenReturn(Optional.empty());
         when(configuration.getServiceName()).thenReturn(Optional.of(serviceName));
-        assertEquals(environment.getLogGroupName(), serviceName + "-metrics");
+        assertEquals(serviceName + "-metrics", environment.getLogGroupName());
     }
 }

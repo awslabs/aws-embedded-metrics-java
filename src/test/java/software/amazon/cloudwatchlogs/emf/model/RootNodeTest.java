@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class RootNodeTest {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
 
-        assertEquals(rootNode.getTargetMembers().get("Property"), "Value");
+        assertEquals("Value", rootNode.getTargetMembers().get("Property"));
     }
 
     @Test
@@ -43,7 +42,7 @@ public class RootNodeTest {
         rootNode.putProperty("Property", "Value");
         rootNode.putProperty("Property", "NewValue");
 
-        assertEquals(rootNode.getTargetMembers().get("Property"), "NewValue");
+        assertEquals("NewValue", rootNode.getTargetMembers().get("Property"));
     }
 
     @Test
@@ -52,7 +51,7 @@ public class RootNodeTest {
         MetricDirective metricDirective = rootNode.getAws().createMetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Dim1", "DimValue1"));
 
-        assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimValue1");
+        assertEquals("DimValue1", rootNode.getTargetMembers().get("Dim1"));
     }
 
     @Test
@@ -70,10 +69,10 @@ public class RootNodeTest {
 
         mc.putProperty("Prop1", "PropValue1");
 
-        assertEquals(rootNode.getTargetMembers().get("Count"), Arrays.asList(10.0, 20.0));
-        assertEquals(rootNode.getTargetMembers().get("Latency"), 100.0);
-        assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimVal1");
-        assertEquals(rootNode.getTargetMembers().get("Prop1"), "PropValue1");
+        assertEquals(List.of(10.0, 20.0), rootNode.getTargetMembers().get("Count"));
+        assertEquals(100.0, rootNode.getTargetMembers().get("Latency"));
+        assertEquals("DimVal1", rootNode.getTargetMembers().get("Dim1"));
+        assertEquals("PropValue1", rootNode.getTargetMembers().get("Prop1"));
     }
 
     @SuppressWarnings("unchecked")
@@ -92,11 +91,11 @@ public class RootNodeTest {
                 objectMapper.readValue(
                         emf_logs.get(0), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(emf_map.keySet().size(), 5);
-        assertEquals(emf_map.get("Region"), "us-east-1");
-        assertEquals(emf_map.get("Property"), "PropertyValue");
-        assertEquals(emf_map.get("DefaultDim"), "DefaultDimValue");
-        assertEquals(emf_map.get("Count"), 10.0);
+        assertEquals(5, emf_map.keySet().size());
+        assertEquals("us-east-1", emf_map.get("Region"));
+        assertEquals("PropertyValue", emf_map.get("Property"));
+        assertEquals("DefaultDimValue", emf_map.get("DefaultDim"));
+        assertEquals(10.0, emf_map.get("Count"));
 
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
         assertTrue(metadata.containsKey("Timestamp"));
@@ -110,6 +109,6 @@ public class RootNodeTest {
         String value = "bar";
         root.putProperty(property, value);
 
-        assertEquals(root.serialize(), "{\"foo\":\"bar\"}");
+        assertEquals("{\"foo\":\"bar\"}", root.serialize());
     }
 }

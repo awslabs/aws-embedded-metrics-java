@@ -17,6 +17,9 @@
 package software.amazon.cloudwatchlogs.emf.util;
 
 public class StringUtils {
+    private StringUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static boolean isNullOrEmpty(String value) {
         return value == null || value.isEmpty();

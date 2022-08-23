@@ -69,7 +69,7 @@ public class EC2EnvironmentTest {
     public void testGetTypeWhenNoMetadata() {
         when(fetcher.fetch(any(), any())).thenThrow(new EMFClientException("Invalid URL"));
         environment.probe();
-        assertEquals(environment.getType(), Constants.UNKNOWN);
+        assertEquals(Constants.UNKNOWN, environment.getType());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class EC2EnvironmentTest {
         when(fetcher.fetch(any(), any(), (Class<Object>) any(), any()))
                 .thenReturn(new EC2Environment.EC2Metadata());
         environment.probe();
-        assertEquals(environment.getType(), "AWS::EC2::Instance");
+        assertEquals("AWS::EC2::Instance", environment.getType());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class EC2EnvironmentTest {
         environment.probe();
         String testType = faker.letterify("???");
         when(config.getServiceType()).thenReturn(Optional.of(testType));
-        assertEquals(environment.getType(), testType);
+        assertEquals(testType, environment.getType());
     }
 
     @Test
@@ -101,11 +101,11 @@ public class EC2EnvironmentTest {
         MetricsContext context = new MetricsContext();
         environment.configureContext(context);
 
-        assertEquals(context.getProperty("imageId"), metadata.getImageId());
-        assertEquals(context.getProperty("instanceId"), metadata.getInstanceId());
-        assertEquals(context.getProperty("instanceType"), metadata.getInstanceType());
-        assertEquals(context.getProperty("privateIp"), metadata.getPrivateIp());
-        assertEquals(context.getProperty("availabilityZone"), metadata.getAvailabilityZone());
+        assertEquals(metadata.getImageId(), context.getProperty("imageId"));
+        assertEquals(metadata.getInstanceId(), context.getProperty("instanceId"));
+        assertEquals(metadata.getInstanceType(), context.getProperty("instanceType"));
+        assertEquals(metadata.getPrivateIp(), context.getProperty("privateIp"));
+        assertEquals(metadata.getAvailabilityZone(), context.getProperty("availabilityZone"));
     }
 
     private void getRandomMetadata(EC2Environment.EC2Metadata metadata) {

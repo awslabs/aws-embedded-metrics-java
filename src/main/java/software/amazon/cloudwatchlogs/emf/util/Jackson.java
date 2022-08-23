@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
 
 public class Jackson {
+    private Jackson() {
+        throw new IllegalStateException("Utility class");
+    }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ObjectWriter writer = objectMapper.writer();

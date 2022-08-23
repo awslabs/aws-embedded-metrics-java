@@ -43,13 +43,13 @@ public class EnvironmentConfigurationProviderTest {
 
         Configuration config = EnvironmentConfigurationProvider.createConfig();
 
-        assertEquals(config.getServiceName().get(), "TestServiceName");
-        assertEquals(config.getServiceType().get(), "TestServiceType");
-        assertEquals(config.getLogGroupName().get(), "TestLogGroup");
-        assertEquals(config.getLogStreamName().get(), "TestLogStream");
-        assertEquals(config.getAgentEndpoint().get(), "Endpoint");
-        assertEquals(config.getEnvironmentOverride(), Environments.Agent);
-        assertEquals(config.getAsyncBufferSize(), 9999);
+        assertEquals("TestServiceName", config.getServiceName().get());
+        assertEquals("TestServiceType", config.getServiceType().get());
+        assertEquals("TestLogGroup", config.getLogGroupName().get());
+        assertEquals("TestLogStream", config.getLogStreamName().get());
+        assertEquals("Endpoint", config.getAgentEndpoint().get());
+        assertEquals(Environments.Agent, config.getEnvironmentOverride());
+        assertEquals(9999, config.getAsyncBufferSize());
     }
 
     @Test

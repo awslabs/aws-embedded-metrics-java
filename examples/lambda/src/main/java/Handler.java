@@ -7,10 +7,10 @@ import software.amazon.cloudwatchlogs.emf.model.Unit;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Handler implements RequestHandler<Map<String,String>, String> {
+public class Handler implements RequestHandler<Map<String, String>, String> {
 
     @Override
-    public String handleRequest(Map<String,String> event, Context context) {
+    public String handleRequest(Map<String, String> event, Context context) {
         String response = "200 OK";
         MetricsLogger logger = new MetricsLogger();
 

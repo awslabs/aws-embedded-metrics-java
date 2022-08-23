@@ -39,9 +39,9 @@ public class MetadataTest {
         Map<String, Object> metadata_map =
                 objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(metadata_map.keySet().size(), 2);
-        assertEquals(metadata_map.get("Timestamp"), now.toEpochMilli());
-        assertEquals(metadata_map.get("CloudWatchMetrics"), new ArrayList());
+        assertEquals(2, metadata_map.keySet().size());
+        assertEquals(now.toEpochMilli(), metadata_map.get("Timestamp"));
+        assertEquals(new ArrayList<>(), metadata_map.get("CloudWatchMetrics"));
     }
 
     @Test
@@ -59,9 +59,9 @@ public class MetadataTest {
         Map<String, Object> metadata_map =
                 objectMapper.readValue(output, new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(metadata_map.keySet().size(), 3);
-        assertEquals(metadata_map.get("Timestamp"), now.toEpochMilli());
-        assertEquals(metadata_map.get("CloudWatchMetrics"), new ArrayList());
-        assertEquals(metadata_map.get(property), expectedValue);
+        assertEquals(3, metadata_map.keySet().size());
+        assertEquals(now.toEpochMilli(), metadata_map.get("Timestamp"));
+        assertEquals(new ArrayList<>(), metadata_map.get("CloudWatchMetrics"));
+        assertEquals(expectedValue, metadata_map.get(property));
     }
 }
