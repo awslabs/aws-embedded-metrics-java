@@ -167,6 +167,16 @@ public class MetricsContextTest {
         assertEquals(now.toEpochMilli(), metadata.get("Timestamp"));
     }
 
+    @Test
+    public void testPutMetadata() {
+        MetricsContext mc = new MetricsContext();
+        mc.putMetadata("Metadata", "MetadataValue");
+
+        Map<String, Object> customFields = mc.getRootNode().getAws().getCustomMetadata();
+        assertEquals(customFields.size(), 1);
+        assertEquals(customFields.get("Metadata"), "MetadataValue");
+    }
+
     @SuppressWarnings("unchecked")
     private ArrayList<MetricDefinition> parseMetrics(String event) throws JsonProcessingException {
         Map<String, Object> rootNode = parseRootNode(event);
