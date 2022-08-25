@@ -24,16 +24,16 @@ public class ProtocolTest {
 
     @Test
     public void testParseTCP() {
-        assertEquals(Protocol.getProtocol("TCP"), Protocol.TCP);
-        assertEquals(Protocol.getProtocol("tcp"), Protocol.TCP);
-        assertEquals(Protocol.getProtocol("Tcp"), Protocol.TCP);
+        assertEquals(Protocol.TCP, Protocol.getProtocol("TCP"));
+        assertEquals(Protocol.TCP, Protocol.getProtocol("tcp"));
+        assertEquals(Protocol.TCP, Protocol.getProtocol("Tcp"));
     }
 
     @Test
     public void testParseUDP() {
-        assertEquals(Protocol.getProtocol("UDP"), Protocol.UDP);
-        assertEquals(Protocol.getProtocol("udp"), Protocol.UDP);
-        assertEquals(Protocol.getProtocol("Udp"), Protocol.UDP);
+        assertEquals(Protocol.UDP, Protocol.getProtocol("UDP"));
+        assertEquals(Protocol.UDP, Protocol.getProtocol("udp"));
+        assertEquals(Protocol.UDP, Protocol.getProtocol("Udp"));
     }
 
     @Test(expected = IllegalArgumentException.class)

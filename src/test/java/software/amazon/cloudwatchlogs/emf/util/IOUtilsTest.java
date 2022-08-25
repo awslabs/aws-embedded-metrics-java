@@ -36,7 +36,7 @@ public class IOUtilsTest {
         String str = faker.letterify("?????");
         ByteArrayInputStream is = new ByteArrayInputStream(str.getBytes());
 
-        assertEquals(IOUtils.toString(is), str);
+        assertEquals(str, IOUtils.toString(is));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class IOUtilsTest {
 
         String str = faker.letterify("?????");
         ByteArrayInputStream is = new ByteArrayInputStream(str.getBytes());
-        assertArrayEquals(IOUtils.toByteArray(is), str.getBytes());
+        assertArrayEquals(str.getBytes(), IOUtils.toByteArray(is));
     }
 
     @Test

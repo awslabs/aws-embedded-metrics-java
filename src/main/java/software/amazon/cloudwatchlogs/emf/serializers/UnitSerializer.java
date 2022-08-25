@@ -17,7 +17,6 @@
 package software.amazon.cloudwatchlogs.emf.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
@@ -35,8 +34,7 @@ public class UnitSerializer extends StdSerializer<Unit> {
 
     @Override
     public void serialize(Unit value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException {
-
+            throws IOException {
         String str = value.toString();
         jgen.writeString(str);
     }

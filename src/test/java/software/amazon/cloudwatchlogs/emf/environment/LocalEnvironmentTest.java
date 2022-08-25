@@ -41,48 +41,46 @@ public class LocalEnvironmentTest {
 
     @Test
     public void testProbeReturnFalse() {
-
         assertFalse(environment.probe());
     }
 
     @Test
     public void testGetName() {
         when(config.getServiceName()).thenReturn(Optional.empty());
-        assertEquals(environment.getName(), Constants.UNKNOWN);
+        assertEquals(Constants.UNKNOWN, environment.getName());
 
         String name = faker.letterify("?????");
         when(config.getServiceName()).thenReturn(Optional.of(name));
-        assertEquals(environment.getName(), name);
+        assertEquals(name, environment.getName());
     }
 
     @Test
     public void testGetType() {
         when(config.getServiceType()).thenReturn(Optional.empty());
-        assertEquals(environment.getType(), Constants.UNKNOWN);
+        assertEquals(Constants.UNKNOWN, environment.getType());
 
         String type = faker.letterify("?????");
         when(config.getServiceType()).thenReturn(Optional.of(type));
-        assertEquals(environment.getType(), type);
+        assertEquals(type, environment.getType());
     }
 
     @Test
     public void testGetLogGroupName() {
         when(config.getLogGroupName()).thenReturn(Optional.empty());
-        assertEquals(environment.getLogGroupName(), Constants.UNKNOWN + "-metrics");
+        assertEquals(Constants.UNKNOWN + "-metrics", environment.getLogGroupName());
 
         when(config.getLogGroupName()).thenReturn(Optional.empty());
         String serviceName = faker.letterify("?????");
         when(config.getServiceName()).thenReturn(Optional.of(serviceName));
-        assertEquals(environment.getLogGroupName(), serviceName + "-metrics");
+        assertEquals(serviceName + "-metrics", environment.getLogGroupName());
 
         String logGroupName = faker.letterify("?????");
         when(config.getLogGroupName()).thenReturn(Optional.of(logGroupName));
-        assertEquals(environment.getLogGroupName(), logGroupName);
+        assertEquals(logGroupName, environment.getLogGroupName());
     }
 
     @Test
     public void testGetSink() {
-
         assertTrue(environment.getSink() instanceof ConsoleSink);
         assertSame(environment.getSink(), environment.getSink());
     }

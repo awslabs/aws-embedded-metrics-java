@@ -91,7 +91,7 @@ public class MetricsContext {
     }
 
     public boolean hasDefaultDimensions() {
-        return getDefaultDimensions().getDimensionKeys().size() > 0;
+        return !getDefaultDimensions().getDimensionKeys().isEmpty();
     }
 
     /**
@@ -258,7 +258,7 @@ public class MetricsContext {
             Map<String, MetricDefinition> metrics = new HashMap<>();
             Queue<MetricDefinition> metricDefinitions =
                     new LinkedList<>(rootNode.metrics().values());
-            while (metricDefinitions.size() > 0) {
+            while (!metricDefinitions.isEmpty()) {
                 MetricDefinition metric = metricDefinitions.poll();
 
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT

@@ -24,6 +24,10 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 
 public class IOUtils {
+    private IOUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final int BUFFER_SIZE = 1024 * 4;
 
     /**
