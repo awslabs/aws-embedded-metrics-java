@@ -15,7 +15,7 @@ public class ECSRunnable implements Runnable {
     @Override
     public void run() {
         final Configuration config = EnvironmentConfigurationProvider.getConfig();
-        config.setEnvironmentOverride(Environments.ECS);
+        config.setEnvironmentOverride(Environments.Agent);
         config.setLogGroupName("/Canary/Java/CloudWatchAgent/Metrics");
 
         MetricsLogger logger = new MetricsLogger();
