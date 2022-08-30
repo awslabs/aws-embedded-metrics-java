@@ -30,7 +30,7 @@ public abstract class AgentBasedEnvironment implements Environment {
     private final Configuration config;
     private ISink sink;
 
-    public AgentBasedEnvironment(Configuration config) {
+    protected AgentBasedEnvironment(Configuration config) {
         this.config = config;
     }
 

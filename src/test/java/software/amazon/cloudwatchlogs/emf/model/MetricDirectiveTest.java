@@ -35,8 +35,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -47,8 +47,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[]],\"Metrics\":[],\"Namespace\":\"test-lambda-metrics\"}");
+                "{\"Dimensions\":[[]],\"Metrics\":[],\"Namespace\":\"test-lambda-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -59,8 +59,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[]],\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[]],\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -71,21 +71,21 @@ public class MetricDirectiveTest {
 
         assertEquals(1, metricDirective.getAllMetrics().size());
         MetricDefinition[] mds = metricDirective.getAllMetrics().toArray(new MetricDefinition[0]);
-        assertEquals(mds[0].getValues(), Arrays.asList(10d, 20d));
+        assertEquals(Arrays.asList(10d, 20d), mds[0].getValues());
     }
 
     @Test
     public void testPutMetricWithoutUnit() {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putMetric("Time", 10);
-        assertEquals(metricDirective.getMetrics().get("Time").getUnit(), Unit.NONE);
+        assertEquals(Unit.NONE, metricDirective.getMetrics().get("Time").getUnit());
     }
 
     @Test
     public void testPutMetricWithUnit() {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putMetric("Time", 10, Unit.MILLISECONDS);
-        assertEquals(metricDirective.getMetrics().get("Time").getUnit(), Unit.MILLISECONDS);
+        assertEquals(Unit.MILLISECONDS, metricDirective.getMetrics().get("Time").getUnit());
     }
 
     @Test
@@ -97,8 +97,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[\"Region\",\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[\"Region\",\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -110,8 +110,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -184,8 +184,8 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[\"Version\",\"Region\"],[\"Version\",\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[\"Version\",\"Region\"],[\"Version\",\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class MetricDirectiveTest {
         String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
 
         assertEquals(
-                serializedMetricDirective,
-                "{\"Dimensions\":[[\"Version\"],[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}");
+                "{\"Dimensions\":[[\"Version\"],[\"Region\"],[\"Instance\"]],\"Metrics\":[],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
     }
 }

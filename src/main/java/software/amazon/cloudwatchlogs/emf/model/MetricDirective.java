@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.*;
 
@@ -45,8 +46,8 @@ class MetricDirective {
 
     MetricDirective() {
         namespace = "aws-embedded-metrics";
-        metrics = new HashMap<>();
-        dimensions = new ArrayList<>();
+        metrics = new ConcurrentHashMap<>();
+        dimensions = Collections.synchronizedList(new ArrayList<>());
         defaultDimensions = new DimensionSet();
         shouldUseDefaultDimension = true;
     }
@@ -59,7 +60,7 @@ class MetricDirective {
     void putDimensionSet(DimensionSet dimensionSet) {
         // Duplicate dimensions sets are removed before being added to the end of the collection.
         // This ensures only latest dimension value is used as a target member on the root EMF node.
-        // This operation is O(n^2), but acceptable given sets are capped at 10 dimensions
+        // This operation is O(n^2), but acceptable given sets are capped at 30 dimensions
         dimensions.removeIf(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()));
         dimensions.add(dimensionSet);
     }
@@ -69,11 +70,15 @@ class MetricDirective {
     }
 
     void putMetric(String key, double value, Unit unit) {
-        if (metrics.containsKey(key)) {
-            metrics.get(key).addValue(value);
-        } else {
-            metrics.put(key, new MetricDefinition(key, unit, value));
-        }
+        metrics.compute(
+                key,
+                (k, v) -> {
+                    if (v == null) return new MetricDefinition(key, unit, value);
+                    else {
+                        v.addValue(value);
+                        return v;
+                    }
+                });
     }
 
     @JsonProperty("Metrics")
@@ -95,7 +100,7 @@ class MetricDirective {
      */
     void setDimensions(List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = false;
-        dimensions = new ArrayList<>(dimensionSets);
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
     }
 
     /**
@@ -106,7 +111,7 @@ class MetricDirective {
      */
     void setDimensions(boolean useDefault, List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = useDefault;
-        dimensions = new ArrayList<>(dimensionSets);
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
     }
 
     /**
@@ -116,7 +121,7 @@ class MetricDirective {
      */
     void resetDimensions(boolean useDefault) {
         shouldUseDefaultDimension = useDefault;
-        dimensions = new ArrayList<>();
+        dimensions = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**

@@ -92,8 +92,8 @@ public class ResourceFetcherTest {
         generateStub(200, "{\"name\":\"test\",\"size\":10}");
         TestData data = fetcher.fetch(endpoint, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
@@ -107,8 +107,8 @@ public class ResourceFetcherTest {
         verify(
                 getRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ResourceFetcherTest {
         verify(
                 putRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data, "putResponseData");
+        assertEquals("putResponseData", data);
     }
 
     @Test
@@ -130,8 +130,8 @@ public class ResourceFetcherTest {
         objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         TestData data = fetcher.fetch(endpoint, objectMapper, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
