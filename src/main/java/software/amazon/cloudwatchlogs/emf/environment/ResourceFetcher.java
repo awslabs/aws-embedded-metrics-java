@@ -24,9 +24,8 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.javatuples.Pair;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
 import software.amazon.cloudwatchlogs.emf.util.IOUtils;
 import software.amazon.cloudwatchlogs.emf.util.Jackson;
@@ -36,7 +35,7 @@ public class ResourceFetcher {
 
     /** Fetch a json object from a given uri and deserialize it to the specified class: clazz. */
     <T> T fetch(URI endpoint, Class<T> clazz) {
-        String response = doReadResource(endpoint, "GET", Collections.emptyList());
+        String response = doReadResource(endpoint, "GET", Collections.emptyMap());
         return Jackson.fromJsonString(response, clazz);
     }
 
@@ -44,13 +43,13 @@ public class ResourceFetcher {
      * Request a json object from a given uri with the provided headers and deserialize it to the
      * specified class: clazz.
      */
-    <T> T fetch(URI endpoint, String method, Class<T> clazz, List<Pair<String, String>> headers) {
+    <T> T fetch(URI endpoint, String method, Class<T> clazz, Map<String, String> headers) {
         String response = doReadResource(endpoint, method, headers);
         return Jackson.fromJsonString(response, clazz);
     }
 
     /** Request a string from a given uri with the provided headers */
-    String fetch(URI endpoint, String method, List<Pair<String, String>> headers) {
+    String fetch(URI endpoint, String method, Map<String, String> headers) {
         return doReadResource(endpoint, method, headers);
     }
 
@@ -59,11 +58,11 @@ public class ResourceFetcher {
      * Jackson ObjectMapper.
      */
     <T> T fetch(URI endpoint, ObjectMapper objectMapper, Class<T> clazz) {
-        String response = doReadResource(endpoint, "GET", Collections.emptyList());
+        String response = doReadResource(endpoint, "GET", Collections.emptyMap());
         return Jackson.fromJsonString(response, objectMapper, clazz);
     }
 
-    private String doReadResource(URI endpoint, String method, List<Pair<String, String>> headers) {
+    private String doReadResource(URI endpoint, String method, Map<String, String> headers) {
         InputStream inputStream = null;
         try {
             HttpURLConnection connection = connectToEndpoint(endpoint, method, headers);
@@ -122,15 +121,17 @@ public class ResourceFetcher {
     }
 
     private HttpURLConnection connectToEndpoint(
-            URI endpoint, String method, List<Pair<String, String>> headers) throws IOException {
+            URI endpoint, String method, Map<String, String> headers) throws IOException {
         HttpURLConnection connection =
                 (HttpURLConnection) endpoint.toURL().openConnection(Proxy.NO_PROXY);
         connection.setConnectTimeout(1000);
         connection.setReadTimeout(1000);
         connection.setRequestMethod(method);
         connection.setDoOutput(true);
-        headers.forEach(
-                header -> connection.setRequestProperty(header.getValue0(), header.getValue1()));
+
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            connection.setRequestProperty(header.getKey(), header.getValue());
+        }
 
         connection.connect();
 
