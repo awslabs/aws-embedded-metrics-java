@@ -8,6 +8,7 @@ Generate CloudWatch metrics embedded within structured log events. The embedded 
 - [Usage](#usage)
 - [Graceful Shutdown](#graceful-shutdown)
 - [API](#api)
+- [Thread-safety](#thread-safety)
 - [Examples](#examples)
 - [Development](#development)
 
