@@ -14,17 +14,14 @@ public class ECSRunnable implements Runnable {
 
     @Override
     public void run() {
-        final Configuration config = EnvironmentConfigurationProvider.getConfig();
-        config.setEnvironmentOverride(Environments.Agent);
-        config.setLogGroupName("/Canary/Java/CloudWatchAgent/Metrics");
-
         MetricsLogger logger = new MetricsLogger();
 
         String version = logger.getClass().getPackage().getImplementationVersion();
         if (version == null) {
             version = "Unknown";
         }
-
+        Configuration config = EnvironmentConfigurationProvider.getConfig();
+        config.setLogGroupName("/Canary/Java/CloudWatchAgent/Metrics");
         logger.setNamespace("Canary");
         logger.setDimensions(
                 DimensionSet.of(
