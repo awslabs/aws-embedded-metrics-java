@@ -173,8 +173,8 @@ public class MetricsContextTest {
         mc.putMetadata("Metadata", "MetadataValue");
 
         Map<String, Object> customFields = mc.getRootNode().getAws().getCustomMetadata();
-        assertEquals(customFields.size(), 1);
-        assertEquals(customFields.get("Metadata"), "MetadataValue");
+        assertEquals(1, customFields.size());
+        assertEquals("MetadataValue", customFields.get("Metadata"));
     }
 
     @SuppressWarnings("unchecked")

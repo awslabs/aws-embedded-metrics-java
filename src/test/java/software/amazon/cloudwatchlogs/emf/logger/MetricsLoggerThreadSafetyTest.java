@@ -1,3 +1,19 @@
+/*
+ *   Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
 package software.amazon.cloudwatchlogs.emf.logger;
 
 import static org.junit.Assert.assertEquals;
@@ -46,6 +62,10 @@ public class MetricsLoggerThreadSafetyTest {
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
         when(environment.getSink()).thenReturn(sink);
+        when(environment.getLogGroupName()).thenReturn("test-log-group");
+        when(environment.getName()).thenReturn("test-env-name");
+        when(environment.getType()).thenReturn("test-env-type");
+
         logger = new MetricsLogger(envProvider);
     }
 
@@ -132,7 +152,7 @@ public class MetricsLoggerThreadSafetyTest {
         Assert.assertEquals(sink.getContext().getDimensions().size(), N_THREAD * N_PUT_DIMENSIONS);
         for (DimensionSet dim : dimensions) {
             Assert.assertEquals(
-                    dim.getDimensionKeys().size(), 1); // default dimensions are disabled
+                    1, dim.getDimensionKeys().size()); // default dimensions are disabled
         }
         // check content
         Collections.sort(
@@ -188,7 +208,7 @@ public class MetricsLoggerThreadSafetyTest {
                 sink.getContext().getDimensions().size(), N_THREAD * N_PUT_DIMENSIONS + 1);
         for (DimensionSet dim : dimensions) {
             Assert.assertEquals(
-                    dim.getDimensionKeys().size(), 1); // there are no default dimensions after set
+                    1, dim.getDimensionKeys().size()); // there are no default dimensions after set
         }
         // check content
         Collections.sort(
@@ -243,12 +263,12 @@ public class MetricsLoggerThreadSafetyTest {
 
         assertEquals(allMetrics.size(), N_THREAD);
         for (MetricDefinitionCopy metric : allMetrics) {
-            assertEquals(metric.getValues().size(), 1);
+            assertEquals(1, metric.getValues().size());
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
         for (int i = 0; i < N_THREAD; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
-            assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
+            assertEquals(i, allMetrics.get(i).getValues().get(0), 1e-5);
         }
     }
 
@@ -306,12 +326,12 @@ public class MetricsLoggerThreadSafetyTest {
 
         assertEquals(allMetrics.size(), N_THREAD * N_PUT_METRIC / 2);
         for (MetricDefinitionCopy metric : allMetrics) {
-            assertEquals(metric.getValues().size(), 1);
+            assertEquals(1, metric.getValues().size());
         }
         Collections.sort(allMetrics, Comparator.comparingDouble(m -> m.getValues().get(0)));
         for (int i = 0; i < N_THREAD * N_PUT_METRIC / 2; i++) {
             assertEquals(allMetrics.get(i).getName(), "Metric-" + i);
-            assertEquals(allMetrics.get(i).getValues().get(0), i, 1e-5);
+            assertEquals(i, allMetrics.get(i).getValues().get(0), 1e-5);
         }
     }
 
@@ -375,7 +395,7 @@ public class MetricsLoggerThreadSafetyTest {
         // check dimension size
         assertEquals(dimensions.size(), N_THREAD * N_PUT_DIMENSIONS / 3);
         for (DimensionSet dim : dimensions) {
-            Assert.assertEquals(dim.getDimensionKeys().size(), 1); // there are 3 default dimensions
+            Assert.assertEquals(1, dim.getDimensionKeys().size()); // there are 3 default dimensions
         }
         // check dimension content
         Collections.sort(

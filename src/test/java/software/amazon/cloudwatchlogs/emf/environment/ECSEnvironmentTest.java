@@ -151,10 +151,10 @@ public class ECSEnvironmentTest {
 
     @Test
     public void testGetLogGroupNameReplaceColon() {
-        String serviceName = "testRepo:testTag";
+        String serviceName = "testRepo:test:tag";
         when(config.getServiceName()).thenReturn(Optional.of(serviceName));
 
-        assertEquals(environment.getLogGroupName(), "testRepo-testTag-metrics");
+        assertEquals("testRepo-test-tag-metrics", environment.getLogGroupName());
     }
 
     @Test

@@ -37,7 +37,7 @@ public class DefaultEnvironment extends AgentBasedEnvironment {
 
     @Override
     public String getType() {
-        if (!config.getServiceType().isPresent()) {
+        if (config.getServiceType().isEmpty()) {
             log.info("Unknown ServiceType");
             return Constants.UNKNOWN;
         }

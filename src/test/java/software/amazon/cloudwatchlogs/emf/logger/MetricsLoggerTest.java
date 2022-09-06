@@ -149,8 +149,8 @@ public class MetricsLoggerTest {
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        assertEquals(sink.getContext().getDimensions().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         assertEquals(
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
                 dimensionValue);
@@ -165,8 +165,8 @@ public class MetricsLoggerTest {
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        assertEquals(sink.getContext().getDimensions().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 1);
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(1, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         assertEquals(
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
                 dimensionValue);
@@ -196,8 +196,8 @@ public class MetricsLoggerTest {
         logger.setDimensions(true, DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        assertEquals(sink.getContext().getDimensions().size(), 1);
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         assertEquals(
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
                 dimensionValue);
@@ -235,11 +235,11 @@ public class MetricsLoggerTest {
         logger.setFlushPreserveDimensions(false);
 
         logger.flush();
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 4);
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         expectDimension("Name", "Test");
 
         logger.flush();
-        assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 3);
+        assertEquals(3, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
         expectDimension("Name", null);
     }
 
