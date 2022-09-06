@@ -65,10 +65,14 @@ dependencies {
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
 	implementation 'org.slf4j:slf4j-api:1.7.30'
 	implementation 'org.javatuples:javatuples:1.2'
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 	// Use JUnit test framework
 	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
-	testImplementation 'junit:junit:4.13'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+	testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.0'
 	testImplementation 'org.apache.commons:commons-lang3:3.10'
 	testImplementation "org.mockito:mockito-core:2.+"
 	testImplementation "org.powermock:powermock-module-junit4:2.0.2"
@@ -99,6 +103,7 @@ spotless {
 
 test {
 	outputs.upToDateWhen {false}
+	useJUnitPlatform()
 }
 
 jar {

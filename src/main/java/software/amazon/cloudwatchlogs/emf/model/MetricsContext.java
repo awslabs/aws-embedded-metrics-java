@@ -21,11 +21,12 @@ import java.time.Instant;
 import java.util.*;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
 
-    @Getter private RootNode rootNode;
+    @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
 
@@ -71,6 +72,7 @@ public class MetricsContext {
      * @param namespace The new namespace
      */
     public void setNamespace(String namespace) {
+        Validator.validateNamespace(namespace);
         metricDirective.setNamespace(namespace);
     }
 
@@ -107,6 +109,7 @@ public class MetricsContext {
      * @param unit The unit of the metric
      */
     public void putMetric(String key, double value, Unit unit) {
+        Validator.validateMetric(key, value, unit);
         metricDirective.putMetric(key, value, unit);
     }
 
@@ -226,6 +229,7 @@ public class MetricsContext {
      * @param timestamp value of timestamp to be set
      */
     public void setTimestamp(Instant timestamp) {
+        Validator.validateTimestamp(timestamp);
         rootNode.getAws().setTimestamp(timestamp);
     }
 

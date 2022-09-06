@@ -24,12 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** A combination of dimension values. */
 public class DimensionSet {
 
     @Getter(AccessLevel.PACKAGE)
-    private Map<String, String> dimensionRecords = new LinkedHashMap<>();
+    private final Map<String, String> dimensionRecords = new LinkedHashMap<>();
 
     /**
      * Return a dimension set that contains a single pair of key-value.
@@ -151,6 +152,8 @@ public class DimensionSet {
      * @param value Value of the dimension
      */
     public void addDimension(String dimension, String value) {
+        Validator.validateDimensionSet(dimension, value);
+
         if (this.getDimensionKeys().size() >= Constants.MAX_DIMENSION_SET_SIZE) {
             throw new DimensionSetExceededException();
         }
