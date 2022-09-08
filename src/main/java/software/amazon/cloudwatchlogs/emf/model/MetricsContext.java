@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.*;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 /** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
@@ -173,7 +174,7 @@ public class MetricsContext {
     }
 
     /** @return the list of dimensions that has been added, including default dimensions. */
-    public List<DimensionSet> getDimensions() {
+    public List<DimensionSet> getDimensions() throws DimensionSetExceededException {
         return metricDirective.getAllDimensions();
     }
 

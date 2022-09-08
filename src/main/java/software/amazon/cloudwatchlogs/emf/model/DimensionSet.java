@@ -22,6 +22,7 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
@@ -132,6 +133,7 @@ public class DimensionSet {
                 entryOf(d5, v5));
     }
 
+    @SneakyThrows
     private static DimensionSet fromEntries(DimensionEntry... entries) {
         DimensionSet ds = new DimensionSet();
         for (DimensionEntry entry : entries) {
@@ -149,8 +151,9 @@ public class DimensionSet {
      *
      * @param dimension Name of the dimension
      * @param value Value of the dimension
+     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
-    public void addDimension(String dimension, String value) {
+    public void addDimension(String dimension, String value) throws DimensionSetExceededException {
         if (this.getDimensionKeys().size() >= Constants.MAX_DIMENSION_SET_SIZE) {
             throw new DimensionSetExceededException();
         }
@@ -164,8 +167,9 @@ public class DimensionSet {
      *
      * @param other Other dimension sets to merge with current
      * @return a new DimensionSet from combining the current DimensionSet with other
+     * @throws DimensionSetExceededException if the combined dimension set exceeds the maximum
      */
-    public DimensionSet add(DimensionSet other) {
+    public DimensionSet add(DimensionSet other) throws DimensionSetExceededException {
         DimensionSet mergedDimensionSet = new DimensionSet();
         int mergedDimensionSetSize =
                 this.getDimensionKeys().size() + other.dimensionRecords.keySet().size();

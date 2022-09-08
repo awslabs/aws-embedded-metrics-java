@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.*;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 /** Represents the MetricDirective part of the EMF schema. */
 @AllArgsConstructor
@@ -87,7 +88,7 @@ class MetricDirective {
     }
 
     @JsonProperty("Dimensions")
-    List<Set<String>> getAllDimensionKeys() {
+    List<Set<String>> getAllDimensionKeys() throws DimensionSetExceededException {
         return getAllDimensions().stream()
                 .map(DimensionSet::getDimensionKeys)
                 .collect(Collectors.toList());
@@ -128,7 +129,7 @@ class MetricDirective {
      * Return all the dimension sets. If there's a default dimension set, the custom dimensions are
      * prepended with the default dimensions.
      */
-    List<DimensionSet> getAllDimensions() {
+    List<DimensionSet> getAllDimensions() throws DimensionSetExceededException {
         if (!shouldUseDefaultDimension) {
             return dimensions;
         }
@@ -137,9 +138,12 @@ class MetricDirective {
             return Arrays.asList(defaultDimensions);
         }
 
-        return dimensions.stream()
-                .map(dim -> defaultDimensions.add(dim))
-                .collect(Collectors.toList());
+        List<DimensionSet> allDimensions = new ArrayList<>();
+        for (DimensionSet dim : dimensions) {
+            allDimensions.add(defaultDimensions.add(dim));
+        }
+
+        return allDimensions;
     }
 
     /**

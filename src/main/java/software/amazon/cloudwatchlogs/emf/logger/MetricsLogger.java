@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -251,6 +252,7 @@ public class MetricsLogger {
         return this;
     }
 
+    @SneakyThrows
     private void configureContextForEnvironment(MetricsContext context, Environment environment) {
         if (context.hasDefaultDimensions()) {
             return;
