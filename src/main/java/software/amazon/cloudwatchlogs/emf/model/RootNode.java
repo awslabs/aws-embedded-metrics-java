@@ -28,6 +28,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.With;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 /** Represents the root of the EMF schema. */
 @AllArgsConstructor
@@ -59,7 +60,7 @@ class RootNode {
 
     /** Return the target members that are referenced by metrics, dimensions and properties. */
     @JsonAnyGetter
-    Map<String, Object> getTargetMembers() {
+    Map<String, Object> getTargetMembers() throws DimensionSetExceededException {
         Map<String, Object> targetMembers = new HashMap<>();
         targetMembers.putAll(properties);
         targetMembers.putAll(getDimensions());
@@ -73,7 +74,7 @@ class RootNode {
     }
 
     /** Return a list of all dimensions that are referenced by each dimension set. */
-    Map<String, String> getDimensions() {
+    Map<String, String> getDimensions() throws DimensionSetExceededException {
         Map<String, String> dimensions = new HashMap<>();
         for (MetricDirective mc : aws.getCloudWatchMetrics()) {
             for (DimensionSet dimensionSet : mc.getAllDimensions()) {

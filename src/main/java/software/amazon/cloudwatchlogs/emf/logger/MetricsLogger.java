@@ -18,6 +18,7 @@ package software.amazon.cloudwatchlogs.emf.logger;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
@@ -183,6 +184,7 @@ public class MetricsLogger {
         return this;
     }
 
+    @SneakyThrows
     private void configureContextForEnvironment(MetricsContext context, Environment environment) {
         if (context.hasDefaultDimensions()) {
             return;

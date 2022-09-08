@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.SinkShunt;
@@ -62,7 +63,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testPutDimension() {
+    public void testPutDimension() throws DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
@@ -75,7 +76,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testOverrideDefaultDimensions() {
+    public void testOverrideDefaultDimensions() throws DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         String defaultDimName = "defaultDim";
@@ -94,7 +95,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testOverridePreviousDimensions() {
+    public void testOverridePreviousDimensions() throws DimensionSetExceededException {
 
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
@@ -135,7 +136,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredServiceName() {
+    public void testFlushWithConfiguredServiceName() throws DimensionSetExceededException {
         String serviceName = "TestServiceName";
         when(environment.getName()).thenReturn(serviceName);
         logger.flush();
@@ -144,7 +145,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredServiceType() {
+    public void testFlushWithConfiguredServiceType() throws DimensionSetExceededException {
         String serviceType = "TestServiceType";
         when(environment.getType()).thenReturn(serviceType);
         logger.flush();
@@ -153,7 +154,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredLogGroup() {
+    public void testFlushWithConfiguredLogGroup() throws DimensionSetExceededException {
         String logGroup = "MyLogGroup";
         when(environment.getLogGroupName()).thenReturn(logGroup);
         logger.flush();
@@ -162,7 +163,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithDefaultDimensionDefined() {
+    public void testFlushWithDefaultDimensionDefined() throws DimensionSetExceededException {
         MetricsContext metricsContext = new MetricsContext();
         metricsContext.setDefaultDimensions(DimensionSet.of("foo", "bar"));
         logger = new MetricsLogger(envProvider, metricsContext);
@@ -176,7 +177,8 @@ public class MetricsLoggerTest {
 
     @SuppressWarnings("")
     @Test
-    public void testUseDefaultEnvironmentOnResolverException() {
+    public void testUseDefaultEnvironmentOnResolverException()
+            throws DimensionSetExceededException {
         String serviceType = "TestServiceType";
         CompletableFuture<Environment> future =
                 CompletableFuture.supplyAsync(
@@ -195,7 +197,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testNoDefaultDimensions() {
+    public void testNoDefaultDimensions() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions();
         logger.putMetric("Count", 1);
@@ -210,7 +212,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testNoDefaultDimensionsAfterSetDimension() {
+    public void testNoDefaultDimensionsAfterSetDimension() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions(DimensionSet.of("Name", "Test"));
@@ -219,7 +221,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushPreserveDimensions() {
+    public void testFlushPreserveDimensions() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.flush();
@@ -242,7 +244,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testNoDimensionsAfterSetEmptyDimensionSet() {
+    public void testNoDimensionsAfterSetEmptyDimensionSet() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -253,7 +255,8 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testNoDimensionsAfterSetEmptyDimensionSetWithMultipleFlush() {
+    public void testNoDimensionsAfterSetEmptyDimensionSetWithMultipleFlush()
+            throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -265,7 +268,8 @@ public class MetricsLoggerTest {
         assertEquals(0, sink.getContext().getDimensions().size());
     }
 
-    private void expectDimension(String dimension, String value) {
+    private void expectDimension(String dimension, String value)
+            throws DimensionSetExceededException {
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
         assertEquals(dimensions.size(), 1);
         assertEquals(dimensions.get(0).getDimensionValue(dimension), value);
