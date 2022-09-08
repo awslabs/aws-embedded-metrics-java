@@ -25,11 +25,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 public class RootNodeTest {
 
     @Test
-    public void testPutProperty() {
+    public void testPutProperty() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
 
@@ -37,7 +38,7 @@ public class RootNodeTest {
     }
 
     @Test
-    public void testPutSamePropertyMultipleTimes() {
+    public void testPutSamePropertyMultipleTimes() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
         rootNode.putProperty("Property", "NewValue");
@@ -46,7 +47,7 @@ public class RootNodeTest {
     }
 
     @Test
-    public void testGetDimension() {
+    public void testGetDimension() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricDirective metricDirective = rootNode.getAws().createMetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Dim1", "DimValue1"));
@@ -55,7 +56,7 @@ public class RootNodeTest {
     }
 
     @Test
-    public void testGetTargetMembers() {
+    public void testGetTargetMembers() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricsContext mc = new MetricsContext(rootNode);
 

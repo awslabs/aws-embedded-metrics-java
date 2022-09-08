@@ -23,7 +23,7 @@ import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededExceptio
 
 public class DimensionSetTest {
     @Test
-    public void testAddDimension() {
+    public void testAddDimension() throws DimensionSetExceededException {
         int dimensionsToBeAdded = 30;
         DimensionSet dimensionSet = generateDimensionSet(dimensionsToBeAdded);
 
@@ -65,7 +65,8 @@ public class DimensionSetTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
-    private DimensionSet generateDimensionSet(int numOfDimensions) {
+    private DimensionSet generateDimensionSet(int numOfDimensions)
+            throws DimensionSetExceededException {
         DimensionSet dimensionSet = new DimensionSet();
 
         for (int i = 0; i < numOfDimensions; i++) {

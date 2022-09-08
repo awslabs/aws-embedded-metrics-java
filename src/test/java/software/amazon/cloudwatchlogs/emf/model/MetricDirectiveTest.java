@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 public class MetricDirectiveTest {
     private ObjectMapper objectMapper =
@@ -166,7 +167,7 @@ public class MetricDirectiveTest {
     }
 
     @Test
-    public void testGetDimensionAfterSetDimensions() {
+    public void testGetDimensionAfterSetDimensions() throws DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(DimensionSet.of("Dim", "Default"));
         metricDirective.setDimensions(Arrays.asList(DimensionSet.of("Name", "Test")));
