@@ -19,9 +19,9 @@ package software.amazon.cloudwatchlogs.emf.environment;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.javatuples.Pair;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
@@ -52,8 +52,8 @@ public class EC2Environment extends AgentBasedEnvironment {
     @Override
     public boolean probe() {
         String token;
-        Pair<String, String> tokenRequestHeader =
-                new Pair<>(TOKEN_REQUEST_HEADER_KEY, TOKEN_REQUEST_HEADER_VALUE);
+        Map<String, String> tokenRequestHeader =
+                Collections.singletonMap(TOKEN_REQUEST_HEADER_KEY, TOKEN_REQUEST_HEADER_VALUE);
 
         URI tokenEndpoint = null;
         try {
@@ -63,16 +63,14 @@ public class EC2Environment extends AgentBasedEnvironment {
             return false;
         }
         try {
-            token =
-                    fetcher.fetch(
-                            tokenEndpoint, "PUT", Collections.singletonList(tokenRequestHeader));
+            token = fetcher.fetch(tokenEndpoint, "PUT", tokenRequestHeader);
         } catch (EMFClientException ex) {
             log.debug("Failed to get response from: " + tokenEndpoint, ex);
             return false;
         }
 
-        Pair<String, String> metadataRequestTokenHeader =
-                new Pair<>(METADATA_REQUEST_TOKEN_HEADER_KEY, token);
+        Map<String, String> metadataRequestTokenHeader =
+                Collections.singletonMap(METADATA_REQUEST_TOKEN_HEADER_KEY, token);
         URI endpoint = null;
         try {
             endpoint = new URI(INSTANCE_IDENTITY_URL);
@@ -82,11 +80,7 @@ public class EC2Environment extends AgentBasedEnvironment {
         }
         try {
             metadata =
-                    fetcher.fetch(
-                            endpoint,
-                            "GET",
-                            EC2Metadata.class,
-                            Collections.singletonList(metadataRequestTokenHeader));
+                    fetcher.fetch(endpoint, "GET", EC2Metadata.class, metadataRequestTokenHeader);
             return true;
         } catch (EMFClientException ex) {
             log.debug("Failed to get response from: " + endpoint, ex);
