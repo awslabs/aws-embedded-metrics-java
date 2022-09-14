@@ -138,7 +138,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
-- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
+- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException` or `DimensionSetExceededException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -160,7 +160,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
-- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
+- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException` or `DimensionSetExceededException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
