@@ -147,7 +147,7 @@ public class Validator {
      * Validates Timestamp.
      *
      * @see <a
-     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Metric">CloudWatch
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#about_timestamp">CloudWatch
      *     Timestamp</a>
      * @param timestamp Timestamp
      * @throws InvalidTimestampException if timestamp is invalid

@@ -212,7 +212,7 @@ setNamespace("MyApplication")
 
 Sets the timestamp of the metrics. If not set, current time of the client will be used.
 
-Timestamp must meet CloudWatch requirements, if not it will throw a `InvalidTimestampException`. Timestamp must meet CloudWatch requirements, if not it will throw a `InvalidTimestampException`. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Metric) for valid values.
+Timestamp must meet CloudWatch requirements, if not it will throw a `InvalidTimestampException`. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Metric) for valid values.
 
 Examples:
 
