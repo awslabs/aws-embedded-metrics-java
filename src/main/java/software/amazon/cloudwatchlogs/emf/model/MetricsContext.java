@@ -309,9 +309,9 @@ public class MetricsContext {
 
     private RootNode buildRootNode(Map<String, MetricDefinition> metrics) {
         Metadata metadata = rootNode.getAws();
-        MetricDirective metricDirective = metadata.getCloudWatchMetrics().get(0);
+        MetricDirective md = metadata.getCloudWatchMetrics().get(0);
         Metadata clonedMetadata =
-                metadata.withCloudWatchMetrics(Arrays.asList(metricDirective.withMetrics(metrics)));
+                metadata.withCloudWatchMetrics(Arrays.asList(md.withMetrics(metrics)));
         return rootNode.withAws(clonedMetadata);
     }
 
