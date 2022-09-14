@@ -38,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
@@ -166,7 +167,8 @@ public class MetricsLoggerThreadSafetyTest {
     }
 
     @Test
-    public void testConcurrentPutDimensionAfterSetDimension() throws InterruptedException {
+    public void testConcurrentPutDimensionAfterSetDimension()
+            throws InterruptedException, InvalidDimensionException {
         final int N_THREAD = 100;
         final int N_PUT_DIMENSIONS = 100;
 

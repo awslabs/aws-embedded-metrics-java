@@ -16,11 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.exception;
 
-public class InvalidTimestampException extends RuntimeException {
-    public InvalidTimestampException(String message, Throwable t) {
-        super(message, t);
-    }
-
+public class InvalidTimestampException extends Exception {
     public InvalidTimestampException(String message) {
         super(message);
     }

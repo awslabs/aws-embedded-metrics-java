@@ -123,7 +123,7 @@ public class Validator {
      * @param namespace Namespace
      * @throws InvalidNamespaceException if the namespace is invalid
      */
-    public static void validateNamespace(String namespace) {
+    public static void validateNamespace(String namespace) throws InvalidNamespaceException {
         if (namespace == null || namespace.trim().isEmpty()) {
             throw new InvalidNamespaceException(
                     "Namespace must include at least one non-whitespace character");
@@ -152,7 +152,7 @@ public class Validator {
      * @param timestamp Timestamp
      * @throws InvalidTimestampException if timestamp is invalid
      */
-    public static void validateTimestamp(Instant timestamp) {
+    public static void validateTimestamp(Instant timestamp) throws InvalidTimestampException {
         if (timestamp == null) {
             throw new InvalidTimestampException("Timestamp cannot be null");
         }

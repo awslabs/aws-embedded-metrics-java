@@ -21,6 +21,10 @@ import java.time.Instant;
 import java.util.*;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** Stores metrics and their associated properties and dimensions. */
@@ -49,7 +53,8 @@ public class MetricsContext {
             String namespace,
             Map<String, Object> properties,
             List<DimensionSet> dimensionSets,
-            DimensionSet defaultDimensionSet) {
+            DimensionSet defaultDimensionSet)
+            throws InvalidNamespaceException {
         this();
         setNamespace(namespace);
         setDefaultDimensions(defaultDimensionSet);
@@ -71,7 +76,7 @@ public class MetricsContext {
      *
      * @param namespace The new namespace
      */
-    public void setNamespace(String namespace) {
+    public void setNamespace(String namespace) throws InvalidNamespaceException {
         Validator.validateNamespace(namespace);
         metricDirective.setNamespace(namespace);
     }
@@ -108,7 +113,7 @@ public class MetricsContext {
      * @param value Value of the metric
      * @param unit The unit of the metric
      */
-    public void putMetric(String key, double value, Unit unit) {
+    public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
         Validator.validateMetric(key, value, unit);
         metricDirective.putMetric(key, value, unit);
     }
@@ -124,7 +129,7 @@ public class MetricsContext {
      * @param key Name of the metric
      * @param value Value of the metric
      */
-    public void putMetric(String key, double value) {
+    public void putMetric(String key, double value) throws InvalidMetricException {
         putMetric(key, value, Unit.NONE);
     }
 
@@ -171,7 +176,7 @@ public class MetricsContext {
      * @param dimension the name of the dimension
      * @param value the value associated with the dimension
      */
-    public void putDimension(String dimension, String value) {
+    public void putDimension(String dimension, String value) throws InvalidDimensionException {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
     }
 
@@ -228,24 +233,24 @@ public class MetricsContext {
      *
      * @param timestamp value of timestamp to be set
      */
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(Instant timestamp) throws InvalidTimestampException {
         Validator.validateTimestamp(timestamp);
         rootNode.getAws().setTimestamp(timestamp);
     }
 
-    /** @return Creates an independently flushable context. */
-    public MetricsContext createCopyWithContext() {
-        return new MetricsContext(metricDirective.copyWithoutMetrics());
-    }
-
-    /** @return Creates an independently flushable context without metrics and custom dimensions */
-    public MetricsContext createCopyWithContextWithoutDimensions() {
-        return new MetricsContext(metricDirective.copyWithoutMetricsAndDimensions());
+    /**
+     * Create a copy of the context
+     *
+     * @param preserveDimensions indicates whether default dimensions should be preserved
+     * @return Creates an independently flushable context
+     */
+    public MetricsContext createCopyWithContext(boolean preserveDimensions) {
+        return new MetricsContext(metricDirective.copyWithoutMetrics(preserveDimensions));
     }
 
     /**
      * Serialize the metrics in this context to strings. The EMF backend requires no more than 100
-     * metrics in one log event. If there're more than 100 metrics, we split the metrics into
+     * metrics in one log event. If there are more than 100 metrics, we split the metrics into
      * multiple log events.
      *
      * <p>If a metric has more than 100 data points, we also split the metric.

@@ -16,12 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.exception;
 
-public class InvalidDimensionException extends RuntimeException {
-
-    public InvalidDimensionException(String message, Throwable t) {
-        super(message, t);
-    }
-
+public class InvalidDimensionException extends Exception {
     public InvalidDimensionException(String message) {
         super(message);
     }

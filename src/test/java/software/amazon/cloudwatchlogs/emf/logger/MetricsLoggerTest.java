@@ -16,16 +16,14 @@
 
 package software.amazon.cloudwatchlogs.emf.logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import software.amazon.cloudwatchlogs.emf.Constants;
@@ -39,13 +37,13 @@ import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.SinkShunt;
 
-public class MetricsLoggerTest {
+class MetricsLoggerTest {
     private MetricsLogger logger;
     private EnvironmentProvider envProvider;
     private SinkShunt sink;
     private Environment environment;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         envProvider = mock(EnvironmentProvider.class);
         environment = mock(Environment.class);
@@ -62,7 +60,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void putProperty_setsProperty() {
+    void putProperty_setsProperty() {
         String propertyName = "Property";
         String propertyValue = "PropValue";
         logger.putProperty(propertyName, propertyValue);
@@ -72,7 +70,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void putDimensions_setsDimension() {
+    void putDimensions_setsDimension() throws InvalidDimensionException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
@@ -100,7 +98,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
+    void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
         String dimensionName = "a".repeat(Constants.MAX_DIMENSION_NAME_LENGTH + 1);
         String dimensionValue = "dimValue";
         assertThrows(
@@ -109,7 +107,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
+    void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
         String dimensionName = "dim";
         String dimensionValue = "a".repeat(Constants.MAX_DIMENSION_VALUE_LENGTH + 1);
         assertThrows(
@@ -118,12 +116,12 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetDimension_withNullName_thenThrowDimensionException() {
+    void whenSetDimension_withNullName_thenThrowDimensionException() {
         assertThrows(InvalidDimensionException.class, () -> DimensionSet.of(null, "dimValue"));
     }
 
     @Test
-    public void setDefaultDimensions_overridesDefaultDimensions() {
+    void setDefaultDimensions_overridesDefaultDimensions() throws InvalidDimensionException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         String defaultDimName = "defaultDim";
@@ -141,7 +139,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void resetDimensions_resetsDimensionsWithDefaultDimensions() {
+    void resetDimensions_resetsDimensionsWithDefaultDimensions() throws InvalidDimensionException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of("foo", "bar"));
@@ -157,7 +155,8 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void resetDimensions_resetsDimensionsWithoutDefaultDimensions() {
+    void resetDimensions_resetsDimensionsWithoutDefaultDimensions()
+            throws InvalidDimensionException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of("foo", "bar"));
@@ -173,7 +172,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void setDimensions_overridesPreviousDimensions() {
+    void setDimensions_overridesPreviousDimensions() throws InvalidDimensionException {
 
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
@@ -189,7 +188,8 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void setDimensions_overridesPreviousDimensionsAndPreservesDefault() {
+    void setDimensions_overridesPreviousDimensionsAndPreservesDefault()
+            throws InvalidDimensionException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of("foo", "bar"));
@@ -204,7 +204,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void setDimensions_clearsDefaultDimensions() {
+    void setDimensions_clearsDefaultDimensions() throws InvalidMetricException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions();
         logger.putMetric("Count", 1);
@@ -219,7 +219,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void flush_PreservesDimensions() {
+    void flush_PreservesDimensions() throws InvalidDimensionException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.flush();
@@ -230,7 +230,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void flush_doesNotPreserveDimensions() {
+    void flush_doesNotPreserveDimensions() throws InvalidDimensionException {
         logger.putDimensions(DimensionSet.of("Name", "Test"));
         logger.setFlushPreserveDimensions(false);
 
@@ -244,7 +244,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void setDimensions_clearsAllDimensions() {
+    void setDimensions_clearsAllDimensions() {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -255,7 +255,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetDimensions_withMultipleFlush_thenClearsDimensions() {
+    void whenSetDimensions_withMultipleFlush_thenClearsDimensions() {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -268,18 +268,18 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
+    void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
         String name1 = "a".repeat(Constants.MAX_METRIC_NAME_LENGTH + 1);
         assertThrows(InvalidMetricException.class, () -> logger.putMetric(name1, 1));
     }
 
     @Test
-    public void whenPutMetric_withNullName_thenThrowInvalidMetricException() {
+    void whenPutMetric_withNullName_thenThrowInvalidMetricException() {
         assertThrows(InvalidMetricException.class, () -> logger.putMetric(null, 1));
     }
 
     @Test
-    public void whenPutMetric_withEmptyName_thenThrowInvalidMetricException() {
+    void whenPutMetric_withEmptyName_thenThrowInvalidMetricException() {
         assertThrows(InvalidMetricException.class, () -> logger.putMetric("", 1));
     }
 
@@ -292,12 +292,12 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenPutMetric_withNullUnit_thenThrowInvalidMetricException() {
+    void whenPutMetric_withNullUnit_thenThrowInvalidMetricException() {
         assertThrows(InvalidMetricException.class, () -> logger.putMetric("test", 1, null));
     }
 
     @Test
-    public void setNamespace_setsNamespace() {
+    void setNamespace_setsNamespace() throws InvalidNamespaceException {
 
         String namespace = "testNamespace";
         logger.setNamespace(namespace);
@@ -315,19 +315,19 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
+    void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
         String namespace = "a".repeat(Constants.MAX_NAMESPACE_LENGTH + 1);
         assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
     }
 
     @Test
-    public void flush_usesDefaultTimestamp() {
+    void flush_usesDefaultTimestamp() {
         logger.flush();
         assertNotNull(sink.getContext().getTimestamp());
     }
 
     @Test
-    public void setTimestamp_setsTimestamp() {
+    void setTimestamp_setsTimestamp() throws InvalidTimestampException {
         Instant now = Instant.now();
         logger.setTimestamp(now);
         logger.flush();
@@ -336,21 +336,21 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void whenSetTimestamp_withInvalidValueInFuture_thenThrowException() {
+    void whenSetTimestamp_withInvalidValueInFuture_thenThrowException() {
         Instant now = Instant.now();
         Instant invalidTimestamp = now.plusSeconds(Constants.MAX_TIMESTAMP_FUTURE_AGE_SECONDS + 1);
         assertThrows(InvalidTimestampException.class, () -> logger.setTimestamp(invalidTimestamp));
     }
 
     @Test
-    public void whenSetTimestamp_withInvalidValueInPast_thenThrowException() {
+    void whenSetTimestamp_withInvalidValueInPast_thenThrowException() {
         Instant now = Instant.now();
         Instant invalidTimestamp = now.minusSeconds(Constants.MAX_TIMESTAMP_PAST_AGE_SECONDS + 1);
         assertThrows(InvalidTimestampException.class, () -> logger.setTimestamp(invalidTimestamp));
     }
 
     @Test
-    public void setTimestamp_withValidValueInFuture() {
+    void setTimestamp_withValidValueInFuture() throws InvalidTimestampException {
         Instant now = Instant.now();
         Instant validTimestamp = now.plusSeconds(Constants.MAX_TIMESTAMP_FUTURE_AGE_SECONDS - 1);
         logger.setTimestamp(validTimestamp);
@@ -360,7 +360,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void setTimestamp_withValidValueInPast() {
+    void setTimestamp_withValidValueInPast() throws InvalidTimestampException {
         Instant now = Instant.now();
         Instant validTimestamp = now.minusSeconds(Constants.MAX_TIMESTAMP_PAST_AGE_SECONDS - 1);
         logger.setTimestamp(validTimestamp);
@@ -370,7 +370,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredServiceName() {
+    void testFlushWithConfiguredServiceName() {
         String serviceName = "TestServiceName";
         when(environment.getName()).thenReturn(serviceName);
         logger.flush();
@@ -379,7 +379,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredServiceType() {
+    void testFlushWithConfiguredServiceType() {
         String serviceType = "TestServiceType";
         when(environment.getType()).thenReturn(serviceType);
         logger.flush();
@@ -388,7 +388,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredLogGroup() {
+    void testFlushWithConfiguredLogGroup() {
         String logGroup = "MyLogGroup";
         when(environment.getLogGroupName()).thenReturn(logGroup);
         logger.flush();
@@ -397,7 +397,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithDefaultDimensionDefined() {
+    void testFlushWithDefaultDimensionDefined() throws InvalidDimensionException {
         MetricsContext metricsContext = new MetricsContext();
         metricsContext.setDefaultDimensions(DimensionSet.of("foo", "bar"));
         logger = new MetricsLogger(envProvider, metricsContext);
@@ -411,7 +411,7 @@ public class MetricsLoggerTest {
 
     @SuppressWarnings("")
     @Test
-    public void testUseDefaultEnvironmentOnResolverException() {
+    void testUseDefaultEnvironmentOnResolverException() {
         String serviceType = "TestServiceType";
         CompletableFuture<Environment> future =
                 CompletableFuture.supplyAsync(
@@ -430,7 +430,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void flush_doesNotPreserveMetrics() {
+    void flush_doesNotPreserveMetrics() throws InvalidMetricException, InvalidDimensionException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.putMetric("Count", 1.0);

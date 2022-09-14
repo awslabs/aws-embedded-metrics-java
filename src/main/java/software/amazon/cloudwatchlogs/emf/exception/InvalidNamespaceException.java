@@ -16,11 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.exception;
 
-public class InvalidNamespaceException extends RuntimeException {
-    public InvalidNamespaceException(String message, Throwable t) {
-        super(message, t);
-    }
-
+public class InvalidNamespaceException extends Exception {
     public InvalidNamespaceException(String message) {
         super(message);
     }
