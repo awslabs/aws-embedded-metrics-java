@@ -97,7 +97,7 @@ Requirements:
 - Name Length 1-255 characters
 - Name must be ASCII characters only
 - Values must be in the range of 8.515920e-109 to 1.174271e+108. In addition, special values (for example, NaN, +Infinity, -Infinity) are not supported.
-- Units must meet CloudWatch Metrics unit requirements, if not it will throw a `InvalidMetricException`. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
+- Metrics must meet CloudWatch Metrics requirements, otherwise a `InvalidMetricException` will be thrown. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
 
 Examples:
 
@@ -138,7 +138,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
-- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException` or `DimensionSetExceededException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -160,7 +160,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
-- Dimensions must meet CloudWatch Dimension requirements, if not it will throw a `InvalidDimensionException` or `DimensionSetExceededException`. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -200,7 +200,7 @@ Requirements:
 
 - Name Length 1-255 characters
 - Name must be ASCII characters only
-- Namespace must meet CloudWatch requirements, if not it will throw a `InvalidNamespaceException`. See [Namespaces](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Namespace) for valid values.
+- Namespace must meet CloudWatch requirements, otherwise a `InvalidNamespaceException` will be thrown. See [Namespaces](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Namespace) for valid values.
 
 Examples:
 
@@ -212,7 +212,7 @@ setNamespace("MyApplication")
 
 Sets the timestamp of the metrics. If not set, current time of the client will be used.
 
-Timestamp must meet CloudWatch requirements, if not it will throw a `InvalidTimestampException`. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Metric) for valid values.
+Timestamp must meet CloudWatch requirements, otherwise a `InvalidTimestampException` will be thrown. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#about_timestamp) for valid values.
 
 Examples:
 
