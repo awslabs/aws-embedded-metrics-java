@@ -50,8 +50,7 @@ public class MetricsLoggerIntegrationTest {
     private DimensionSet dimensions = DimensionSet.of(dimensionName, dimensionValue);
     private EMFIntegrationTestHelper testHelper = new EMFIntegrationTestHelper();
 
-    public MetricsLoggerIntegrationTest() throws InvalidDimensionException {
-    }
+    public MetricsLoggerIntegrationTest() throws InvalidDimensionException {}
 
     @Before
     public void setUp() {
