@@ -66,7 +66,7 @@ logger.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 logger.flush();
 
 // flush the sink, waiting up to 10s before giving up
-environment.getSink().shutdown().orTimeout(10_000L, TimeUnit.MILLISECONDS);
+environment.getSink().shutdown().get(10_000L, TimeUnit.MILLISECONDS);
 ```
 
 ## API

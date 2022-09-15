@@ -27,6 +27,8 @@ import sun.misc.Signal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 
 public class App {
@@ -50,7 +52,16 @@ public class App {
     private static void registerShutdownHook() {
         // https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/
         Signal.handle(new Signal("TERM"), sig -> {
-            env.getSink().shutdown().orTimeout(1_000L, TimeUnit.MILLISECONDS);
+            try {
+                env.getSink().shutdown().get(1_000L, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+
+                e.printStackTrace();
+            }
+
             System.exit(0);
         });
     }

@@ -7,16 +7,18 @@ import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 
 public class App {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException {
         DefaultEnvironment environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         emitMetric(environment);
         emitMetric(environment);
         emitMetric(environment);
-        environment.getSink().shutdown().orTimeout(360_000L, TimeUnit.MILLISECONDS);
+        environment.getSink().shutdown().get(360_000L, TimeUnit.MILLISECONDS);
     }
 
     private static void emitMetric(Environment environment) {
