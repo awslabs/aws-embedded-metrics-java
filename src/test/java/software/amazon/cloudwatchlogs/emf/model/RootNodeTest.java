@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
-import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 class RootNodeTest {
 
@@ -81,7 +81,8 @@ class RootNodeTest {
     @SuppressWarnings("unchecked")
     @Test
     void testSerializeRootNode()
-            throws JsonProcessingException, InvalidMetricException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsContext mc = new MetricsContext();
 
         mc.setDefaultDimensions(DimensionSet.of("DefaultDim", "DefaultDimValue"));

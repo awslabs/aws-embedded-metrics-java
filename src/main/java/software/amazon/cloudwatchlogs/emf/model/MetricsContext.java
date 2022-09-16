@@ -180,12 +180,19 @@ public class MetricsContext {
      * @param dimension the name of the dimension
      * @param value the value associated with the dimension
      * @throws InvalidDimensionException if the dimension is invalid
+     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
-    public void putDimension(String dimension, String value) throws InvalidDimensionException {
+    public void putDimension(String dimension, String value)
+            throws InvalidDimensionException, DimensionSetExceededException {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
     }
 
-    /** @return the list of dimensions that has been added, including default dimensions. */
+    /**
+     * Get list of all dimensions including default dimensions
+     *
+     * @return the list of dimensions that has been added, including default dimensions.
+     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
+     */
     public List<DimensionSet> getDimensions() throws DimensionSetExceededException {
         return metricDirective.getAllDimensions();
     }

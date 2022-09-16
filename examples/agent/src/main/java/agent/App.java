@@ -3,6 +3,7 @@ package agent;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.cloudwatchlogs.emf.environment.DefaultEnvironment;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
@@ -19,13 +20,14 @@ public class App {
             emitMetric(environment);
             emitMetric(environment);
             emitMetric(environment);
-        } catch (InvalidMetricException | InvalidDimensionException e) {
+        } catch (InvalidMetricException | InvalidDimensionException | DimensionSetExceededException e) {
             System.out.println(e);
         }
         environment.getSink().shutdown().orTimeout(360_000L, TimeUnit.MILLISECONDS);
     }
 
-    private static void emitMetric(Environment environment) throws InvalidDimensionException, InvalidMetricException {
+    private static void emitMetric(Environment environment)
+            throws InvalidDimensionException, InvalidMetricException, DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(environment);
         logger.setDimensions(DimensionSet.of("Operation", "Agent"));
         logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);

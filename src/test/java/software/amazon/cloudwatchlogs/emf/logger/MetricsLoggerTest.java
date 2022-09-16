@@ -123,7 +123,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void setDefaultDimensions_overridesDefaultDimensions() throws InvalidDimensionException {
+    void setDefaultDimensions_overridesDefaultDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         String defaultDimName = "defaultDim";
@@ -207,7 +208,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void setDimensions_clearsDefaultDimensions() throws InvalidMetricException {
+    void setDimensions_clearsDefaultDimensions()
+            throws InvalidMetricException, DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions();
         logger.putMetric("Count", 1);
@@ -222,7 +224,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void flush_PreservesDimensions() throws InvalidDimensionException {
+    void flush_PreservesDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.flush();
@@ -233,7 +236,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void flush_doesNotPreserveDimensions() throws InvalidDimensionException {
+    void flush_doesNotPreserveDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         logger.putDimensions(DimensionSet.of("Name", "Test"));
         logger.setFlushPreserveDimensions(false);
 
@@ -247,7 +251,7 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void setDimensions_clearsAllDimensions() {
+    void setDimensions_clearsAllDimensions() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -258,7 +262,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void whenSetDimensions_withMultipleFlush_thenClearsDimensions() {
+    void whenSetDimensions_withMultipleFlush_thenClearsDimensions()
+            throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
         logger.setDimensions();
@@ -373,7 +378,7 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void testFlushWithConfiguredServiceName() throws DimensionSetExceededException  {
+    void testFlushWithConfiguredServiceName() throws DimensionSetExceededException {
         String serviceName = "TestServiceName";
         when(environment.getName()).thenReturn(serviceName);
         logger.flush();
@@ -434,7 +439,9 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void flush_doesNotPreserveMetrics() throws InvalidMetricException, InvalidDimensionException {
+    void flush_doesNotPreserveMetrics()
+            throws InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.putMetric("Count", 1.0);
