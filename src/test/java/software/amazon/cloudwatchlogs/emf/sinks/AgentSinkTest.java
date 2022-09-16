@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.EMFClientException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.retry.RetryStrategy;
 
@@ -38,7 +39,7 @@ import software.amazon.cloudwatchlogs.emf.sinks.retry.RetryStrategy;
 public class AgentSinkTest {
 
     @Test
-    public void testAccept() throws JsonProcessingException {
+    public void testAccept() throws JsonProcessingException, InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         String prop = "TestProp";
@@ -79,7 +80,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void testEmptyLogGroupName() throws JsonProcessingException {
+    public void testEmptyLogGroupName() throws JsonProcessingException, InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         String logGroupName = "";
@@ -110,7 +111,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void testFailuresAreRetried() {
+    public void testFailuresAreRetried() throws InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         fixture.client.messagesToFail = Constants.MAX_ATTEMPTS_PER_MESSAGE - 1;
@@ -136,7 +137,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void testFailuresAreRetriedWithMaximumLimit() {
+    public void testFailuresAreRetriedWithMaximumLimit() throws InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         fixture.client.messagesToFail = Constants.MAX_ATTEMPTS_PER_MESSAGE + 1;
@@ -162,7 +163,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void failedMessagesAreQueued() {
+    public void failedMessagesAreQueued() throws InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         fixture.client.messagesToFail = Constants.MAX_ATTEMPTS_PER_MESSAGE * 2;
@@ -190,7 +191,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void queuedMessagesAreBounded() {
+    public void queuedMessagesAreBounded() throws InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         fixture.client.messagesToFail = Constants.MAX_ATTEMPTS_PER_MESSAGE * 3;
@@ -218,7 +219,7 @@ public class AgentSinkTest {
     }
 
     @Test
-    public void oldestMessagesAreDropped() {
+    public void oldestMessagesAreDropped() throws InvalidMetricException {
         // arrange
         Fixture fixture = new Fixture();
         AgentSink sink =

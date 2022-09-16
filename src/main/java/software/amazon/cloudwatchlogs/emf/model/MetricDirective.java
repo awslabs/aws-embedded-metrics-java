@@ -156,30 +156,20 @@ class MetricDirective {
     }
 
     /**
-     * Create a copy of the metric directive without having the existing metrics
+     * Create a copy of the metric directive
      *
-     * @return A object of metric directive
+     * @param preserveDimensions indicates whether the custom dimensions should be preserved
+     * @return A metric directive object
      */
-    MetricDirective copyWithoutMetrics() {
+    MetricDirective copyWithoutMetrics(boolean preserveDimensions) {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(this.defaultDimensions);
-        metricDirective.setDimensions(this.dimensions);
         metricDirective.setNamespace(this.namespace);
         metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
-        return metricDirective;
-    }
 
-    /**
-     * Create a copy of the metric directive without having the existing metrics and custom
-     * dimensions. The original state of default dimensions are preserved.
-     *
-     * @return an object of metric directive
-     */
-    MetricDirective copyWithoutMetricsAndDimensions() {
-        MetricDirective metricDirective = new MetricDirective();
-        metricDirective.setDefaultDimensions(this.defaultDimensions);
-        metricDirective.setNamespace(this.namespace);
-        metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+        if (preserveDimensions) {
+            metricDirective.setDimensions(this.dimensions);
+        }
 
         return metricDirective;
     }

@@ -16,24 +16,24 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 
-public class DimensionSetTest {
+class DimensionSetTest {
     @Test
-    public void testAddDimension() throws DimensionSetExceededException {
+    void testAddDimension() throws InvalidDimensionException, DimensionSetExceededException {
         int dimensionsToBeAdded = 30;
         DimensionSet dimensionSet = generateDimensionSet(dimensionsToBeAdded);
 
-        assertEquals(dimensionsToBeAdded, dimensionSet.getDimensionKeys().size());
+        Assertions.assertEquals(dimensionsToBeAdded, dimensionSet.getDimensionKeys().size());
     }
 
     @Test
-    public void testAddDimensionLimitExceeded() {
+    void testAddDimensionLimitExceeded() {
         Exception exception =
-                assertThrows(
+                Assertions.assertThrows(
                         DimensionSetExceededException.class,
                         () -> {
                             int dimensionSetSize = 33;
@@ -43,13 +43,13 @@ public class DimensionSetTest {
         String expectedMessage = "Maximum number of dimensions";
         String actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(expectedMessage));
+        Assertions.assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
-    public void testMergeDimensionSets() {
+    void testMergeDimensionSets() {
         Exception exception =
-                assertThrows(
+                Assertions.assertThrows(
                         DimensionSetExceededException.class,
                         () -> {
                             int dimensionSetSize = 28;
@@ -62,11 +62,11 @@ public class DimensionSetTest {
         String expectedMessage = "Maximum number of dimensions";
         String actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(expectedMessage));
+        Assertions.assertTrue(actualMessage.contains(expectedMessage));
     }
 
     private DimensionSet generateDimensionSet(int numOfDimensions)
-            throws DimensionSetExceededException {
+            throws InvalidDimensionException, DimensionSetExceededException {
         DimensionSet dimensionSet = new DimensionSet();
 
         for (int i = 0; i < numOfDimensions; i++) {
