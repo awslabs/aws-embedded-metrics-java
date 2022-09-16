@@ -75,6 +75,7 @@ public class MetricsContext {
      * Update the namespace with the parameter.
      *
      * @param namespace The new namespace
+     * @throws InvalidNamespaceException if the namespace is invalid
      */
     public void setNamespace(String namespace) throws InvalidNamespaceException {
         Validator.validateNamespace(namespace);
@@ -112,6 +113,7 @@ public class MetricsContext {
      * @param key Name of the metric
      * @param value Value of the metric
      * @param unit The unit of the metric
+     * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
         Validator.validateMetric(key, value, unit);
@@ -128,6 +130,7 @@ public class MetricsContext {
      *
      * @param key Name of the metric
      * @param value Value of the metric
+     * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value) throws InvalidMetricException {
         putMetric(key, value, Unit.NONE);
@@ -175,6 +178,7 @@ public class MetricsContext {
      *
      * @param dimension the name of the dimension
      * @param value the value associated with the dimension
+     * @throws InvalidDimensionException if the dimension is invalid
      */
     public void putDimension(String dimension, String value) throws InvalidDimensionException {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
@@ -232,6 +236,7 @@ public class MetricsContext {
      * Update timestamp field in the metadata
      *
      * @param timestamp value of timestamp to be set
+     * @throws InvalidTimestampException if the timestamp is invalid
      */
     public void setTimestamp(Instant timestamp) throws InvalidTimestampException {
         Validator.validateTimestamp(timestamp);

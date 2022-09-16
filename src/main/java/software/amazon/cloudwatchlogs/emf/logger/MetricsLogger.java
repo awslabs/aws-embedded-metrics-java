@@ -189,6 +189,7 @@ public class MetricsLogger {
      * @param value is the value of the metric
      * @param unit is the unit of the metric value
      * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger putMetric(String key, double value, Unit unit)
             throws InvalidMetricException {
@@ -209,6 +210,7 @@ public class MetricsLogger {
      * @param key the name of the metric
      * @param value the value of the metric
      * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger putMetric(String key, double value) throws InvalidMetricException {
         this.putMetric(key, value, Unit.NONE);
@@ -238,6 +240,7 @@ public class MetricsLogger {
      *
      * @param namespace the namespace of the logs
      * @return the current logger
+     * @throws InvalidNamespaceException if the namespace is invalid
      */
     public MetricsLogger setNamespace(String namespace) throws InvalidNamespaceException {
         this.context.setNamespace(namespace);
@@ -249,6 +252,7 @@ public class MetricsLogger {
      *
      * @param timestamp value of timestamp to be set
      * @return the current logger
+     * @throws InvalidTimestampException if the timestamp is invalid
      */
     public MetricsLogger setTimestamp(Instant timestamp) throws InvalidTimestampException {
         this.context.setTimestamp(timestamp);
