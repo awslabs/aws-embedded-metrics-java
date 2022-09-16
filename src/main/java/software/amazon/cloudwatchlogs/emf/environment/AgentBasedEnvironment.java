@@ -36,7 +36,7 @@ public abstract class AgentBasedEnvironment implements Environment {
 
     @Override
     public String getName() {
-        if (!config.getServiceName().isPresent()) {
+        if (config.getServiceName().isEmpty()) {
             log.warn("Unknown ServiceName.");
             return Constants.UNKNOWN;
         }
@@ -51,7 +51,7 @@ public abstract class AgentBasedEnvironment implements Environment {
             String serviceName = getName();
             // for ECS services, replace "repo:tag" format with "repo-tag" to satisfy
             // log group regex
-            serviceName = serviceName.replaceAll(":", "-");
+            serviceName = serviceName.replace(":", "-");
             return serviceName + "-metrics";
         }
     }
@@ -64,7 +64,7 @@ public abstract class AgentBasedEnvironment implements Environment {
     public ISink getSink() {
         if (sink == null) {
             Endpoint endpoint;
-            if (!config.getAgentEndpoint().isPresent()) {
+            if (config.getAgentEndpoint().isEmpty()) {
                 log.info(
                         "Endpoint is not defined. Using default: {}",
                         Endpoint.DEFAULT_TCP_ENDPOINT);

@@ -24,12 +24,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** A combination of dimension values. */
 public class DimensionSet {
 
     @Getter(AccessLevel.PACKAGE)
-    private Map<String, String> dimensionRecords = new LinkedHashMap<>();
+    private final Map<String, String> dimensionRecords = new LinkedHashMap<>();
 
     /**
      * Return a dimension set that contains a single pair of key-value.
@@ -37,8 +39,9 @@ public class DimensionSet {
      * @param d1 Name of the single dimension
      * @param v1 Value of the single dimension
      * @return a DimensionSet from the parameters
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
-    public static DimensionSet of(String d1, String v1) {
+    public static DimensionSet of(String d1, String v1) throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1));
     }
 
@@ -50,8 +53,10 @@ public class DimensionSet {
      * @param d2 Name of the second dimension
      * @param v2 Value of the second dimension
      * @return a DimensionSet from the parameters
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
-    public static DimensionSet of(String d1, String v1, String d2, String v2) {
+    public static DimensionSet of(String d1, String v1, String d2, String v2)
+            throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2));
     }
 
@@ -65,9 +70,10 @@ public class DimensionSet {
      * @param d3 Name of the third dimension
      * @param v3 Value of the third dimension
      * @return a DimensionSet from the parameters
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
-    public static DimensionSet of(
-            String d1, String v1, String d2, String v2, String d3, String v3) {
+    public static DimensionSet of(String d1, String v1, String d2, String v2, String d3, String v3)
+            throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2), entryOf(d3, v3));
     }
 
@@ -83,16 +89,11 @@ public class DimensionSet {
      * @param d4 Name of the fourth dimension
      * @param v4 Value of the fourth dimension
      * @return a DimensionSet from the parameters
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
     public static DimensionSet of(
-            String d1,
-            String v1,
-            String d2,
-            String v2,
-            String d3,
-            String v3,
-            String d4,
-            String v4) {
+            String d1, String v1, String d2, String v2, String d3, String v3, String d4, String v4)
+            throws InvalidDimensionException {
 
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2), entryOf(d3, v3), entryOf(d4, v4));
     }
@@ -111,6 +112,7 @@ public class DimensionSet {
      * @param d5 Name of the fifth dimension
      * @param v5 Value of the fifth dimension
      * @return a DimensionSet from the parameters
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
     public static DimensionSet of(
             String d1,
@@ -122,7 +124,8 @@ public class DimensionSet {
             String d4,
             String v4,
             String d5,
-            String v5) {
+            String v5)
+            throws InvalidDimensionException {
 
         return fromEntries(
                 entryOf(d1, v1),
@@ -132,7 +135,8 @@ public class DimensionSet {
                 entryOf(d5, v5));
     }
 
-    private static DimensionSet fromEntries(DimensionEntry... entries) {
+    private static DimensionSet fromEntries(DimensionEntry... entries)
+            throws InvalidDimensionException {
         DimensionSet ds = new DimensionSet();
         for (DimensionEntry entry : entries) {
             ds.addDimension(entry.key, entry.value);
@@ -149,8 +153,11 @@ public class DimensionSet {
      *
      * @param dimension Name of the dimension
      * @param value Value of the dimension
+     * @throws InvalidDimensionException if the dimension name or value is invalid
      */
-    public void addDimension(String dimension, String value) {
+    public void addDimension(String dimension, String value) throws InvalidDimensionException {
+        Validator.validateDimensionSet(dimension, value);
+
         if (this.getDimensionKeys().size() >= Constants.MAX_DIMENSION_SET_SIZE) {
             throw new DimensionSetExceededException();
         }

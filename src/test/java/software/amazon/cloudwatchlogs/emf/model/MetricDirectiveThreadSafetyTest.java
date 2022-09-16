@@ -85,7 +85,7 @@ public class MetricDirectiveThreadSafetyTest {
             t.join();
         }
 
-        assertEquals(metricDirective.getAllMetrics().size(), 1);
+        assertEquals(1, metricDirective.getAllMetrics().size());
         MetricDefinition md = metricDirective.getAllMetrics().toArray(new MetricDefinition[0])[0];
         Collections.sort(md.getValues());
         for (int i = 0; i < N_THREAD * N_PUT_METRIC; i++) {

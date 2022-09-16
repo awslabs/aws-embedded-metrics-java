@@ -35,8 +35,14 @@ import software.amazon.cloudwatchlogs.emf.model.Unit;
 class Example {
 	public static void main(String[] args) {
 		MetricsLogger metrics = new MetricsLogger();
-		metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-		metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+
+		try {
+			metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
+			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+		} catch (InvalidDimensionException | InvalidMetricException e) {
+			log.error(e);
+		}
+
 		metrics.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 		metrics.flush();
 	}
@@ -60,8 +66,14 @@ environment's sink. A full example can be found in the [`examples`](examples) di
 DefaultEnvironment environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
 
 MetricsLogger logger = new MetricsLogger(environment);
-logger.setDimensions(DimensionSet.of("Operation", "ProcessRecords"));
-logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);
+
+try {
+	logger.setDimensions(DimensionSet.of("Operation", "ProcessRecords"));
+	logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);
+} catch (InvalidDimensionException | InvalidMetricException e) {
+	log.error(e);
+}
+
 logger.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 logger.flush();
 
@@ -85,7 +97,7 @@ Requirements:
 - Name Length 1-255 characters
 - Name must be ASCII characters only
 - Values must be in the range of 8.515920e-109 to 1.174271e+108. In addition, special values (for example, NaN, +Infinity, -Infinity) are not supported.
-- Units must meet CloudWatch Metrics unit requirements, if not it will default to None. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
+- Metrics must meet CloudWatch Metrics requirements, otherwise a `InvalidMetricException` will be thrown. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
 
 Examples:
 
@@ -104,8 +116,8 @@ Requirements:
 Examples:
 
 ```java
-putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8")
-putProperty("InstanceId", "i-1234567890")
+putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
+putProperty("InstanceId", "i-1234567890");
 putProperty("Device", new HashMap<String, String>() {{
 		put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
 		put("Name", "Transducer");
@@ -126,6 +138,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -135,8 +148,9 @@ putDimensions(DimensionSet.of("Operation", "Aggregator", "DeviceType", "Actuator
 ```
 
 - MetricsLogger **setDimensions**(DimensionSet... dimensionSets)
+- MetricsLogger **setDimensions**(boolean useDefault, DimensionSet... dimensionSets)
 
-Explicitly override all dimensions. This will remove the default dimensions.
+Explicitly override all dimensions. This will remove the default dimensions unless `useDefault` is set to `true`.
 
 **WARNING**:Each dimension set will result in a new CloudWatch metric (even dimension sets with the same values).
 If the cardinality of a particular value is expected to be high, you should consider
@@ -146,6 +160,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -167,10 +182,6 @@ setDimensions(
 )
 ```
 
-- MetricsLogger **setDimensions**(boolean useDefault, DimensionSet... dimensionSets)
-
-Override all custom dimensions, with an option to configure whether to use default dimensions.
-
 - MetricsLogger **resetDimensions**(boolean useDefault)
 
 Explicitly clear all custom dimensions. The behavior of whether default dimensions should be used can be configured by the input parameter.
@@ -189,6 +200,7 @@ Requirements:
 
 - Name Length 1-255 characters
 - Name must be ASCII characters only
+- Namespace must meet CloudWatch requirements, otherwise a `InvalidNamespaceException` will be thrown. See [Namespaces](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Namespace) for valid values.
 
 Examples:
 
@@ -199,6 +211,8 @@ setNamespace("MyApplication")
 - MetricsLogger **setTimestamp**(Instant timestamp)
 
 Sets the timestamp of the metrics. If not set, current time of the client will be used.
+
+Timestamp must meet CloudWatch requirements, otherwise a `InvalidTimestampException` will be thrown. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#about_timestamp) for valid values.
 
 Examples:
 
