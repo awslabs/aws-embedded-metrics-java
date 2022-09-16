@@ -16,6 +16,8 @@
 
 package software.amazon.cloudwatchlogs.emf;
 
+import java.util.concurrent.TimeUnit;
+
 public class Constants {
     public static final int MAX_DIMENSION_SET_SIZE = 30;
     public static final short MAX_DIMENSION_NAME_LENGTH = 250;
@@ -23,8 +25,10 @@ public class Constants {
     public static final short MAX_METRIC_NAME_LENGTH = 1024;
     public static final short MAX_NAMESPACE_LENGTH = 256;
     public static final String VALID_NAMESPACE_REGEX = "^[a-zA-Z0-9._#:/-]+$";
-    public static final int MAX_TIMESTAMP_PAST_AGE_SECONDS = 60 * 60 * 24 * 14; // 14 days
-    public static final int MAX_TIMESTAMP_FUTURE_AGE_SECONDS = 60 * 60 * 2; // 2 hours
+    public static final long MAX_TIMESTAMP_PAST_AGE_SECONDS =
+            TimeUnit.DAYS.toSeconds(14);
+    public static final long MAX_TIMESTAMP_FUTURE_AGE_SECONDS =
+            TimeUnit.HOURS.toSeconds(2);
 
     public static final int DEFAULT_AGENT_PORT = 25888;
 
