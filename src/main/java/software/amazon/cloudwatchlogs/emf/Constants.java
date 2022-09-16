@@ -25,10 +25,8 @@ public class Constants {
     public static final short MAX_METRIC_NAME_LENGTH = 1024;
     public static final short MAX_NAMESPACE_LENGTH = 256;
     public static final String VALID_NAMESPACE_REGEX = "^[a-zA-Z0-9._#:/-]+$";
-    public static final long MAX_TIMESTAMP_PAST_AGE_SECONDS =
-            TimeUnit.DAYS.toSeconds(14);
-    public static final long MAX_TIMESTAMP_FUTURE_AGE_SECONDS =
-            TimeUnit.HOURS.toSeconds(2);
+    public static final long MAX_TIMESTAMP_PAST_AGE_SECONDS = TimeUnit.DAYS.toSeconds(14);
+    public static final long MAX_TIMESTAMP_FUTURE_AGE_SECONDS = TimeUnit.HOURS.toSeconds(2);
 
     public static final int DEFAULT_AGENT_PORT = 25888;
 
