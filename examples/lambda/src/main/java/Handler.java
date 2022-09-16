@@ -1,5 +1,6 @@
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
@@ -19,7 +20,7 @@ public class Handler implements RequestHandler<Map<String, String>, String> {
         try {
             logger.putDimensions(DimensionSet.of("Service", "Aggregator"));
             logger.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
-        } catch (InvalidDimensionException | InvalidMetricException e) {
+        } catch (InvalidDimensionException | InvalidMetricException | DimensionSetExceededException e) {
             System.out.println(e);
         }
 

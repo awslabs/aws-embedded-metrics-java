@@ -26,6 +26,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
@@ -134,7 +135,9 @@ class MetricsContextTest {
     }
 
     @Test
-    void testSerializeZeroMetric() throws JsonProcessingException, InvalidDimensionException {
+    void testSerializeZeroMetric()
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsContext mc = new MetricsContext();
         mc.putDimension(DimensionSet.of("Region", "IAD"));
         List<String> events = mc.serialize();

@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
 class RootNodeTest {
 
     @Test
-    void testPutProperty() {
+    void testPutProperty() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
 
@@ -37,7 +38,7 @@ class RootNodeTest {
     }
 
     @Test
-    void testPutSamePropertyMultipleTimes() {
+    void testPutSamePropertyMultipleTimes() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
         rootNode.putProperty("Property", "NewValue");
@@ -46,7 +47,7 @@ class RootNodeTest {
     }
 
     @Test
-    void testGetDimension() throws InvalidDimensionException {
+    void testGetDimension() throws InvalidDimensionException, DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricDirective metricDirective = rootNode.getAws().createMetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Dim1", "DimValue1"));
@@ -55,7 +56,9 @@ class RootNodeTest {
     }
 
     @Test
-    void testGetTargetMembers() throws InvalidMetricException, InvalidDimensionException {
+    void testGetTargetMembers()
+            throws InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricsContext mc = new MetricsContext(rootNode);
 
@@ -78,7 +81,8 @@ class RootNodeTest {
     @SuppressWarnings("unchecked")
     @Test
     void testSerializeRootNode()
-            throws JsonProcessingException, InvalidMetricException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsContext mc = new MetricsContext();
 
         mc.setDefaultDimensions(DimensionSet.of("DefaultDim", "DefaultDimValue"));

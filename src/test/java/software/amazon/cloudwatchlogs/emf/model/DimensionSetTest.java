@@ -23,7 +23,7 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 
 class DimensionSetTest {
     @Test
-    void testAddDimension() throws InvalidDimensionException {
+    void testAddDimension() throws InvalidDimensionException, DimensionSetExceededException {
         int dimensionsToBeAdded = 30;
         DimensionSet dimensionSet = generateDimensionSet(dimensionsToBeAdded);
 
@@ -66,7 +66,7 @@ class DimensionSetTest {
     }
 
     private DimensionSet generateDimensionSet(int numOfDimensions)
-            throws InvalidDimensionException {
+            throws InvalidDimensionException, DimensionSetExceededException {
         DimensionSet dimensionSet = new DimensionSet();
 
         for (int i = 0; i < numOfDimensions; i++) {

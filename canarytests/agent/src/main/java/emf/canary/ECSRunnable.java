@@ -2,6 +2,7 @@ package emf.canary;
 
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
@@ -33,7 +34,7 @@ public class ECSRunnable implements Runnable {
                             "Platform", "ECS",
                             "Agent", "CloudWatchAgent",
                             "Version", version));
-        } catch (InvalidNamespaceException | InvalidDimensionException e) {
+        } catch (InvalidNamespaceException | InvalidDimensionException | DimensionSetExceededException e) {
             System.out.println(e);
         }
 

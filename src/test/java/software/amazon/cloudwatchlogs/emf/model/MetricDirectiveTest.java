@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 
 class MetricDirectiveTest {
@@ -90,7 +91,9 @@ class MetricDirectiveTest {
     }
 
     @Test
-    void testPutDimensions() throws JsonProcessingException, InvalidDimensionException {
+    void testPutDimensions()
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putDimensionSet(
                 DimensionSet.of("Region", "us-east-1", "Instance", "inst-1"));
@@ -104,7 +107,8 @@ class MetricDirectiveTest {
 
     @Test
     void testPutDimensionSetWhenMultipleDimensionSets()
-            throws JsonProcessingException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
         metricDirective.putDimensionSet(DimensionSet.of("Instance", "inst-1"));
@@ -118,7 +122,8 @@ class MetricDirectiveTest {
 
     @Test
     void testPutDimensionSetWhenDuplicateDimensionSets()
-            throws JsonProcessingException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putDimensionSet(new DimensionSet());
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
@@ -144,7 +149,8 @@ class MetricDirectiveTest {
 
     @Test
     void testPutDimensionSetWhenDuplicateDimensionSetsWillSortCorrectly()
-            throws JsonProcessingException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.putDimensionSet(new DimensionSet());
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
@@ -169,7 +175,8 @@ class MetricDirectiveTest {
     }
 
     @Test
-    void testGetDimensionAfterSetDimensions() throws InvalidDimensionException {
+    void testGetDimensionAfterSetDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(DimensionSet.of("Dim", "Default"));
         metricDirective.setDimensions(Arrays.asList(DimensionSet.of("Name", "Test")));
@@ -179,7 +186,8 @@ class MetricDirectiveTest {
 
     @Test
     void testPutDimensionsWhenDefaultDimensionsDefined()
-            throws JsonProcessingException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(DimensionSet.of("Version", "1"));
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));
@@ -194,7 +202,8 @@ class MetricDirectiveTest {
 
     @Test
     void testPutDimensionsAfterSetDimensions()
-            throws JsonProcessingException, InvalidDimensionException {
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDimensions(Collections.singletonList(DimensionSet.of("Version", "1")));
         metricDirective.putDimensionSet(DimensionSet.of("Region", "us-east-1"));

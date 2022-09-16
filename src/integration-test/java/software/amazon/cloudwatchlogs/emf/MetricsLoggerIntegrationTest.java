@@ -33,6 +33,7 @@ import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.cloudwatchlogs.emf.environment.DefaultEnvironment;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
@@ -50,7 +51,8 @@ public class MetricsLoggerIntegrationTest {
     private DimensionSet dimensions = DimensionSet.of(dimensionName, dimensionValue);
     private EMFIntegrationTestHelper testHelper = new EMFIntegrationTestHelper();
 
-    public MetricsLoggerIntegrationTest() throws InvalidDimensionException {}
+    public MetricsLoggerIntegrationTest()
+            throws InvalidDimensionException, DimensionSetExceededException {}
 
     @Before
     public void setUp() {
