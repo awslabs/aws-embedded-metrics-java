@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,18 @@ class MetricsLoggerTest {
         assertEquals(
                 dimensionValue,
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
+    }
+
+    @Test
+    void whenDefaultDimension_DimensionValue_Null() throws InvalidDimensionException, DimensionSetExceededException{
+        when(environment.getLogGroupName()).thenReturn("");
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
+        assertEquals(2, dimensionKeys.size());
+        dimensionKeys.contains("ServiceName");
+        dimensionKeys.contains("ServiceType");
     }
 
     @ParameterizedTest

@@ -33,6 +33,7 @@ import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
+import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
 /**
  * A metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
@@ -259,17 +260,23 @@ public class MetricsLogger {
         return this;
     }
 
-    @SneakyThrows
     private void configureContextForEnvironment(MetricsContext context, Environment environment) {
         if (context.hasDefaultDimensions()) {
             return;
         }
         DimensionSet defaultDimension = new DimensionSet();
-        defaultDimension.addDimension("LogGroup", environment.getLogGroupName());
-        defaultDimension.addDimension("ServiceName", environment.getName());
-        defaultDimension.addDimension("ServiceType", environment.getType());
+        setDefaultDimension(defaultDimension, "LogGroup", environment.getLogGroupName());
+        setDefaultDimension(defaultDimension, "ServiceName",  environment.getName());
+        setDefaultDimension(defaultDimension, "ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
         environment.configureContext(context);
+    }
+
+    @SneakyThrows
+    private void setDefaultDimension(DimensionSet defaultDimension, String dimKey, String dimVal) {
+        if (!StringUtils.isNullOrEmpty(dimVal)) {
+            defaultDimension.addDimension(dimKey, dimVal);
+        }
     }
 
     private MetricsLogger applyReadLock(Supplier<MetricsLogger> any) {
