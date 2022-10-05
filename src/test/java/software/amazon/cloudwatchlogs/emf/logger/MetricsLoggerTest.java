@@ -86,7 +86,7 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void whenDefaultDimension_DimensionValue_Null() throws InvalidDimensionException, DimensionSetExceededException{
+    void whenDefaultDimension_DimensionValue_Empty() throws DimensionSetExceededException{
         when(environment.getLogGroupName()).thenReturn("");
         logger.flush();
 
