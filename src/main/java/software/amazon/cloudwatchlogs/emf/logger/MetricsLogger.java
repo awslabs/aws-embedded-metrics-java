@@ -276,7 +276,6 @@ public class MetricsLogger {
         try {
             defaultDimension.addDimension(dimKey, dimVal);
         } catch (InvalidDimensionException | DimensionSetExceededException e) {
-            // just do nothing
         }
     }
 
