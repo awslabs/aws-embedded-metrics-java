@@ -26,6 +26,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
@@ -33,7 +35,6 @@ import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
-import software.amazon.cloudwatchlogs.emf.util.StringUtils;
 
 /**
  * A metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
@@ -266,16 +267,17 @@ public class MetricsLogger {
         }
         DimensionSet defaultDimension = new DimensionSet();
         setDefaultDimension(defaultDimension, "LogGroup", environment.getLogGroupName());
-        setDefaultDimension(defaultDimension, "ServiceName",  environment.getName());
+        setDefaultDimension(defaultDimension, "ServiceName", environment.getName());
         setDefaultDimension(defaultDimension, "ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
         environment.configureContext(context);
     }
 
-    @SneakyThrows
     private void setDefaultDimension(DimensionSet defaultDimension, String dimKey, String dimVal) {
-        if (!StringUtils.isNullOrEmpty(dimVal)) {
+        try {
             defaultDimension.addDimension(dimKey, dimVal);
+        } catch (InvalidDimensionException | DimensionSetExceededException e) {
+            // just do nothing
         }
     }
 

@@ -86,8 +86,20 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void whenDefaultDimension_DimensionValue_Empty() throws DimensionSetExceededException{
+    void whenDefaultDimension_DimensionValue_Empty() throws DimensionSetExceededException {
         when(environment.getLogGroupName()).thenReturn("");
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
+        assertEquals(2, dimensionKeys.size());
+        dimensionKeys.contains("ServiceName");
+        dimensionKeys.contains("ServiceType");
+    }
+
+    @Test
+    void whenDefaultDimension_DimensionValue_Blank() throws DimensionSetExceededException {
+        when(environment.getLogGroupName()).thenReturn(" ");
         logger.flush();
 
         assertEquals(1, sink.getContext().getDimensions().size());
