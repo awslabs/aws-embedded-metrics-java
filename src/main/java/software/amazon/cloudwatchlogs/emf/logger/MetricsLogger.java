@@ -22,10 +22,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
@@ -259,17 +260,23 @@ public class MetricsLogger {
         return this;
     }
 
-    @SneakyThrows
     private void configureContextForEnvironment(MetricsContext context, Environment environment) {
         if (context.hasDefaultDimensions()) {
             return;
         }
         DimensionSet defaultDimension = new DimensionSet();
-        defaultDimension.addDimension("LogGroup", environment.getLogGroupName());
-        defaultDimension.addDimension("ServiceName", environment.getName());
-        defaultDimension.addDimension("ServiceType", environment.getType());
+        setDefaultDimension(defaultDimension, "LogGroup", environment.getLogGroupName());
+        setDefaultDimension(defaultDimension, "ServiceName", environment.getName());
+        setDefaultDimension(defaultDimension, "ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
         environment.configureContext(context);
+    }
+
+    private void setDefaultDimension(DimensionSet defaultDimension, String dimKey, String dimVal) {
+        try {
+            defaultDimension.addDimension(dimKey, dimVal);
+        } catch (InvalidDimensionException | DimensionSetExceededException ignored) {
+        }
     }
 
     private MetricsLogger applyReadLock(Supplier<MetricsLogger> any) {
