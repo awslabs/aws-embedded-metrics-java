@@ -93,8 +93,8 @@ class MetricsLoggerTest {
         assertEquals(1, sink.getContext().getDimensions().size());
         Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
         assertEquals(2, dimensionKeys.size());
-        dimensionKeys.contains("ServiceName");
-        dimensionKeys.contains("ServiceType");
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
     }
 
     @Test
@@ -105,8 +105,8 @@ class MetricsLoggerTest {
         assertEquals(1, sink.getContext().getDimensions().size());
         Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
         assertEquals(2, dimensionKeys.size());
-        dimensionKeys.contains("ServiceName");
-        dimensionKeys.contains("ServiceType");
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
     }
 
     @ParameterizedTest
