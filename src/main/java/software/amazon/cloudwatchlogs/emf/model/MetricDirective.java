@@ -168,7 +168,7 @@ class MetricDirective {
         metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
 
         if (preserveDimensions) {
-            metricDirective.setDimensions(this.dimensions);
+            this.dimensions.forEach(metricDirective::putDimensionSet);
         }
 
         return metricDirective;

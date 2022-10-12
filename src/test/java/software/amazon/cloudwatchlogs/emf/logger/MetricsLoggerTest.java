@@ -276,6 +276,19 @@ class MetricsLoggerTest {
     }
 
     @Test
+    void whenMultipleFlush_withNoDimensionsChanges_keepDefaultDimensions()
+            throws InvalidMetricException, DimensionSetExceededException {
+        logger.putMetric("Count", 1);
+
+        logger.flush();
+        logger.flush();
+
+        expectDimension("LogGroup", "test-log-group");
+        expectDimension("ServiceName", "test-env-name");
+        expectDimension("ServiceType", "test-env-type");
+    }
+
+    @Test
     void setDimensions_clearsAllDimensions() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
