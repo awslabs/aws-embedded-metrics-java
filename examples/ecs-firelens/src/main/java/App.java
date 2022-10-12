@@ -51,7 +51,10 @@ public class App {
     private static void registerShutdownHook() {
         // https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/
         Signal.handle(new Signal("TERM"), sig -> {
-            env.getSink().shutdown().orTimeout(1_000L, TimeUnit.MILLISECONDS);
+            try {
+                env.getSink().shutdown().get(1_000L, TimeUnit.MILLISECONDS);
+            } catch (Exception ignored) {
+            }
             System.exit(0);
         });
     }

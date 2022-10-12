@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
@@ -72,7 +73,8 @@ class RootNodeTest {
 
         mc.putProperty("Prop1", "PropValue1");
 
-        Assertions.assertEquals(List.of(10.0, 20.0), rootNode.getTargetMembers().get("Count"));
+        Assertions.assertEquals(
+                Arrays.asList(10.0, 20.0), rootNode.getTargetMembers().get("Count"));
         Assertions.assertEquals(100.0, rootNode.getTargetMembers().get("Latency"));
         Assertions.assertEquals("DimVal1", rootNode.getTargetMembers().get("Dim1"));
         Assertions.assertEquals("PropValue1", rootNode.getTargetMembers().get("Prop1"));

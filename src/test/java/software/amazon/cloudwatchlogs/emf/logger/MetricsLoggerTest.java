@@ -126,7 +126,8 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
-        String dimensionName = "a".repeat(Constants.MAX_DIMENSION_NAME_LENGTH + 1);
+        String dimensionName =
+                new String(new char[Constants.MAX_DIMENSION_NAME_LENGTH + 1]).replace("\0", "a");
         String dimensionValue = "dimValue";
         assertThrows(
                 InvalidDimensionException.class,
@@ -136,7 +137,8 @@ class MetricsLoggerTest {
     @Test
     void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
         String dimensionName = "dim";
-        String dimensionValue = "a".repeat(Constants.MAX_DIMENSION_VALUE_LENGTH + 1);
+        String dimensionValue =
+                new String(new char[Constants.MAX_DIMENSION_VALUE_LENGTH + 1]).replace("\0", "a");
         assertThrows(
                 InvalidDimensionException.class,
                 () -> DimensionSet.of(dimensionName, dimensionValue));
@@ -315,7 +317,8 @@ class MetricsLoggerTest {
 
     @Test
     void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
-        String name1 = "a".repeat(Constants.MAX_METRIC_NAME_LENGTH + 1);
+        String name1 =
+                new String(new char[Constants.MAX_METRIC_NAME_LENGTH + 1]).replace("\0", "a");
         assertThrows(InvalidMetricException.class, () -> logger.putMetric(name1, 1));
     }
 
@@ -362,7 +365,8 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
-        String namespace = "a".repeat(Constants.MAX_NAMESPACE_LENGTH + 1);
+        String namespace =
+                new String(new char[Constants.MAX_NAMESPACE_LENGTH + 1]).replace("\0", "a");
         assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
     }
 
@@ -479,7 +483,7 @@ class MetricsLoggerTest {
     @Test
     void flush_doesNotPreserveMetrics()
             throws InvalidMetricException, InvalidDimensionException,
-                    DimensionSetExceededException {
+            DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.putMetric("Count", 1.0);

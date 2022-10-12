@@ -103,7 +103,8 @@ public class AgentSinkTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> emf_map =
                 objectMapper.readValue(
-                        fixture.client.getMessages().get(0), new TypeReference<>() {});
+                        fixture.client.getMessages().get(0),
+                        new TypeReference<Map<String, Object>>() {});
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
 
         assertFalse(metadata.containsKey("LogGroupName"));
