@@ -483,7 +483,7 @@ class MetricsLoggerTest {
     @Test
     void flush_doesNotPreserveMetrics()
             throws InvalidMetricException, InvalidDimensionException,
-            DimensionSetExceededException {
+                    DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.putMetric("Count", 1.0);
