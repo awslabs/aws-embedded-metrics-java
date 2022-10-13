@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -126,9 +127,11 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
-        String dimensionName =
-                new String(new char[Constants.MAX_DIMENSION_NAME_LENGTH + 1]).replace("\0", "a");
+        char[] longName = new char[Constants.MAX_DIMENSION_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionName = String.valueOf(longName);
         String dimensionValue = "dimValue";
+
         assertThrows(
                 InvalidDimensionException.class,
                 () -> DimensionSet.of(dimensionName, dimensionValue));
@@ -137,8 +140,10 @@ class MetricsLoggerTest {
     @Test
     void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
         String dimensionName = "dim";
-        String dimensionValue =
-                new String(new char[Constants.MAX_DIMENSION_VALUE_LENGTH + 1]).replace("\0", "a");
+        char[] longName = new char[Constants.MAX_DIMENSION_VALUE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionValue = String.valueOf(longName);
+
         assertThrows(
                 InvalidDimensionException.class,
                 () -> DimensionSet.of(dimensionName, dimensionValue));
@@ -317,8 +322,10 @@ class MetricsLoggerTest {
 
     @Test
     void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
-        String name1 =
-                new String(new char[Constants.MAX_METRIC_NAME_LENGTH + 1]).replace("\0", "a");
+        char[] longName = new char[Constants.MAX_METRIC_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String name1 = new String(longName);
+
         assertThrows(InvalidMetricException.class, () -> logger.putMetric(name1, 1));
     }
 
@@ -365,8 +372,10 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
-        String namespace =
-                new String(new char[Constants.MAX_NAMESPACE_LENGTH + 1]).replace("\0", "a");
+        char[] longName = new char[Constants.MAX_NAMESPACE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String namespace = new String(longName);
+
         assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
     }
 
