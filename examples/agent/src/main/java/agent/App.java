@@ -23,7 +23,11 @@ public class App {
         } catch (InvalidMetricException | InvalidDimensionException | DimensionSetExceededException e) {
             System.out.println(e);
         }
-        environment.getSink().shutdown().orTimeout(360_000L, TimeUnit.MILLISECONDS);
+
+        try {
+            environment.getSink().shutdown().get(360_000L, TimeUnit.MILLISECONDS);
+        } catch (Exception ignored) {
+        }
     }
 
     private static void emitMetric(Environment environment)

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
@@ -101,7 +102,7 @@ class MetricsContextTest {
             expectedValues.add((double) i);
         }
         Assertions.assertEquals(expectedValues, allMetrics.get(0).getValues());
-        Assertions.assertEquals(List.of(100.0), allMetrics.get(1).getValues());
+        Assertions.assertEquals(Collections.singletonList(100.0), allMetrics.get(1).getValues());
     }
 
     @Test
@@ -128,10 +129,12 @@ class MetricsContextTest {
             expectedValues.add((double) i);
         }
         Assertions.assertEquals(expectedValues, metricsFromEvent1.get(0).getValues());
-        Assertions.assertEquals(List.of(2.0), metricsFromEvent1.get(1).getValues());
+        Assertions.assertEquals(
+                Collections.singletonList(2.0), metricsFromEvent1.get(1).getValues());
 
         Assertions.assertEquals(1, metricsFromEvent2.size());
-        Assertions.assertEquals(List.of(100.0), metricsFromEvent2.get(0).getValues());
+        Assertions.assertEquals(
+                Collections.singletonList(100.0), metricsFromEvent2.get(0).getValues());
     }
 
     @Test

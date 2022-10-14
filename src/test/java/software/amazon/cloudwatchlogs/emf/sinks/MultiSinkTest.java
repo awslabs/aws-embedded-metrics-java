@@ -28,8 +28,8 @@ public class MultiSinkTest {
     @Test
     public void shutdownCompletesExceptionallyIfComponentSinkCompletesExceptionally() {
         // arrange
-        CompletableFuture<Void> failedResult =
-                CompletableFuture.failedFuture(new RuntimeException());
+        CompletableFuture<Void> failedResult = new CompletableFuture<>();
+        failedResult.completeExceptionally(new RuntimeException());
         TestSink sink1 = new TestSink();
         TestSink sink2 = new TestSink(failedResult);
         MultiSink multiSink = MultiSink.builder().sink(sink1).sink(sink2).build();

@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.environment;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
@@ -36,11 +37,14 @@ public abstract class AgentBasedEnvironment implements Environment {
 
     @Override
     public String getName() {
-        if (config.getServiceName().isEmpty()) {
-            log.warn("Unknown ServiceName.");
-            return Constants.UNKNOWN;
+        Optional<String> serviceName = config.getServiceName();
+
+        if (serviceName.isPresent()) {
+            return serviceName.get();
         }
-        return config.getServiceName().get();
+
+        log.warn("Unknown ServiceName.");
+        return Constants.UNKNOWN;
     }
 
     @Override
@@ -64,13 +68,13 @@ public abstract class AgentBasedEnvironment implements Environment {
     public ISink getSink() {
         if (sink == null) {
             Endpoint endpoint;
-            if (config.getAgentEndpoint().isEmpty()) {
+            if (config.getAgentEndpoint().isPresent()) {
+                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+            } else {
                 log.info(
                         "Endpoint is not defined. Using default: {}",
                         Endpoint.DEFAULT_TCP_ENDPOINT);
                 endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
-            } else {
-                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
             }
             sink =
                     new AgentSink(

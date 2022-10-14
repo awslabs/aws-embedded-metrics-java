@@ -20,7 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 
 public class MetricDefinitionTest {
@@ -51,9 +52,9 @@ public class MetricDefinitionTest {
     @Test
     public void testAddValue() {
         MetricDefinition md = new MetricDefinition("Time", Unit.MICROSECONDS, 10);
-        assertEquals(List.of(10d), md.getValues());
+        assertEquals(Collections.singletonList(10d), md.getValues());
 
         md.addValue(20);
-        assertEquals(List.of(10d, 20d), md.getValues());
+        assertEquals(Arrays.asList(10d, 20d), md.getValues());
     }
 }

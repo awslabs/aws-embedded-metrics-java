@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -93,8 +94,8 @@ class MetricsLoggerTest {
         assertEquals(1, sink.getContext().getDimensions().size());
         Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
         assertEquals(2, dimensionKeys.size());
-        dimensionKeys.contains("ServiceName");
-        dimensionKeys.contains("ServiceType");
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
     }
 
     @Test
@@ -105,8 +106,8 @@ class MetricsLoggerTest {
         assertEquals(1, sink.getContext().getDimensions().size());
         Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
         assertEquals(2, dimensionKeys.size());
-        dimensionKeys.contains("ServiceName");
-        dimensionKeys.contains("ServiceType");
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
     }
 
     @ParameterizedTest
@@ -126,8 +127,11 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
-        String dimensionName = "a".repeat(Constants.MAX_DIMENSION_NAME_LENGTH + 1);
+        char[] longName = new char[Constants.MAX_DIMENSION_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionName = String.valueOf(longName);
         String dimensionValue = "dimValue";
+
         assertThrows(
                 InvalidDimensionException.class,
                 () -> DimensionSet.of(dimensionName, dimensionValue));
@@ -136,7 +140,10 @@ class MetricsLoggerTest {
     @Test
     void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
         String dimensionName = "dim";
-        String dimensionValue = "a".repeat(Constants.MAX_DIMENSION_VALUE_LENGTH + 1);
+        char[] longName = new char[Constants.MAX_DIMENSION_VALUE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionValue = String.valueOf(longName);
+
         assertThrows(
                 InvalidDimensionException.class,
                 () -> DimensionSet.of(dimensionName, dimensionValue));
@@ -276,6 +283,19 @@ class MetricsLoggerTest {
     }
 
     @Test
+    void whenMultipleFlush_withNoDimensionsChanges_keepDefaultDimensions()
+            throws InvalidMetricException, DimensionSetExceededException {
+        logger.putMetric("Count", 1);
+
+        logger.flush();
+        logger.flush();
+
+        expectDimension("LogGroup", "test-log-group");
+        expectDimension("ServiceName", "test-env-name");
+        expectDimension("ServiceType", "test-env-type");
+    }
+
+    @Test
     void setDimensions_clearsAllDimensions() throws DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
 
@@ -302,7 +322,10 @@ class MetricsLoggerTest {
 
     @Test
     void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
-        String name1 = "a".repeat(Constants.MAX_METRIC_NAME_LENGTH + 1);
+        char[] longName = new char[Constants.MAX_METRIC_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String name1 = new String(longName);
+
         assertThrows(InvalidMetricException.class, () -> logger.putMetric(name1, 1));
     }
 
@@ -349,7 +372,10 @@ class MetricsLoggerTest {
 
     @Test
     void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
-        String namespace = "a".repeat(Constants.MAX_NAMESPACE_LENGTH + 1);
+        char[] longName = new char[Constants.MAX_NAMESPACE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String namespace = new String(longName);
+
         assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
     }
 
