@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.environment;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
@@ -30,22 +31,33 @@ public abstract class AgentBasedEnvironment implements Environment {
     private final Configuration config;
     private ISink sink;
 
-    public AgentBasedEnvironment(Configuration config) {
+    protected AgentBasedEnvironment(Configuration config) {
         this.config = config;
     }
 
     @Override
     public String getName() {
-        if (!config.getServiceName().isPresent()) {
-            log.warn("Unknown ServiceName.");
-            return Constants.UNKNOWN;
+        Optional<String> serviceName = config.getServiceName();
+
+        if (serviceName.isPresent()) {
+            return serviceName.get();
         }
-        return config.getServiceName().get();
+
+        log.warn("Unknown ServiceName.");
+        return Constants.UNKNOWN;
     }
 
     @Override
     public String getLogGroupName() {
-        return config.getLogGroupName().orElse(getName() + "-metrics");
+        if (config.getLogGroupName().isPresent()) {
+            return config.getLogGroupName().get();
+        } else {
+            String serviceName = getName();
+            // for ECS services, replace "repo:tag" format with "repo-tag" to satisfy
+            // log group regex
+            serviceName = serviceName.replace(":", "-");
+            return serviceName + "-metrics";
+        }
     }
 
     public String getLogStreamName() {
@@ -56,13 +68,13 @@ public abstract class AgentBasedEnvironment implements Environment {
     public ISink getSink() {
         if (sink == null) {
             Endpoint endpoint;
-            if (!config.getAgentEndpoint().isPresent()) {
+            if (config.getAgentEndpoint().isPresent()) {
+                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+            } else {
                 log.info(
                         "Endpoint is not defined. Using default: {}",
                         Endpoint.DEFAULT_TCP_ENDPOINT);
                 endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
-            } else {
-                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
             }
             sink =
                     new AgentSink(

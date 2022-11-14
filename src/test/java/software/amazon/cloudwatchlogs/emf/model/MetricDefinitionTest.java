@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 
 public class MetricDefinitionTest {
@@ -36,7 +37,7 @@ public class MetricDefinitionTest {
         MetricDefinition metricDefinition = new MetricDefinition("Time");
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
-        assertEquals(metricString, "{\"Name\":\"Time\",\"Unit\":\"None\"}");
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);
     }
 
     @Test
@@ -45,13 +46,13 @@ public class MetricDefinitionTest {
         MetricDefinition metricDefinition = new MetricDefinition("Time", Unit.MILLISECONDS, 10);
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
-        assertEquals(metricString, "{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}");
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}", metricString);
     }
 
     @Test
     public void testAddValue() {
         MetricDefinition md = new MetricDefinition("Time", Unit.MICROSECONDS, 10);
-        assertEquals(Arrays.asList(10d), md.getValues());
+        assertEquals(Collections.singletonList(10d), md.getValues());
 
         md.addValue(20);
         assertEquals(Arrays.asList(10d, 20d), md.getValues());

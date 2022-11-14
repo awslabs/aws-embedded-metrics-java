@@ -19,8 +19,10 @@ package software.amazon.cloudwatchlogs.emf.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.*;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 
 /** Represents the MetricDirective part of the EMF schema. */
 @AllArgsConstructor
@@ -45,13 +47,22 @@ class MetricDirective {
 
     MetricDirective() {
         namespace = "aws-embedded-metrics";
-        metrics = new HashMap<>();
-        dimensions = new ArrayList<>();
+        metrics = new ConcurrentHashMap<>();
+        dimensions = Collections.synchronizedList(new ArrayList<>());
         defaultDimensions = new DimensionSet();
         shouldUseDefaultDimension = true;
     }
 
+    /**
+     * Adds a dimension set to the end of the collection.
+     *
+     * @param dimensionSet
+     */
     void putDimensionSet(DimensionSet dimensionSet) {
+        // Duplicate dimensions sets are removed before being added to the end of the collection.
+        // This ensures only latest dimension value is used as a target member on the root EMF node.
+        // This operation is O(n^2), but acceptable given sets are capped at 30 dimensions
+        dimensions.removeIf(dim -> dim.getDimensionKeys().equals(dimensionSet.getDimensionKeys()));
         dimensions.add(dimensionSet);
     }
 
@@ -60,11 +71,15 @@ class MetricDirective {
     }
 
     void putMetric(String key, double value, Unit unit) {
-        if (metrics.containsKey(key)) {
-            metrics.get(key).addValue(value);
-        } else {
-            metrics.put(key, new MetricDefinition(key, unit, value));
-        }
+        metrics.compute(
+                key,
+                (k, v) -> {
+                    if (v == null) return new MetricDefinition(key, unit, value);
+                    else {
+                        v.addValue(value);
+                        return v;
+                    }
+                });
     }
 
     @JsonProperty("Metrics")
@@ -73,7 +88,7 @@ class MetricDirective {
     }
 
     @JsonProperty("Dimensions")
-    List<Set<String>> getAllDimensionKeys() {
+    List<Set<String>> getAllDimensionKeys() throws DimensionSetExceededException {
         return getAllDimensions().stream()
                 .map(DimensionSet::getDimensionKeys)
                 .collect(Collectors.toList());
@@ -86,14 +101,35 @@ class MetricDirective {
      */
     void setDimensions(List<DimensionSet> dimensionSets) {
         shouldUseDefaultDimension = false;
-        dimensions = new ArrayList<>(dimensionSets);
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
+    }
+
+    /**
+     * Override existing dimensions. Default dimensions are preserved optionally.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to be set
+     */
+    void setDimensions(boolean useDefault, List<DimensionSet> dimensionSets) {
+        shouldUseDefaultDimension = useDefault;
+        dimensions = Collections.synchronizedList(new ArrayList<>(dimensionSets));
+    }
+
+    /**
+     * Clear existing custom dimensions.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     */
+    void resetDimensions(boolean useDefault) {
+        shouldUseDefaultDimension = useDefault;
+        dimensions = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**
      * Return all the dimension sets. If there's a default dimension set, the custom dimensions are
      * prepended with the default dimensions.
      */
-    List<DimensionSet> getAllDimensions() {
+    List<DimensionSet> getAllDimensions() throws DimensionSetExceededException {
         if (!shouldUseDefaultDimension) {
             return dimensions;
         }
@@ -102,9 +138,12 @@ class MetricDirective {
             return Arrays.asList(defaultDimensions);
         }
 
-        return dimensions.stream()
-                .map(dim -> defaultDimensions.add(dim))
-                .collect(Collectors.toList());
+        List<DimensionSet> allDimensions = new ArrayList<>();
+        for (DimensionSet dim : dimensions) {
+            allDimensions.add(defaultDimensions.add(dim));
+        }
+
+        return allDimensions;
     }
 
     /**
@@ -117,16 +156,21 @@ class MetricDirective {
     }
 
     /**
-     * Create a copy of the metric directive without having the existing metrics
+     * Create a copy of the metric directive
      *
-     * @return A object of metric directive
+     * @param preserveDimensions indicates whether the custom dimensions should be preserved
+     * @return A metric directive object
      */
-    MetricDirective copyWithoutMetrics() {
+    MetricDirective copyWithoutMetrics(boolean preserveDimensions) {
         MetricDirective metricDirective = new MetricDirective();
         metricDirective.setDefaultDimensions(this.defaultDimensions);
-        metricDirective.setDimensions(this.dimensions);
         metricDirective.setNamespace(this.namespace);
         metricDirective.shouldUseDefaultDimension = this.shouldUseDefaultDimension;
+
+        if (preserveDimensions) {
+            this.dimensions.forEach(metricDirective::putDimensionSet);
+        }
+
         return metricDirective;
     }
 }

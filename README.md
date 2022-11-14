@@ -8,6 +8,7 @@ Generate CloudWatch metrics embedded within structured log events. The embedded 
 - [Usage](#usage)
 - [Graceful Shutdown](#graceful-shutdown)
 - [API](#api)
+- [Thread-safety](#thread-safety)
 - [Examples](#examples)
 - [Development](#development)
 
@@ -34,8 +35,14 @@ import software.amazon.cloudwatchlogs.emf.model.Unit;
 class Example {
 	public static void main(String[] args) {
 		MetricsLogger metrics = new MetricsLogger();
-		metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-		metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+
+		try {
+			metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
+			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+		} catch (InvalidDimensionException | InvalidMetricException e) {
+			log.error(e);
+		}
+
 		metrics.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 		metrics.flush();
 	}
@@ -59,8 +66,14 @@ environment's sink. A full example can be found in the [`examples`](examples) di
 DefaultEnvironment environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
 
 MetricsLogger logger = new MetricsLogger(environment);
-logger.setDimensions(DimensionSet.of("Operation", "ProcessRecords"));
-logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);
+
+try {
+	logger.setDimensions(DimensionSet.of("Operation", "ProcessRecords"));
+	logger.putMetric("ExampleMetric", 100, Unit.MILLISECONDS);
+} catch (InvalidDimensionException | InvalidMetricException e) {
+	log.error(e);
+}
+
 logger.putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
 logger.flush();
 
@@ -84,7 +97,7 @@ Requirements:
 - Name Length 1-255 characters
 - Name must be ASCII characters only
 - Values must be in the range of 8.515920e-109 to 1.174271e+108. In addition, special values (for example, NaN, +Infinity, -Infinity) are not supported.
-- Units must meet CloudWatch Metrics unit requirements, if not it will default to None. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
+- Metrics must meet CloudWatch Metrics requirements, otherwise a `InvalidMetricException` will be thrown. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
 
 Examples:
 
@@ -103,8 +116,8 @@ Requirements:
 Examples:
 
 ```java
-putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8")
-putProperty("InstanceId", "i-1234567890")
+putProperty("RequestId", "422b1569-16f6-4a03-b8f0-fe3fd9b100f8");
+putProperty("InstanceId", "i-1234567890");
 putProperty("Device", new HashMap<String, String>() {{
 		put("Id", "61270781-c6ac-46f1-baf7-22c808af8162");
 		put("Name", "Transducer");
@@ -117,7 +130,7 @@ putProperty("Device", new HashMap<String, String>() {{
 
 Adds a new set of dimensions that will be associated with all metric values.
 
-**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
+**WARNING**: Each dimension set will result in a new CloudWatch metric (even dimension sets with the same values).
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 
@@ -125,6 +138,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -134,10 +148,11 @@ putDimensions(DimensionSet.of("Operation", "Aggregator", "DeviceType", "Actuator
 ```
 
 - MetricsLogger **setDimensions**(DimensionSet... dimensionSets)
+- MetricsLogger **setDimensions**(boolean useDefault, DimensionSet... dimensionSets)
 
-Explicitly override all dimensions. This will remove the default dimensions.
+Explicitly override all dimensions. This will remove the default dimensions unless `useDefault` is set to `true`.
 
-**WARNING**: Every distinct value for a dimension set will result in a new CloudWatch metric.
+**WARNING**:Each dimension set will result in a new CloudWatch metric (even dimension sets with the same values).
 If the cardinality of a particular value is expected to be high, you should consider
 using `setProperty` instead.
 
@@ -145,6 +160,7 @@ Requirements:
 
 - Length 1-255 characters
 - ASCII characters only
+- Dimensions must meet CloudWatch Dimension requirements, otherwise a `InvalidDimensionException` or `DimensionSetExceededException` will be thrown. See [Dimension](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Dimension.html) for valid values.
 
 Examples:
 
@@ -166,6 +182,15 @@ setDimensions(
 )
 ```
 
+- MetricsLogger **resetDimensions**(boolean useDefault)
+
+Explicitly clear all custom dimensions. The behavior of whether default dimensions should be used can be configured by the input parameter.
+
+Examples:
+
+```java
+resetDimensions(false)  // this will clear all custom dimensions as well as disable default dimensions
+```
 
 - MetricsLogger **setNamespace**(String value)
 
@@ -175,6 +200,7 @@ Requirements:
 
 - Name Length 1-255 characters
 - Name must be ASCII characters only
+- Namespace must meet CloudWatch requirements, otherwise a `InvalidNamespaceException` will be thrown. See [Namespaces](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Namespace) for valid values.
 
 Examples:
 
@@ -186,6 +212,8 @@ setNamespace("MyApplication")
 
 Sets the timestamp of the metrics. If not set, current time of the client will be used.
 
+Timestamp must meet CloudWatch requirements, otherwise a `InvalidTimestampException` will be thrown. See [Timestamps](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#about_timestamp) for valid values.
+
 Examples:
 
 ```java
@@ -194,7 +222,24 @@ setTimestamp(Instant.now())
 
 - **flush**()
 
-Flushes the current MetricsContext to the configured sink and resets all properties, dimensions and metric values. The namespace and default dimensions will be preserved across flushes.
+Flushes the current MetricsContext to the configured sink and resets all properties and metric values. The namespace and default dimensions will be preserved across flushes. Custom dimensions are preserved by default, but this behavior can be disabled by invoking `setFlushPreserveDimensions(false)`, so that no custom dimensions would be preserved after each flushing thereafter.
+
+Example:
+
+```java
+flush();  // default dimensions and custom dimensions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();  // only default dimensions will be preserved after each flush()
+```
+
+```java
+setFlushPreserveDimensions(false);
+flush();
+resetDimensions(false);  // default dimensions are disabled; no dimensions will be preserved after each flush()
+```
 
 ### Configuration
 
@@ -316,6 +361,24 @@ config.setAgentEndpoint("udp://127.0.0.1:1000");
 AWS_EMF_AGENT_ENDPOINT="udp://127.0.0.1:1000"
 ```
 
+## Thread-safety
+
+### Internal Synchronization
+
+The MetricsLogger class is thread-safe. Specifically, the generalized multi-threading use cases for this library are:
+
+1. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into one or more async contexts where new metrics or metadata can be added concurrently; Join the async contexts (e.g. Future.get()) and flush the metrics.
+2. Collect some metrics or metadata on a single MetricsLogger; Pass the logger into an async context; Flush from the async context concurrently.
+
+Thread-safety for the first use case is achieved by introducing concurrent internal data structures and atomic operations associated with these models, to ensure the access to shared mutable resources are always synchronized.
+
+Thread-safety for the second use case is achieved by using a ReentrantReadWriteLock. This lock is used to create an internal sync context for flush() method in multi-threading situations. `flush()` acquires write lock, while other methods (which have access to mutable shared data with `flush()`) acquires read lock. This makes sure `flush()` is always executed exclusively, while other methods can be executed concurrently.
+
+### Use Cases that are Not Covered
+
+With all the internal synchronization measures, however, there're still certain multi-threading use cases that are not covered by this library, which might require external synchronizations or other protection measures.
+This is due to the fact that the execution order of APIs are not determined in async contexts. For example, if user needs to associate a given set of properties with a metric in each thread, the results are not guaranteed since the execution order of `putProperty()` is not determined across threads. In such cases, we recommend using a different MetricsLogger instance for different threads, so that no resources are shared and no thread-safety problem would ever happen. Note that this can often be simplified by using a ThreadLocal variable.
+
 ## Examples
 
 Check out the [examples](https://github.com/awslabs/aws-embedded-metrics-java/tree/master/examples) directory to get started.
@@ -361,6 +424,14 @@ To auto fix code style, run
 ```
 ./gradlew :spotlessApply
 ```
+
+### Benchmark
+
+We use [JMH](https://github.com/openjdk/jmh) as our framework for concurrency performance benchmarking. Benchmarks can be run by:
+```
+./gradlew jmh
+```
+To run a single benchmark, consider using JMH plugins. For example, [JMH plugin for IntelliJ IDEA](https://github.com/artyushov/idea-jmh-plugin)
 
 ## License
 

@@ -16,25 +16,26 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 
-public class MetricsContextTest {
+class MetricsContextTest {
 
     @Test
-    public void testSerializeLessThan100Metrics() throws JsonProcessingException {
+    void testSerializeLessThan100Metrics() throws JsonProcessingException, InvalidMetricException {
         MetricsContext mc = new MetricsContext();
         int metricCount = 10;
         for (int i = 0; i < metricCount; i++) {
@@ -43,19 +44,19 @@ public class MetricsContextTest {
         }
 
         List<String> events = mc.serialize();
-        assertEquals(1, events.size());
+        Assertions.assertEquals(1, events.size());
 
         List<MetricDefinition> metrics = parseMetrics(events.get(0));
-        assertEquals(metrics.size(), metricCount);
+        Assertions.assertEquals(metrics.size(), metricCount);
         for (MetricDefinition metric : metrics) {
             MetricDefinition originalMetric = mc.getRootNode().metrics().get(metric.getName());
-            assertEquals(originalMetric.getName(), metric.getName());
-            assertEquals(originalMetric.getUnit(), metric.getUnit());
+            Assertions.assertEquals(originalMetric.getName(), metric.getName());
+            Assertions.assertEquals(originalMetric.getUnit(), metric.getUnit());
         }
     }
 
     @Test
-    public void testSerializeMoreThen100Metrics() throws JsonProcessingException {
+    void testSerializeMoreThen100Metrics() throws JsonProcessingException, InvalidMetricException {
         MetricsContext mc = new MetricsContext();
         int metricCount = 253;
         int expectedEventCount = 3;
@@ -65,22 +66,23 @@ public class MetricsContextTest {
         }
 
         List<String> events = mc.serialize();
-        assertEquals(expectedEventCount, events.size());
+        Assertions.assertEquals(expectedEventCount, events.size());
 
         List<MetricDefinition> allMetrics = new ArrayList<>();
         for (String event : events) {
             allMetrics.addAll(parseMetrics(event));
         }
-        assertEquals(metricCount, allMetrics.size());
+        Assertions.assertEquals(metricCount, allMetrics.size());
         for (MetricDefinition metric : allMetrics) {
             MetricDefinition originalMetric = mc.getRootNode().metrics().get(metric.getName());
-            assertEquals(originalMetric.getName(), metric.getName());
-            assertEquals(originalMetric.getUnit(), metric.getUnit());
+            Assertions.assertEquals(originalMetric.getName(), metric.getName());
+            Assertions.assertEquals(originalMetric.getUnit(), metric.getUnit());
         }
     }
 
     @Test
-    public void testSerializeAMetricWith101DataPoints() throws JsonProcessingException {
+    void testSerializeAMetricWith101DataPoints()
+            throws JsonProcessingException, InvalidMetricException {
         MetricsContext mc = new MetricsContext();
         int dataPointCount = 101;
         int expectedEventCount = 2;
@@ -90,7 +92,7 @@ public class MetricsContextTest {
         }
 
         List<String> events = mc.serialize();
-        assertEquals(expectedEventCount, events.size());
+        Assertions.assertEquals(expectedEventCount, events.size());
         List<MetricDefinition> allMetrics = new ArrayList<>();
         for (String event : events) {
             allMetrics.addAll(parseMetrics(event));
@@ -99,12 +101,13 @@ public class MetricsContextTest {
         for (int i = 0; i < Constants.MAX_DATAPOINTS_PER_METRIC; i++) {
             expectedValues.add((double) i);
         }
-        assertEquals(expectedValues, allMetrics.get(0).getValues());
-        assertTrue(allMetrics.get(1).getValues().equals(Arrays.asList(100.0)));
+        Assertions.assertEquals(expectedValues, allMetrics.get(0).getValues());
+        Assertions.assertEquals(Collections.singletonList(100.0), allMetrics.get(1).getValues());
     }
 
     @Test
-    public void testSerializeMetricsWith101DataPoints() throws JsonProcessingException {
+    void testSerializeMetricsWith101DataPoints()
+            throws JsonProcessingException, InvalidMetricException {
         MetricsContext mc = new MetricsContext();
         int dataPointCount = 101;
         int expectedEventCount = 2;
@@ -115,40 +118,45 @@ public class MetricsContextTest {
         mc.putMetric("metric2", 2);
 
         List<String> events = mc.serialize();
-        assertEquals(expectedEventCount, events.size());
+        Assertions.assertEquals(expectedEventCount, events.size());
 
         List<MetricDefinition> metricsFromEvent1 = parseMetrics(events.get(0));
         List<MetricDefinition> metricsFromEvent2 = parseMetrics(events.get(1));
 
-        assertEquals(2, metricsFromEvent1.size());
+        Assertions.assertEquals(2, metricsFromEvent1.size());
         List<Double> expectedValues = new ArrayList<>();
         for (int i = 0; i < Constants.MAX_DATAPOINTS_PER_METRIC; i++) {
             expectedValues.add((double) i);
         }
-        assertEquals(expectedValues, metricsFromEvent1.get(0).getValues());
-        assertEquals(Arrays.asList(2.0), metricsFromEvent1.get(1).getValues());
+        Assertions.assertEquals(expectedValues, metricsFromEvent1.get(0).getValues());
+        Assertions.assertEquals(
+                Collections.singletonList(2.0), metricsFromEvent1.get(1).getValues());
 
-        assertEquals(1, metricsFromEvent2.size());
-        assertEquals(Arrays.asList(100.0), metricsFromEvent2.get(0).getValues());
+        Assertions.assertEquals(1, metricsFromEvent2.size());
+        Assertions.assertEquals(
+                Collections.singletonList(100.0), metricsFromEvent2.get(0).getValues());
     }
 
     @Test
-    public void testSerializeZeroMetric() throws JsonProcessingException {
+    void testSerializeZeroMetric()
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsContext mc = new MetricsContext();
         mc.putDimension(DimensionSet.of("Region", "IAD"));
         List<String> events = mc.serialize();
 
         int expectedEventCount = 1;
-        assertEquals(expectedEventCount, events.size());
+        Assertions.assertEquals(expectedEventCount, events.size());
 
         Map<String, Object> rootNode = parseRootNode(events.get(0));
         // If there's no metric added, the _aws would be filtered out from the log event
-        assertFalse(rootNode.containsKey("_aws"));
+        Assertions.assertFalse(rootNode.containsKey("_aws"));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testSetTimestamp() throws JsonProcessingException {
+    void testSetTimestamp()
+            throws JsonProcessingException, InvalidTimestampException, InvalidMetricException {
         MetricsContext mc = new MetricsContext();
         mc.putMetric("Metric", 0);
 
@@ -158,14 +166,24 @@ public class MetricsContextTest {
         List<String> events = mc.serialize();
 
         int expectedEventCount = 1;
-        assertEquals(expectedEventCount, events.size());
+        Assertions.assertEquals(expectedEventCount, events.size());
         Map<String, Object> rootNode = parseRootNode(events.get(0));
 
-        assertTrue(rootNode.containsKey("_aws"));
+        Assertions.assertTrue(rootNode.containsKey("_aws"));
         Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
 
-        assertTrue(metadata.containsKey("Timestamp"));
-        assertEquals(metadata.get("Timestamp"), now.toEpochMilli());
+        Assertions.assertTrue(metadata.containsKey("Timestamp"));
+        Assertions.assertEquals(now.toEpochMilli(), metadata.get("Timestamp"));
+    }
+
+    @Test
+    void testPutMetadata() {
+        MetricsContext mc = new MetricsContext();
+        mc.putMetadata("Metadata", "MetadataValue");
+
+        Map<String, Object> customFields = mc.getRootNode().getAws().getCustomMetadata();
+        Assertions.assertEquals(1, customFields.size());
+        Assertions.assertEquals("MetadataValue", customFields.get("Metadata"));
     }
 
     @SuppressWarnings("unchecked")

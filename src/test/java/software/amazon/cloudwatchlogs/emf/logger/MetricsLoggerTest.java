@@ -16,30 +16,37 @@
 
 package software.amazon.cloudwatchlogs.emf.logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.sinks.SinkShunt;
 
-public class MetricsLoggerTest {
+class MetricsLoggerTest {
     private MetricsLogger logger;
     private EnvironmentProvider envProvider;
     private SinkShunt sink;
     private Environment environment;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         envProvider = mock(EnvironmentProvider.class);
         environment = mock(Environment.class);
@@ -48,34 +55,108 @@ public class MetricsLoggerTest {
         when(envProvider.resolveEnvironment())
                 .thenReturn(CompletableFuture.completedFuture(environment));
         when(environment.getSink()).thenReturn(sink);
+        when(environment.getLogGroupName()).thenReturn("test-log-group");
+        when(environment.getName()).thenReturn("test-env-name");
+        when(environment.getType()).thenReturn("test-env-type");
+
         logger = new MetricsLogger(envProvider);
     }
 
     @Test
-    public void testPutProperty() {
+    void putProperty_setsProperty() {
         String propertyName = "Property";
         String propertyValue = "PropValue";
         logger.putProperty(propertyName, propertyValue);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getProperty(propertyName), propertyValue);
+        assertEquals(propertyValue, sink.getContext().getProperty(propertyName));
     }
 
     @Test
-    public void testPutDimension() {
+    void putDimensions_setsDimension()
+            throws InvalidDimensionException, DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
-        Assert.assertEquals(
-                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
-                dimensionValue);
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(
+                dimensionValue,
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
     }
 
     @Test
-    public void testOverrideDefaultDimensions() {
+    void whenDefaultDimension_DimensionValue_Empty() throws DimensionSetExceededException {
+        when(environment.getLogGroupName()).thenReturn("");
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
+        assertEquals(2, dimensionKeys.size());
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
+    }
+
+    @Test
+    void whenDefaultDimension_DimensionValue_Blank() throws DimensionSetExceededException {
+        when(environment.getLogGroupName()).thenReturn(" ");
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        Set<String> dimensionKeys = sink.getContext().getDimensions().get(0).getDimensionKeys();
+        assertEquals(2, dimensionKeys.size());
+        assertTrue(dimensionKeys.contains("ServiceName"));
+        assertTrue(dimensionKeys.contains("ServiceType"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "  ", "ƊĪⱮḔǸŠƗȌŅ", ":dim"})
+    void whenSetDimension_withInvalidName_thenThrowInvalidDimensionException(String dimensionName) {
+        assertThrows(
+                InvalidDimensionException.class, () -> DimensionSet.of(dimensionName, "dimValue"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "  ", "ṼẬḺƯỂ"})
+    void whenSetDimension_withInvalidValue_thenThrowInvalidDimensionException(
+            String dimensionValue) {
+        assertThrows(
+                InvalidDimensionException.class, () -> DimensionSet.of("dimName", dimensionValue));
+    }
+
+    @Test
+    void whenSetDimension_withNameTooLong_thenThrowDimensionException() {
+        char[] longName = new char[Constants.MAX_DIMENSION_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionName = String.valueOf(longName);
+        String dimensionValue = "dimValue";
+
+        assertThrows(
+                InvalidDimensionException.class,
+                () -> DimensionSet.of(dimensionName, dimensionValue));
+    }
+
+    @Test
+    void whenSetDimension_withValueTooLong_thenThrowDimensionException() {
+        String dimensionName = "dim";
+        char[] longName = new char[Constants.MAX_DIMENSION_VALUE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String dimensionValue = String.valueOf(longName);
+
+        assertThrows(
+                InvalidDimensionException.class,
+                () -> DimensionSet.of(dimensionName, dimensionValue));
+    }
+
+    @Test
+    void whenSetDimension_withNullName_thenThrowDimensionException() {
+        assertThrows(InvalidDimensionException.class, () -> DimensionSet.of(null, "dimValue"));
+    }
+
+    @Test
+    void setDefaultDimensions_overridesDefaultDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         String defaultDimName = "defaultDim";
@@ -88,54 +169,267 @@ public class MetricsLoggerTest {
         logger.setDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
-        Assert.assertEquals(
-                sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName), null);
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertNull(sink.getContext().getDimensions().get(0).getDimensionValue(defaultDimName));
     }
 
     @Test
-    public void testOverridePreviousDimensions() {
+    void resetDimensions_resetsDimensionsWithDefaultDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.resetDimensions(true);
+        logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
 
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
+    }
+
+    @Test
+    void resetDimensions_resetsDimensionsWithoutDefaultDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.resetDimensions(false);
+        logger.putDimensions(DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(1, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        assertEquals(
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
+                dimensionValue);
+    }
+
+    @Test
+    void setDimensions_overridesPreviousDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
         String dimensionName = "dim";
         String dimensionValue = "dimValue";
         logger.putDimensions(DimensionSet.of("foo", "bar"));
         logger.setDimensions(DimensionSet.of(dimensionName, dimensionValue));
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getDimensions().size(), 1);
-        Assert.assertEquals(sink.getContext().getDimensions().get(0).getDimensionKeys().size(), 1);
-        Assert.assertEquals(
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(1, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        assertEquals(
+                dimensionValue,
+                sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName));
+    }
+
+    @Test
+    void setDimensions_overridesPreviousDimensionsAndPreservesDefault()
+            throws InvalidDimensionException, DimensionSetExceededException {
+        String dimensionName = "dim";
+        String dimensionValue = "dimValue";
+        logger.putDimensions(DimensionSet.of("foo", "bar"));
+        logger.setDimensions(true, DimensionSet.of(dimensionName, dimensionValue));
+        logger.flush();
+
+        assertEquals(1, sink.getContext().getDimensions().size());
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        assertEquals(
                 sink.getContext().getDimensions().get(0).getDimensionValue(dimensionName),
                 dimensionValue);
     }
 
     @Test
-    public void testSetNamespace() {
+    void setDimensions_clearsDefaultDimensions()
+            throws InvalidMetricException, DimensionSetExceededException {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions();
+        logger.putMetric("Count", 1);
+        logger.flush();
+        List<DimensionSet> dimensions = sink.getContext().getDimensions();
+
+        assertEquals(0, dimensions.size());
+        assertEquals(1, sink.getLogEvents().size());
+
+        String logEvent = sink.getLogEvents().get(0);
+        assertTrue(logEvent.contains("\"Dimensions\":[]"));
+    }
+
+    @Test
+    void flush_PreservesDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions(DimensionSet.of("Name", "Test"));
+        logger.flush();
+        expectDimension("Name", "Test");
+
+        logger.flush();
+        expectDimension("Name", "Test");
+    }
+
+    @Test
+    void flush_doesNotPreserveDimensions()
+            throws InvalidDimensionException, DimensionSetExceededException {
+        logger.putDimensions(DimensionSet.of("Name", "Test"));
+        logger.setFlushPreserveDimensions(false);
+
+        logger.flush();
+        assertEquals(4, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        expectDimension("Name", "Test");
+
+        logger.flush();
+        assertEquals(3, sink.getContext().getDimensions().get(0).getDimensionKeys().size());
+        expectDimension("Name", null);
+    }
+
+    @Test
+    void whenMultipleFlush_withNoDimensionsChanges_keepDefaultDimensions()
+            throws InvalidMetricException, DimensionSetExceededException {
+        logger.putMetric("Count", 1);
+
+        logger.flush();
+        logger.flush();
+
+        expectDimension("LogGroup", "test-log-group");
+        expectDimension("ServiceName", "test-env-name");
+        expectDimension("ServiceType", "test-env-type");
+    }
+
+    @Test
+    void setDimensions_clearsAllDimensions() throws DimensionSetExceededException {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+
+        logger.setDimensions();
+        logger.flush();
+
+        List<DimensionSet> dimensions = sink.getContext().getDimensions();
+        assertEquals(0, dimensions.size());
+    }
+
+    @Test
+    void whenSetDimensions_withMultipleFlush_thenClearsDimensions()
+            throws DimensionSetExceededException {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+
+        logger.setDimensions();
+        logger.flush();
+
+        assertEquals(0, sink.getContext().getDimensions().size());
+
+        logger.flush();
+        assertEquals(0, sink.getContext().getDimensions().size());
+    }
+
+    @Test
+    void whenPutMetric_withTooLongName_thenThrowInvalidMetricException() {
+        char[] longName = new char[Constants.MAX_METRIC_NAME_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String name1 = new String(longName);
+
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric(name1, 1));
+    }
+
+    @Test
+    void whenPutMetric_withNullName_thenThrowInvalidMetricException() {
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric(null, 1));
+    }
+
+    @Test
+    void whenPutMetric_withEmptyName_thenThrowInvalidMetricException() {
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric("", 1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
+    void whenPutMetric_withInvalidValue_thenThrowInvalidMetricException(double value) {
+        EnvironmentProvider envProvider = mock(EnvironmentProvider.class);
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric("name", value));
+    }
+
+    @Test
+    void whenPutMetric_withNullUnit_thenThrowInvalidMetricException() {
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric("test", 1, null));
+    }
+
+    @Test
+    void setNamespace_setsNamespace() throws InvalidNamespaceException {
 
         String namespace = "testNamespace";
         logger.setNamespace(namespace);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getNamespace(), namespace);
+        assertEquals(namespace, sink.getContext().getNamespace());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "  ", "ṆẪⱮḖⱾⱣǞḈȄ"})
+    void whenSetNamespace_withInvalidValue_thenThrowInvalidNamespaceException(String namespace) {
+        EnvironmentProvider envProvider = mock(EnvironmentProvider.class);
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
     }
 
     @Test
-    public void testFlushWithDefaultTimestamp() {
+    void whenSetNamespace_withNameTooLong_thenThrowInvalidNamespaceException() {
+        char[] longName = new char[Constants.MAX_NAMESPACE_LENGTH + 1];
+        Arrays.fill(longName, 'a');
+        String namespace = new String(longName);
+
+        assertThrows(InvalidNamespaceException.class, () -> logger.setNamespace(namespace));
+    }
+
+    @Test
+    void flush_usesDefaultTimestamp() {
         logger.flush();
-        Assert.assertNotNull(sink.getContext().getTimestamp());
+        assertNotNull(sink.getContext().getTimestamp());
     }
 
     @Test
-    public void testSetTimestamp() {
+    void setTimestamp_setsTimestamp() throws InvalidTimestampException {
         Instant now = Instant.now();
         logger.setTimestamp(now);
         logger.flush();
 
-        Assert.assertEquals(sink.getContext().getTimestamp(), now);
+        assertEquals(now, sink.getContext().getTimestamp());
     }
 
     @Test
-    public void testFlushWithConfiguredServiceName() {
+    void whenSetTimestamp_withInvalidValueInFuture_thenThrowException() {
+        Instant now = Instant.now();
+        Instant invalidTimestamp = now.plusSeconds(Constants.MAX_TIMESTAMP_FUTURE_AGE_SECONDS + 1);
+        assertThrows(InvalidTimestampException.class, () -> logger.setTimestamp(invalidTimestamp));
+    }
+
+    @Test
+    void whenSetTimestamp_withInvalidValueInPast_thenThrowException() {
+        Instant now = Instant.now();
+        Instant invalidTimestamp = now.minusSeconds(Constants.MAX_TIMESTAMP_PAST_AGE_SECONDS + 1);
+        assertThrows(InvalidTimestampException.class, () -> logger.setTimestamp(invalidTimestamp));
+    }
+
+    @Test
+    void setTimestamp_withValidValueInFuture() throws InvalidTimestampException {
+        Instant now = Instant.now();
+        Instant validTimestamp = now.plusSeconds(Constants.MAX_TIMESTAMP_FUTURE_AGE_SECONDS - 1);
+        logger.setTimestamp(validTimestamp);
+        logger.flush();
+
+        assertEquals(validTimestamp, sink.getContext().getTimestamp());
+    }
+
+    @Test
+    void setTimestamp_withValidValueInPast() throws InvalidTimestampException {
+        Instant now = Instant.now();
+        Instant validTimestamp = now.minusSeconds(Constants.MAX_TIMESTAMP_PAST_AGE_SECONDS - 1);
+        logger.setTimestamp(validTimestamp);
+        logger.flush();
+
+        assertEquals(validTimestamp, sink.getContext().getTimestamp());
+    }
+
+    @Test
+    void testFlushWithConfiguredServiceName() throws DimensionSetExceededException {
         String serviceName = "TestServiceName";
         when(environment.getName()).thenReturn(serviceName);
         logger.flush();
@@ -144,7 +438,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredServiceType() {
+    void testFlushWithConfiguredServiceType() throws DimensionSetExceededException {
         String serviceType = "TestServiceType";
         when(environment.getType()).thenReturn(serviceType);
         logger.flush();
@@ -153,7 +447,7 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithConfiguredLogGroup() {
+    void testFlushWithConfiguredLogGroup() throws DimensionSetExceededException {
         String logGroup = "MyLogGroup";
         when(environment.getLogGroupName()).thenReturn(logGroup);
         logger.flush();
@@ -162,7 +456,8 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testFlushWithDefaultDimensionDefined() {
+    void testFlushWithDefaultDimensionDefined()
+            throws InvalidDimensionException, DimensionSetExceededException {
         MetricsContext metricsContext = new MetricsContext();
         metricsContext.setDefaultDimensions(DimensionSet.of("foo", "bar"));
         logger = new MetricsLogger(envProvider, metricsContext);
@@ -176,7 +471,7 @@ public class MetricsLoggerTest {
 
     @SuppressWarnings("")
     @Test
-    public void testUseDefaultEnvironmentOnResolverException() {
+    void testUseDefaultEnvironmentOnResolverException() throws DimensionSetExceededException {
         String serviceType = "TestServiceType";
         CompletableFuture<Environment> future =
                 CompletableFuture.supplyAsync(
@@ -195,42 +490,9 @@ public class MetricsLoggerTest {
     }
 
     @Test
-    public void testNoDefaultDimensions() {
-        MetricsLogger logger = new MetricsLogger(envProvider);
-        logger.setDimensions();
-        logger.putMetric("Count", 1);
-        logger.flush();
-        List<DimensionSet> dimensions = sink.getContext().getDimensions();
-
-        assertTrue(dimensions.size() == 0);
-        assertTrue(sink.getLogEvents().size() == 1);
-
-        String logEvent = sink.getLogEvents().get(0);
-        assertTrue(logEvent.contains("\"Dimensions\":[]"));
-    }
-
-    @Test
-    public void testNoDefaultDimensionsAfterSetDimension() {
-        MetricsLogger logger = new MetricsLogger(envProvider);
-
-        logger.setDimensions(DimensionSet.of("Name", "Test"));
-        logger.flush();
-        expectDimension("Name", "Test");
-    }
-
-    @Test
-    public void testFlushPreserveDimensions() {
-        MetricsLogger logger = new MetricsLogger(envProvider);
-        logger.setDimensions(DimensionSet.of("Name", "Test"));
-        logger.flush();
-        expectDimension("Name", "Test");
-
-        logger.flush();
-        expectDimension("Name", "Test");
-    }
-
-    @Test
-    public void testFlushDoesntPreserveMetrics() {
+    void flush_doesNotPreserveMetrics()
+            throws InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsLogger logger = new MetricsLogger(envProvider);
         logger.setDimensions(DimensionSet.of("Name", "Test"));
         logger.putMetric("Count", 1.0);
@@ -241,33 +503,10 @@ public class MetricsLoggerTest {
         assertFalse(sink.getLogEvents().get(0).contains("Count"));
     }
 
-    @Test
-    public void testNoDimensionsAfterSetEmptyDimensionSet() {
-        MetricsLogger logger = new MetricsLogger(envProvider);
-
-        logger.setDimensions();
-        logger.flush();
-
+    private void expectDimension(String dimension, String value)
+            throws DimensionSetExceededException {
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
-        assertEquals(0, dimensions.size());
-    }
-
-    @Test
-    public void testNoDimensionsAfterSetEmptyDimensionSetWithMultipleFlush() {
-        MetricsLogger logger = new MetricsLogger(envProvider);
-
-        logger.setDimensions();
-        logger.flush();
-
-        assertEquals(0, sink.getContext().getDimensions().size());
-
-        logger.flush();
-        assertEquals(0, sink.getContext().getDimensions().size());
-    }
-
-    private void expectDimension(String dimension, String value) {
-        List<DimensionSet> dimensions = sink.getContext().getDimensions();
-        assertEquals(dimensions.size(), 1);
-        assertEquals(dimensions.get(0).getDimensionValue(dimension), value);
+        assertEquals(1, dimensions.size());
+        assertEquals(value, dimensions.get(0).getDimensionValue(dimension));
     }
 }

@@ -21,11 +21,17 @@ import java.time.Instant;
 import java.util.*;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
+import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** Stores metrics and their associated properties and dimensions. */
 public class MetricsContext {
 
-    @Getter private RootNode rootNode;
+    @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
 
@@ -48,7 +54,8 @@ public class MetricsContext {
             String namespace,
             Map<String, Object> properties,
             List<DimensionSet> dimensionSets,
-            DimensionSet defaultDimensionSet) {
+            DimensionSet defaultDimensionSet)
+            throws InvalidNamespaceException {
         this();
         setNamespace(namespace);
         setDefaultDimensions(defaultDimensionSet);
@@ -69,8 +76,10 @@ public class MetricsContext {
      * Update the namespace with the parameter.
      *
      * @param namespace The new namespace
+     * @throws InvalidNamespaceException if the namespace is invalid
      */
-    public void setNamespace(String namespace) {
+    public void setNamespace(String namespace) throws InvalidNamespaceException {
+        Validator.validateNamespace(namespace);
         metricDirective.setNamespace(namespace);
     }
 
@@ -91,7 +100,7 @@ public class MetricsContext {
     }
 
     public boolean hasDefaultDimensions() {
-        return getDefaultDimensions().getDimensionKeys().size() > 0;
+        return !getDefaultDimensions().getDimensionKeys().isEmpty();
     }
 
     /**
@@ -105,8 +114,10 @@ public class MetricsContext {
      * @param key Name of the metric
      * @param value Value of the metric
      * @param unit The unit of the metric
+     * @throws InvalidMetricException if the metric is invalid
      */
-    public void putMetric(String key, double value, Unit unit) {
+    public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
+        Validator.validateMetric(key, value, unit);
         metricDirective.putMetric(key, value, unit);
     }
 
@@ -120,8 +131,9 @@ public class MetricsContext {
      *
      * @param key Name of the metric
      * @param value Value of the metric
+     * @throws InvalidMetricException if the metric is invalid
      */
-    public void putMetric(String key, double value) {
+    public void putMetric(String key, double value) throws InvalidMetricException {
         putMetric(key, value, Unit.NONE);
     }
 
@@ -167,13 +179,21 @@ public class MetricsContext {
      *
      * @param dimension the name of the dimension
      * @param value the value associated with the dimension
+     * @throws InvalidDimensionException if the dimension is invalid
+     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
-    public void putDimension(String dimension, String value) {
+    public void putDimension(String dimension, String value)
+            throws InvalidDimensionException, DimensionSetExceededException {
         metricDirective.putDimensionSet(DimensionSet.of(dimension, value));
     }
 
-    /** @return the list of dimensions that has been added, including default dimensions. */
-    public List<DimensionSet> getDimensions() {
+    /**
+     * Get list of all dimensions including default dimensions
+     *
+     * @return the list of dimensions that has been added, including default dimensions.
+     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
+     */
+    public List<DimensionSet> getDimensions() throws DimensionSetExceededException {
         return metricDirective.getAllDimensions();
     }
 
@@ -184,6 +204,25 @@ public class MetricsContext {
      */
     public void setDimensions(DimensionSet... dimensionSets) {
         metricDirective.setDimensions(Arrays.asList(dimensionSets));
+    }
+
+    /**
+     * Update the dimensions. Default dimensions are preserved optionally.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to set
+     */
+    public void setDimensions(boolean useDefault, DimensionSet... dimensionSets) {
+        metricDirective.setDimensions(useDefault, Arrays.asList(dimensionSets));
+    }
+
+    /**
+     * Reset the dimensions. This would clear all custom dimensions.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     */
+    public void resetDimensions(boolean useDefault) {
+        metricDirective.resetDimensions(useDefault);
     }
 
     /**
@@ -205,19 +244,26 @@ public class MetricsContext {
      * Update timestamp field in the metadata
      *
      * @param timestamp value of timestamp to be set
+     * @throws InvalidTimestampException if the timestamp is invalid
      */
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(Instant timestamp) throws InvalidTimestampException {
+        Validator.validateTimestamp(timestamp);
         rootNode.getAws().setTimestamp(timestamp);
     }
 
-    /** @return Creates an independently flushable context. */
-    public MetricsContext createCopyWithContext() {
-        return new MetricsContext(metricDirective.copyWithoutMetrics());
+    /**
+     * Create a copy of the context
+     *
+     * @param preserveDimensions indicates whether default dimensions should be preserved
+     * @return Creates an independently flushable context
+     */
+    public MetricsContext createCopyWithContext(boolean preserveDimensions) {
+        return new MetricsContext(metricDirective.copyWithoutMetrics(preserveDimensions));
     }
 
     /**
      * Serialize the metrics in this context to strings. The EMF backend requires no more than 100
-     * metrics in one log event. If there're more than 100 metrics, we split the metrics into
+     * metrics in one log event. If there are more than 100 metrics, we split the metrics into
      * multiple log events.
      *
      * <p>If a metric has more than 100 data points, we also split the metric.
@@ -234,7 +280,7 @@ public class MetricsContext {
             Map<String, MetricDefinition> metrics = new HashMap<>();
             Queue<MetricDefinition> metricDefinitions =
                     new LinkedList<>(rootNode.metrics().values());
-            while (metricDefinitions.size() > 0) {
+            while (!metricDefinitions.isEmpty()) {
                 MetricDefinition metric = metricDefinitions.poll();
 
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
@@ -276,9 +322,9 @@ public class MetricsContext {
 
     private RootNode buildRootNode(Map<String, MetricDefinition> metrics) {
         Metadata metadata = rootNode.getAws();
-        MetricDirective metricDirective = metadata.getCloudWatchMetrics().get(0);
+        MetricDirective md = metadata.getCloudWatchMetrics().get(0);
         Metadata clonedMetadata =
-                metadata.withCloudWatchMetrics(Arrays.asList(metricDirective.withMetrics(metrics)));
+                metadata.withCloudWatchMetrics(Arrays.asList(md.withMetrics(metrics)));
         return rootNode.withAws(clonedMetadata);
     }
 

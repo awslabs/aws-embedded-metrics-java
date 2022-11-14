@@ -21,10 +21,10 @@ import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvide
 import software.amazon.cloudwatchlogs.emf.environment.ECSEnvironment;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import sun.misc.Signal;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -36,9 +36,12 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         registerShutdownHook();
-
-        int portNumber = 8000;
+        MetricsLogger logger = new MetricsLogger();
+        logger.setNamespace("FargateEMF");
+        logger.putMetric("Latency", 63, Unit.MILLISECONDS);
+        logger.flush();
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        int portNumber = 8000;
         System.out.println("Server started. Listening on " + portNumber);
         server.createContext("/", new SimpleHandler());
         server.setExecutor(null);
@@ -48,7 +51,10 @@ public class App {
     private static void registerShutdownHook() {
         // https://aws.amazon.com/blogs/containers/graceful-shutdowns-with-ecs/
         Signal.handle(new Signal("TERM"), sig -> {
-            env.getSink().shutdown().orTimeout(1_000L, TimeUnit.MILLISECONDS);
+            try {
+                env.getSink().shutdown().get(1_000L, TimeUnit.MILLISECONDS);
+            } catch (Exception ignored) {
+            }
             System.exit(0);
         });
     }
@@ -67,7 +73,11 @@ public class App {
             MetricsLogger logger = new MetricsLogger();
             logger.putProperty("Method", he.getRequestMethod());
             logger.putProperty("Url", he.getRequestURI());
-            logger.putMetric("ProcessingTime", System.currentTimeMillis() - time, Unit.MILLISECONDS);
+            try {
+                logger.putMetric("ProcessingTime", System.currentTimeMillis() - time, Unit.MILLISECONDS);
+            } catch (InvalidMetricException e) {
+                System.out.println(e);
+            }
             logger.flush();
             System.out.println(new EnvironmentProvider().resolveEnvironment().join().getClass().getName());
 

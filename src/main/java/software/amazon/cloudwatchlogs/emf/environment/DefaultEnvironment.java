@@ -16,6 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.environment;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
@@ -37,11 +38,14 @@ public class DefaultEnvironment extends AgentBasedEnvironment {
 
     @Override
     public String getType() {
-        if (!config.getServiceType().isPresent()) {
-            log.info("Unknown ServiceType");
-            return Constants.UNKNOWN;
+        Optional<String> serviceType = config.getServiceType();
+
+        if (serviceType.isPresent()) {
+            return serviceType.get();
         }
-        return config.getServiceType().get();
+
+        log.info("Unknown ServiceType");
+        return Constants.UNKNOWN;
     }
 
     @Override

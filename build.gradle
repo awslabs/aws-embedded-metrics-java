@@ -18,17 +18,18 @@ plugins {
 	id 'com.diffplug.spotless' version '5.8.2'
 	id 'maven-publish'
 	id 'signing'
+	id "me.champeau.jmh" version "0.6.6"
 }
 
 group "software.amazon.cloudwatchlogs"
 
 allprojects {
 	compileJava {
-		sourceCompatibility = '1.8'
-		targetCompatibility = '1.8'
+		sourceCompatibility = JavaVersion.VERSION_1_8
+		targetCompatibility = JavaVersion.VERSION_1_8
 	}
 
-	version = '2.0.0-beta-1'
+	version = '4.0.3'
 }
 
 java {
@@ -57,27 +58,33 @@ configurations {
 }
 
 dependencies {
-	annotationProcessor 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
-	implementation 'org.slf4j:slf4j-api:1.7.30'
+	implementation 'org.slf4j:slf4j-api:2.0.1'
 	implementation 'org.javatuples:javatuples:1.2'
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 	// Use JUnit test framework
 	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
-	testImplementation 'junit:junit:4.13'
-	testImplementation 'org.apache.commons:commons-lang3:3.10'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+	testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.0'
 	testImplementation "org.mockito:mockito-core:2.+"
 	testImplementation "org.powermock:powermock-module-junit4:2.0.2"
 	testImplementation "org.powermock:powermock-api-mockito2:2.0.2"
 	testImplementation "com.github.javafaker:javafaker:1.0.2"
 	testImplementation "com.github.tomakehurst:wiremock-jre8:2.27.0"
-	testImplementation 'software.amazon.awssdk:cloudwatch:2.13.54'
-	testCompileOnly 'org.projectlombok:lombok:1.18.12'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+	testCompileOnly 'org.projectlombok:lombok:1.18.24'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+	implementation 'org.openjdk.jmh:jmh-core:1.29'
+	implementation 'org.openjdk.jmh:jmh-generator-annprocess:1.29'
+	jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.29'
 }
 
 spotless {
@@ -99,6 +106,7 @@ spotless {
 
 test {
 	outputs.upToDateWhen {false}
+	useJUnitPlatform()
 }
 
 jar {
@@ -124,7 +132,7 @@ tasks.withType(JavaCompile) {
 }
 
 tasks.named('wrapper') {
-	gradleVersion = '6.5.1'
+	gradleVersion = '7.4.2'
 	distributionType = Wrapper.DistributionType.ALL
 }
 

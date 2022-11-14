@@ -18,16 +18,25 @@ package software.amazon.cloudwatchlogs.emf.logger;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
 /**
- * An metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
+ * A metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
  * CloudWatch Metrics asynchronously.
  */
 @Slf4j
@@ -35,6 +44,15 @@ public class MetricsLogger {
     private MetricsContext context;
     private CompletableFuture<Environment> environmentFuture;
     private EnvironmentProvider environmentProvider;
+    /**
+     * This lock is used to create an internal sync context for flush() method in multi-threaded
+     * situations. Flush() acquires write lock, other methods (accessing mutable shared data with
+     * flush()) acquires read lock. This makes sure flush() is executed exclusively, while other
+     * methods can be executed concurrently.
+     */
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+    @Getter @Setter private boolean flushPreserveDimensions = true;
 
     public MetricsLogger() {
         this(new EnvironmentProvider());
@@ -67,10 +85,16 @@ public class MetricsLogger {
             log.info("Failed to resolve environment. Fallback to default environment: ", ex);
             environment = environmentProvider.getDefaultEnvironment();
         }
-        ISink sink = environment.getSink();
-        configureContextForEnvironment(context, environment);
-        sink.accept(context);
-        context = context.createCopyWithContext();
+
+        rwl.writeLock().lock();
+        try {
+            ISink sink = environment.getSink();
+            configureContextForEnvironment(context, environment);
+            sink.accept(context);
+            context = context.createCopyWithContext(flushPreserveDimensions);
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     /**
@@ -83,8 +107,11 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putProperty(String key, Object value) {
-        this.context.putProperty(key, value);
-        return this;
+        return applyReadLock(
+                () -> {
+                    this.context.putProperty(key, value);
+                    return this;
+                });
     }
 
     /**
@@ -99,26 +126,63 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putDimensions(DimensionSet dimensions) {
-        context.putDimension(dimensions);
-        return this;
+        return applyReadLock(
+                () -> {
+                    context.putDimension(dimensions);
+                    return this;
+                });
     }
 
     /**
      * Overwrite all dimensions on this MetricsLogger instance.
      *
-     * @param dimensionSets the dimensionSets to set.
+     * @param dimensionSets the dimensionSets to set
      * @see <a
      *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html#Dimension">CloudWatch
      *     Dimensions</a>
      * @return the current logger
      */
     public MetricsLogger setDimensions(DimensionSet... dimensionSets) {
-        context.setDimensions(dimensionSets);
-        return this;
+        return applyReadLock(
+                () -> {
+                    context.setDimensions(dimensionSets);
+                    return this;
+                });
     }
 
     /**
-     * Put a metric value. This value will be emitted to CloudWatch Metrics asyncronously and does
+     * Overwrite custom dimensions on this MetricsLogger instance, with an option to preserve
+     * default dimensions.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @param dimensionSets the dimensionSets to set
+     * @return the current logger
+     */
+    public MetricsLogger setDimensions(boolean useDefault, DimensionSet... dimensionSets) {
+        return applyReadLock(
+                () -> {
+                    context.setDimensions(useDefault, dimensionSets);
+                    return this;
+                });
+    }
+
+    /**
+     * Clear all custom dimensions on this MetricsLogger instance. Whether default dimensions should
+     * be used can be configured by the input parameter.
+     *
+     * @param useDefault indicates whether default dimensions should be used
+     * @return the current logger
+     */
+    public MetricsLogger resetDimensions(boolean useDefault) {
+        return applyReadLock(
+                () -> {
+                    context.resetDimensions(useDefault);
+                    return this;
+                });
+    }
+
+    /**
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
      * not contribute to your account TPS limits. The value will also be available in your
      * CloudWatch Logs
      *
@@ -126,23 +190,31 @@ public class MetricsLogger {
      * @param value is the value of the metric
      * @param unit is the unit of the metric value
      * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
      */
-    public MetricsLogger putMetric(String key, double value, Unit unit) {
-        this.context.putMetric(key, value, unit);
-        return this;
+    public MetricsLogger putMetric(String key, double value, Unit unit)
+            throws InvalidMetricException {
+        rwl.readLock().lock();
+        try {
+            this.context.putMetric(key, value, unit);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**
-     * Put a metric value. This value will be emitted to CloudWatch Metrics asyncronously and does
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
      * not contribute to your account TPS limits. The value will also be available in your
      * CloudWatch Logs
      *
      * @param key the name of the metric
      * @param value the value of the metric
      * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
      */
-    public MetricsLogger putMetric(String key, double value) {
-        this.context.putMetric(key, value, Unit.NONE);
+    public MetricsLogger putMetric(String key, double value) throws InvalidMetricException {
+        this.putMetric(key, value, Unit.NONE);
         return this;
     }
 
@@ -157,8 +229,11 @@ public class MetricsLogger {
      * @return the current logger
      */
     public MetricsLogger putMetadata(String key, Object value) {
-        this.context.putMetadata(key, value);
-        return this;
+        return applyReadLock(
+                () -> {
+                    this.context.putMetadata(key, value);
+                    return this;
+                });
     }
 
     /**
@@ -166,8 +241,9 @@ public class MetricsLogger {
      *
      * @param namespace the namespace of the logs
      * @return the current logger
+     * @throws InvalidNamespaceException if the namespace is invalid
      */
-    public MetricsLogger setNamespace(String namespace) {
+    public MetricsLogger setNamespace(String namespace) throws InvalidNamespaceException {
         this.context.setNamespace(namespace);
         return this;
     }
@@ -177,8 +253,9 @@ public class MetricsLogger {
      *
      * @param timestamp value of timestamp to be set
      * @return the current logger
+     * @throws InvalidTimestampException if the timestamp is invalid
      */
-    public MetricsLogger setTimestamp(Instant timestamp) {
+    public MetricsLogger setTimestamp(Instant timestamp) throws InvalidTimestampException {
         this.context.setTimestamp(timestamp);
         return this;
     }
@@ -188,10 +265,26 @@ public class MetricsLogger {
             return;
         }
         DimensionSet defaultDimension = new DimensionSet();
-        defaultDimension.addDimension("LogGroup", environment.getLogGroupName());
-        defaultDimension.addDimension("ServiceName", environment.getName());
-        defaultDimension.addDimension("ServiceType", environment.getType());
+        setDefaultDimension(defaultDimension, "LogGroup", environment.getLogGroupName());
+        setDefaultDimension(defaultDimension, "ServiceName", environment.getName());
+        setDefaultDimension(defaultDimension, "ServiceType", environment.getType());
         context.setDefaultDimensions(defaultDimension);
         environment.configureContext(context);
+    }
+
+    private void setDefaultDimension(DimensionSet defaultDimension, String dimKey, String dimVal) {
+        try {
+            defaultDimension.addDimension(dimKey, dimVal);
+        } catch (InvalidDimensionException | DimensionSetExceededException ignored) {
+        }
+    }
+
+    private MetricsLogger applyReadLock(Supplier<MetricsLogger> any) {
+        rwl.readLock().lock();
+        try {
+            return any.get();
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 }

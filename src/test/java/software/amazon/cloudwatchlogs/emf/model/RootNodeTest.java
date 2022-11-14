@@ -16,47 +16,50 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
-public class RootNodeTest {
+class RootNodeTest {
 
     @Test
-    public void testPutProperty() {
+    void testPutProperty() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
 
-        assertEquals(rootNode.getTargetMembers().get("Property"), "Value");
+        Assertions.assertEquals("Value", rootNode.getTargetMembers().get("Property"));
     }
 
     @Test
-    public void testPutSamePropertyMultipleTimes() {
+    void testPutSamePropertyMultipleTimes() throws DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         rootNode.putProperty("Property", "Value");
         rootNode.putProperty("Property", "NewValue");
 
-        assertEquals(rootNode.getTargetMembers().get("Property"), "NewValue");
+        Assertions.assertEquals("NewValue", rootNode.getTargetMembers().get("Property"));
     }
 
     @Test
-    public void testGetDimension() {
+    void testGetDimension() throws InvalidDimensionException, DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricDirective metricDirective = rootNode.getAws().createMetricDirective();
         metricDirective.putDimensionSet(DimensionSet.of("Dim1", "DimValue1"));
 
-        assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimValue1");
+        Assertions.assertEquals("DimValue1", rootNode.getTargetMembers().get("Dim1"));
     }
 
     @Test
-    public void testGetTargetMembers() {
+    void testGetTargetMembers()
+            throws InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         RootNode rootNode = new RootNode();
         MetricsContext mc = new MetricsContext(rootNode);
 
@@ -70,15 +73,18 @@ public class RootNodeTest {
 
         mc.putProperty("Prop1", "PropValue1");
 
-        assertEquals(rootNode.getTargetMembers().get("Count"), Arrays.asList(10.0, 20.0));
-        assertEquals(rootNode.getTargetMembers().get("Latency"), 100.0);
-        assertEquals(rootNode.getTargetMembers().get("Dim1"), "DimVal1");
-        assertEquals(rootNode.getTargetMembers().get("Prop1"), "PropValue1");
+        Assertions.assertEquals(
+                Arrays.asList(10.0, 20.0), rootNode.getTargetMembers().get("Count"));
+        Assertions.assertEquals(100.0, rootNode.getTargetMembers().get("Latency"));
+        Assertions.assertEquals("DimVal1", rootNode.getTargetMembers().get("Dim1"));
+        Assertions.assertEquals("PropValue1", rootNode.getTargetMembers().get("Prop1"));
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testSerializeRootNode() throws JsonProcessingException {
+    void testSerializeRootNode()
+            throws JsonProcessingException, InvalidMetricException, InvalidDimensionException,
+                    DimensionSetExceededException {
         MetricsContext mc = new MetricsContext();
 
         mc.setDefaultDimensions(DimensionSet.of("DefaultDim", "DefaultDimValue"));
@@ -92,24 +98,24 @@ public class RootNodeTest {
                 objectMapper.readValue(
                         emf_logs.get(0), new TypeReference<Map<String, Object>>() {});
 
-        assertEquals(emf_map.keySet().size(), 5);
-        assertEquals(emf_map.get("Region"), "us-east-1");
-        assertEquals(emf_map.get("Property"), "PropertyValue");
-        assertEquals(emf_map.get("DefaultDim"), "DefaultDimValue");
-        assertEquals(emf_map.get("Count"), 10.0);
+        Assertions.assertEquals(5, emf_map.keySet().size());
+        Assertions.assertEquals("us-east-1", emf_map.get("Region"));
+        Assertions.assertEquals("PropertyValue", emf_map.get("Property"));
+        Assertions.assertEquals("DefaultDimValue", emf_map.get("DefaultDim"));
+        Assertions.assertEquals(10.0, emf_map.get("Count"));
 
         Map<String, Object> metadata = (Map<String, Object>) emf_map.get("_aws");
-        assertTrue(metadata.containsKey("Timestamp"));
-        assertTrue(metadata.containsKey("CloudWatchMetrics"));
+        Assertions.assertTrue(metadata.containsKey("Timestamp"));
+        Assertions.assertTrue(metadata.containsKey("CloudWatchMetrics"));
     }
 
     @Test
-    public void testSerializeRootNodeWithoutAnyMetrics() throws JsonProcessingException {
+    void testSerializeRootNodeWithoutAnyMetrics() throws JsonProcessingException {
         RootNode root = new RootNode();
         String property = "foo";
         String value = "bar";
         root.putProperty(property, value);
 
-        assertEquals(root.serialize(), "{\"foo\":\"bar\"}");
+        Assertions.assertEquals("{\"foo\":\"bar\"}", root.serialize());
     }
 }

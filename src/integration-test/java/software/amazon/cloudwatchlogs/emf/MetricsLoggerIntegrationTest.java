@@ -33,6 +33,9 @@ import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
 import software.amazon.cloudwatchlogs.emf.environment.DefaultEnvironment;
 import software.amazon.cloudwatchlogs.emf.environment.Environment;
+import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
@@ -48,6 +51,9 @@ public class MetricsLoggerIntegrationTest {
     private DimensionSet dimensions = DimensionSet.of(dimensionName, dimensionValue);
     private EMFIntegrationTestHelper testHelper = new EMFIntegrationTestHelper();
 
+    public MetricsLoggerIntegrationTest()
+            throws InvalidDimensionException, DimensionSetExceededException {}
+
     @Before
     public void setUp() {
         config.setServiceName(serviceName);
@@ -56,7 +62,7 @@ public class MetricsLoggerIntegrationTest {
     }
 
     @Test(timeout = 120_000)
-    public void testSingleFlushOverTCP() throws InterruptedException {
+    public void testSingleFlushOverTCP() throws InterruptedException, InvalidMetricException {
         Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "TCP-SingleFlush";
         int expectedSamples = 1;
@@ -69,7 +75,7 @@ public class MetricsLoggerIntegrationTest {
     }
 
     @Test(timeout = 300_000)
-    public void testMultipleFlushesOverTCP() throws InterruptedException {
+    public void testMultipleFlushesOverTCP() throws InterruptedException, InvalidMetricException {
         Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "TCP-MultipleFlushes";
         int expectedSamples = 3;
@@ -85,7 +91,7 @@ public class MetricsLoggerIntegrationTest {
     }
 
     @Test(timeout = 120_000)
-    public void testSingleFlushOverUDP() throws InterruptedException {
+    public void testSingleFlushOverUDP() throws InterruptedException, InvalidMetricException {
         Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "UDP-SingleFlush";
         int expectedSamples = 1;
@@ -98,7 +104,7 @@ public class MetricsLoggerIntegrationTest {
     }
 
     @Test(timeout = 300_000)
-    public void testMultipleFlushOverUDP() throws InterruptedException {
+    public void testMultipleFlushOverUDP() throws InterruptedException, InvalidMetricException {
         Environment env = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
         String metricName = "UDP-MultipleFlush";
         int expectedSamples = 3;
@@ -113,7 +119,7 @@ public class MetricsLoggerIntegrationTest {
         assertTrue(retryUntilSucceed(() -> buildRequest(metricName), expectedSamples));
     }
 
-    private void logMetric(Environment env, String metricName) {
+    private void logMetric(Environment env, String metricName) throws InvalidMetricException {
         MetricsLogger logger = new MetricsLogger(env);
         logger.putDimensions(dimensions);
         logger.putMetric(metricName, 100, Unit.MILLISECONDS);
@@ -130,7 +136,7 @@ public class MetricsLoggerIntegrationTest {
 
     private GetMetricStatisticsRequest buildRequest(String metricName) {
         Instant now = Instant.now();
-        List<Dimension> dimensions =
+        List<Dimension> dims =
                 Arrays.asList(
                         getDimension("ServiceName", serviceName),
                         getDimension("ServiceType", serviceType),
@@ -140,7 +146,7 @@ public class MetricsLoggerIntegrationTest {
         return GetMetricStatisticsRequest.builder()
                 .namespace("aws-embedded-metrics")
                 .metricName(metricName)
-                .dimensions(dimensions)
+                .dimensions(dims)
                 .period(60)
                 .startTime(now.minusMillis(5000))
                 .endTime(now)

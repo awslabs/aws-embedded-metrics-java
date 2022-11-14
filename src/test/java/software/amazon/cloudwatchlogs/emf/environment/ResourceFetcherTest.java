@@ -27,8 +27,8 @@ import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Map;
 import lombok.Data;
-import org.javatuples.Pair;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -92,35 +92,35 @@ public class ResourceFetcherTest {
         generateStub(200, "{\"name\":\"test\",\"size\":10}");
         TestData data = fetcher.fetch(endpoint, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
     public void testReadDataWithHeaders200Response() {
-        Pair<String, String> mockHeader = new Pair<>("X-mock-header-key", "headerValue");
+        Map<String, String> mockHeader =
+                Collections.singletonMap("X-mock-header-key", "headerValue");
         generateStub(200, "{\"name\":\"test\",\"size\":10}");
-        TestData data =
-                fetcher.fetch(
-                        endpoint, "GET", TestData.class, Collections.singletonList(mockHeader));
+        TestData data = fetcher.fetch(endpoint, "GET", TestData.class, mockHeader);
 
         verify(
                 getRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
     public void testWithProvidedMethodAndHeadersWith200Response() {
         generatePutStub(200, "putResponseData");
-        Pair<String, String> mockHeader = new Pair<>("X-mock-header-key", "headerValue");
-        String data = fetcher.fetch(endpoint, "PUT", Collections.singletonList(mockHeader));
+        Map<String, String> mockHeader =
+                Collections.singletonMap("X-mock-header-key", "headerValue");
+        String data = fetcher.fetch(endpoint, "PUT", mockHeader);
 
         verify(
                 putRequestedFor(urlEqualTo(endpoint_path))
                         .withHeader("X-mock-header-key", equalTo("headerValue")));
-        assertEquals(data, "putResponseData");
+        assertEquals("putResponseData", data);
     }
 
     @Test
@@ -130,8 +130,8 @@ public class ResourceFetcherTest {
         objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         TestData data = fetcher.fetch(endpoint, objectMapper, TestData.class);
 
-        assertEquals(data.name, "test");
-        assertEquals(data.size, 10);
+        assertEquals("test", data.name);
+        assertEquals(10, data.size);
     }
 
     @Test
