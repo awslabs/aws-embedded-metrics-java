@@ -33,6 +33,7 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
 /**
@@ -98,7 +99,7 @@ public class MetricsLogger {
     }
 
     /**
-     * Set a property on the published metrics. This is stored in the emitted log data and you are
+     * Set a property on the published metrics. This is stored in the emitted log data, and you are
      * not charged for this data by CloudWatch Metrics. These values can be values that are useful
      * for searching on, but have too high cardinality to emit as dimensions to CloudWatch Metrics.
      *
@@ -189,18 +190,54 @@ public class MetricsLogger {
      * @param key is the name of the metric
      * @param value is the value of the metric
      * @param unit is the unit of the metric value
+     * @param storageResolution is the resolution of the metric
+     * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public MetricsLogger putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
+            throws InvalidMetricException {
+        rwl.readLock().lock();
+        try {
+            this.context.putMetric(key, value, unit, storageResolution);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+
+    /**
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
+     * not contribute to your account TPS limits. The value will also be available in your
+     * CloudWatch Logs
+     *
+     * @param key is the name of the metric
+     * @param value is the value of the metric
+     * @param storageResolution is the resolution of the metric
+     * @return the current logger
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public MetricsLogger putMetric(String key, double value, StorageResolution storageResolution)
+            throws InvalidMetricException {
+        this.putMetric(key, value, Unit.NONE, storageResolution);
+        return this;
+    }
+
+    /**
+     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
+     * not contribute to your account TPS limits. The value will also be available in your
+     * CloudWatch Logs
+     *
+     * @param key is the name of the metric
+     * @param value is the value of the metric
+     * @param unit is the unit of the metric value
      * @return the current logger
      * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger putMetric(String key, double value, Unit unit)
             throws InvalidMetricException {
-        rwl.readLock().lock();
-        try {
-            this.context.putMetric(key, value, unit);
-            return this;
-        } finally {
-            rwl.readLock().unlock();
-        }
+        this.putMetric(key, value, unit, StorageResolution.STANDARD);
+        return this;
     }
 
     /**
@@ -214,7 +251,7 @@ public class MetricsLogger {
      * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger putMetric(String key, double value) throws InvalidMetricException {
-        this.putMetric(key, value, Unit.NONE);
+        this.putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
         return this;
     }
 

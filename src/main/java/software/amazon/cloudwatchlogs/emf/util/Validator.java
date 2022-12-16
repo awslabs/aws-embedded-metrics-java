@@ -17,9 +17,11 @@
 package software.amazon.cloudwatchlogs.emf.util;
 
 import java.time.Instant;
+import java.lang.Object;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.*;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 public class Validator {
@@ -90,7 +92,7 @@ public class Validator {
      * @param unit Metric unit
      * @throws InvalidMetricException if metric is invalid
      */
-    public static void validateMetric(String name, double value, Unit unit)
+    public static void validateMetric(String name, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidMetricException(
@@ -111,6 +113,10 @@ public class Validator {
 
         if (unit == null) {
             throw new InvalidMetricException("Metric unit cannot be null");
+        }
+        //TODO_M validate storageResolution ?
+        if (storageResolution.getValue() == -1) {
+            throw new InvalidMetricException("Metric resolution cannot be null");
         }
     }
 

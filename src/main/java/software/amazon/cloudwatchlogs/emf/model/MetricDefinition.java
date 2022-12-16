@@ -18,6 +18,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.ArrayList;
@@ -26,8 +27,11 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitDeserializer;
 import software.amazon.cloudwatchlogs.emf.serializers.UnitSerializer;
+import software.amazon.cloudwatchlogs.emf.serializers.StorageResolutionSerializer;
+import software.amazon.cloudwatchlogs.emf.serializers.StorageResolutionFilter;
 
 /** Represents the MetricDefinition of the EMF schema. */
 @AllArgsConstructor
@@ -43,18 +47,33 @@ class MetricDefinition {
     @JsonDeserialize(using = UnitDeserializer.class)
     private Unit unit;
 
+    @Getter
+    @Setter
+    @JsonProperty("StorageResolution")
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = StorageResolutionFilter.class)  //does NOT include in serialization when filter returns true
+    @JsonSerialize(using = StorageResolutionSerializer.class)
+    public StorageResolution storageResolution;
+
     @JsonIgnore @NonNull @Getter private List<Double> values;
 
     MetricDefinition(String name) {
-        this(name, Unit.NONE, new ArrayList<>());
+        this(name, Unit.NONE, StorageResolution.STANDARD, new ArrayList<>());
     }
 
     MetricDefinition(String name, double value) {
-        this(name, Unit.NONE, value);
+        this(name, Unit.NONE, StorageResolution.STANDARD, value);
     }
 
     MetricDefinition(String name, Unit unit, double value) {
-        this(name, unit, new ArrayList<>(Arrays.asList(value)));
+        this(name, unit, StorageResolution.STANDARD, new ArrayList<>(Arrays.asList(value)));
+    }
+
+    MetricDefinition(String name, StorageResolution storageResolution, double value) {
+        this(name, Unit.NONE, storageResolution, new ArrayList<>(Arrays.asList(value)));
+    }
+
+    MetricDefinition(String name, Unit unit, StorageResolution storageResolution, double value) {
+        this(name, unit, storageResolution, new ArrayList<>(Arrays.asList(value)));
     }
 
     void addValue(double value) {
