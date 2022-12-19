@@ -35,6 +35,7 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
+import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /**
  * A metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
@@ -93,6 +94,7 @@ public class MetricsLogger {
             configureContextForEnvironment(context, environment);
             sink.accept(context);
             context = context.createCopyWithContext(flushPreserveDimensions);
+            Validator.metricNameAndResolutionMap.clear();
         } finally {
             rwl.writeLock().unlock();
         }

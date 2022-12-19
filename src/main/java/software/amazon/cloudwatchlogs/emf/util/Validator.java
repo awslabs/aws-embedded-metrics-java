@@ -26,6 +26,8 @@ import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 public class Validator {
+    public static Map<String, String> metricNameAndResolutionMap = new HashMap<>();
+
     private Validator() {
         throw new IllegalStateException("Utility class");
     }
@@ -98,8 +100,6 @@ public class Validator {
             String name, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
 
-        Map<String, String> metricNameAndResolutionMap = new HashMap<>();
-
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidMetricException(
                     "Metric name " + name + " must include at least one non-whitespace character");
@@ -120,8 +120,8 @@ public class Validator {
         if (unit == null) {
             throw new InvalidMetricException("Metric unit cannot be null");
         }
-        // TODO_M validate storageResolution ?
-        if (storageResolution.getValue() == -1) {
+
+        if (storageResolution == null) {
             throw new InvalidMetricException("Metric resolution cannot be null");
         }
 

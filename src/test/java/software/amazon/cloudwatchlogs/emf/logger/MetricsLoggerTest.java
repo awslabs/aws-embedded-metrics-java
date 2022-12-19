@@ -38,6 +38,8 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
+import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.SinkShunt;
 
 class MetricsLoggerTest {
@@ -349,7 +351,24 @@ class MetricsLoggerTest {
 
     @Test
     void whenPutMetric_withNullUnit_thenThrowInvalidMetricException() {
-        assertThrows(InvalidMetricException.class, () -> logger.putMetric("test", 1, null));
+        assertThrows(InvalidMetricException.class, () -> logger.putMetric("test", 1, (Unit) null));
+    }
+
+    @Test
+    void whenPutMetric_withNullStorageResolution_thenThrowInvalidMetricException() {
+        assertThrows(
+                InvalidMetricException.class,
+                () -> logger.putMetric("test", 1, (StorageResolution) null));
+    }
+
+    @Test
+    void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException() {
+        assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    logger.putMetric("test", 1);
+                    logger.putMetric("test", 1, StorageResolution.HIGH);
+                });
     }
 
     @Test
