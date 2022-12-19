@@ -75,14 +75,14 @@ class MetricDirective {
     }
 
     void putMetric(String key, double value, StorageResolution storageResolution) {
-        putMetric(key, value,  Unit.NONE, storageResolution);
+        putMetric(key, value, Unit.NONE, storageResolution);
     }
 
     void putMetric(String key, double value, Unit unit, StorageResolution storageResolution) {
         metrics.compute(
                 key,
                 (k, v) -> {
-                  if (v == null) return new MetricDefinition(key, unit, storageResolution, value);
+                    if (v == null) return new MetricDefinition(key, unit, storageResolution, value);
                     else {
                         v.addValue(value);
                         return v;

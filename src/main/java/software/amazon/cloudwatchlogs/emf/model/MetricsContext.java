@@ -117,13 +117,14 @@ public class MetricsContext {
      * @param storageResolution The resolution of the metric
      * @throws InvalidMetricException if the metric is invalid
      */
-    public void putMetric(String key, double value, Unit unit, StorageResolution storageResolution) throws InvalidMetricException {
+    public void putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
+            throws InvalidMetricException {
         Validator.validateMetric(key, value, unit, storageResolution);
         metricDirective.putMetric(key, value, unit, storageResolution);
     }
     /**
-     * Add a metric measurement to the context with a storage resolution but without a unit. Multiple calls using the same key will be stored as
-     * an array of scalar values.
+     * Add a metric measurement to the context with a storage resolution but without a unit.
+     * Multiple calls using the same key will be stored as an array of scalar values.
      *
      * <pre>{@code
      * metricContext.putMetric("Latency", 100, StorageResolution.HIGH)
@@ -134,13 +135,14 @@ public class MetricsContext {
      * @param storageResolution The resolution of the metric
      * @throws InvalidMetricException if the metric is invalid
      */
-    public void putMetric(String key, double value, StorageResolution storageResolution) throws InvalidMetricException {
+    public void putMetric(String key, double value, StorageResolution storageResolution)
+            throws InvalidMetricException {
         putMetric(key, value, Unit.NONE, storageResolution);
     }
 
     /**
-     * Add a metric measurement to the context without a storage resolution. Multiple calls using the same key will be stored as
-     * an array of scalar values.
+     * Add a metric measurement to the context without a storage resolution. Multiple calls using
+     * the same key will be stored as an array of scalar values.
      *
      * <pre>{@code
      * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS)
@@ -153,7 +155,7 @@ public class MetricsContext {
      */
     public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
         putMetric(key, value, unit, StorageResolution.STANDARD);
-   }
+    }
 
     /**
      * Add a metric measurement to the context without a unit Multiple calls using the same key will

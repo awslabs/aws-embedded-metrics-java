@@ -200,11 +200,14 @@ class MetricsContextTest {
             String name = metric.get("Name");
             Unit unit = Unit.fromValue(metric.get("Unit"));
             Object value = rootNode.get(name);
-            StorageResolution storageResolution = StorageResolution.fromValue(Integer.parseInt(metric.get("StorageResolution")));
+            StorageResolution storageResolution =
+                    StorageResolution.fromValue(Integer.parseInt(metric.get("StorageResolution")));
             if (value instanceof ArrayList) {
-                metricDefinitions.add(new MetricDefinition(name, unit, storageResolution, (ArrayList) value));
+                metricDefinitions.add(
+                        new MetricDefinition(name, unit, storageResolution, (ArrayList) value));
             } else {
-                metricDefinitions.add(new MetricDefinition(name, unit, storageResolution, (double) value));
+                metricDefinitions.add(
+                        new MetricDefinition(name, unit, storageResolution, (double) value));
             }
         }
         return metricDefinitions;

@@ -32,8 +32,8 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
-import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
+import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 
 /**
@@ -194,7 +194,8 @@ public class MetricsLogger {
      * @return the current logger
      * @throws InvalidMetricException if the metric is invalid
      */
-    public MetricsLogger putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
+    public MetricsLogger putMetric(
+            String key, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
         rwl.readLock().lock();
         try {
@@ -204,7 +205,6 @@ public class MetricsLogger {
             rwl.readLock().unlock();
         }
     }
-
 
     /**
      * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does

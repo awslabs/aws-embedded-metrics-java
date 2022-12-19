@@ -19,9 +19,8 @@ package software.amazon.cloudwatchlogs.emf.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
-
 import java.io.IOException;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 
 public class StorageResolutionSerializer extends StdSerializer<StorageResolution> {
     StorageResolutionSerializer() {

@@ -7,8 +7,8 @@ public class StorageResolutionFilter {
     @Override
     public boolean equals(Object obj) {
 
-        if (obj == null ||  !(obj instanceof StorageResolution)) {
-                return false;
+        if (obj == null || !(obj instanceof StorageResolution)) {
+            return false;
         }
         return (obj.toString().equals("STANDARD"));
     }

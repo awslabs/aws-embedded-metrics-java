@@ -42,6 +42,8 @@ public enum StorageResolution {
      */
     public static StorageResolution fromValue(int value) {
         return Stream.of(StorageResolution.values())
-                .filter(e -> e.getValue() == value).findFirst().orElse(UNKNOWN_TO_SDK_VERSION);
+                .filter(e -> e.getValue() == value)
+                .findFirst()
+                .orElse(UNKNOWN_TO_SDK_VERSION);
     }
 }

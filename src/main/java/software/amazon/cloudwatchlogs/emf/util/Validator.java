@@ -17,7 +17,6 @@
 package software.amazon.cloudwatchlogs.emf.util;
 
 import java.time.Instant;
-import java.lang.Object;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -95,10 +94,11 @@ public class Validator {
      * @param storageResolution Metric resolution
      * @throws InvalidMetricException if metric is invalid
      */
-    public static void validateMetric(String name, double value, Unit unit, StorageResolution storageResolution)
+    public static void validateMetric(
+            String name, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
 
-        Map<String,String> metricNameAndResolutionMap=new HashMap<>();
+        Map<String, String> metricNameAndResolutionMap = new HashMap<>();
 
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidMetricException(
@@ -120,19 +120,20 @@ public class Validator {
         if (unit == null) {
             throw new InvalidMetricException("Metric unit cannot be null");
         }
-        //TODO_M validate storageResolution ?
+        // TODO_M validate storageResolution ?
         if (storageResolution.getValue() == -1) {
             throw new InvalidMetricException("Metric resolution cannot be null");
         }
 
-        if(metricNameAndResolutionMap.containsKey(name))
-        {
-            String resolutionOfMetric=metricNameAndResolutionMap.get(name);
-            if(!resolutionOfMetric.equals(storageResolution.toString()))
-            {
-                throw new InvalidMetricException("Resolution for metrics "+name+ " is already set. A single log event cannot have a metric with two different resolutions.");
-        }}
-        else {
+        if (metricNameAndResolutionMap.containsKey(name)) {
+            String resolutionOfMetric = metricNameAndResolutionMap.get(name);
+            if (!resolutionOfMetric.equals(storageResolution.toString())) {
+                throw new InvalidMetricException(
+                        "Resolution for metrics "
+                                + name
+                                + " is already set. A single log event cannot have a metric with two different resolutions.");
+            }
+        } else {
             metricNameAndResolutionMap.put(name, storageResolution.toString());
         }
     }
