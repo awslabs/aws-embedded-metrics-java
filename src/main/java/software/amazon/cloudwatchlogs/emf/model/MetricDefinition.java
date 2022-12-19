@@ -50,7 +50,7 @@ class MetricDefinition {
     @Getter
     @Setter
     @JsonProperty("StorageResolution")
-    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = StorageResolutionFilter.class)  //does NOT include in serialization when filter returns true
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = StorageResolutionFilter.class)  //Do not serialize when valueFilter is true
     @JsonSerialize(using = StorageResolutionSerializer.class)
     public StorageResolution storageResolution;
 
