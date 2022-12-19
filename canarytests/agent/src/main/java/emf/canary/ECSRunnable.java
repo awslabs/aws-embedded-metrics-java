@@ -8,6 +8,7 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 import java.lang.management.ManagementFactory;
@@ -46,7 +47,7 @@ public class ECSRunnable implements Runnable {
         try {
             logger.putMetric("Invoke", 1, Unit.COUNT);
             logger.putMetric("Memory.HeapTotal", heapTotal, Unit.COUNT);
-            logger.putMetric("Memory.HeapUsed", heapUsed, Unit.COUNT);
+            logger.putMetric("Memory.HeapUsed", heapUsed, Unit.COUNT, StorageResolution.HIGH);
             logger.putMetric("Memory.JVMUsedTotal", heapUsed + nonHeapUsed, Unit.COUNT);
         } catch (InvalidMetricException e) {
             System.out.println(e);
