@@ -38,7 +38,7 @@ class Example {
 
 		try {
 			metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS, StorageResolution.STANDARD);
 		} catch (InvalidDimensionException | InvalidMetricException e) {
 			log.error(e);
 		}
@@ -87,10 +87,12 @@ environment.getSink().shutdown().orTimeout(10_000L, TimeUnit.MILLISECONDS);
 
 The `MetricsLogger` is the interface you will use to publish embedded metrics.
 
+- MetricsLogger **putMetric**(String key, double value, Unit unit, StorageResolution storageResolution)
+- MetricsLogger **putMetric**(String key, double value, StorageResolution storageResolution)
 - MetricsLogger **putMetric**(String key, double value, Unit unit)
 - MetricsLogger **putMetric**(String key, double value)
 
-Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. The Embedded Metric Format supports a maximum of 100 values per key.
+Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. Multiple metrics cannot have same key but different storage resolution. The Embedded Metric Format supports a maximum of 100 values per key.
 
 Requirements:
 
@@ -102,7 +104,7 @@ Requirements:
 Examples:
 
 ```java
-putMetric("Latency", 200, Unit.MILLISECONDS)
+putMetric("Latency", 200, Unit.MILLISECONDS, StorageResolution.STANDARD)
 ```
 
 - MetricsLogger **putProperty**(String key, Object value )
