@@ -21,7 +21,7 @@ public class Handler implements RequestHandler<Map<String, String>, String> {
         try {
             logger.putDimensions(DimensionSet.of("Service", "Aggregator"));
             logger.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
-            logger.putMetric("ProcessingLatencyInHighResolution", 101, Unit.MILLISECONDS, StorageResolution.HIGH);
+            logger.putMetric("CPU Utilization", 87, Unit.PERCENT, StorageResolution.HIGH);
         } catch (InvalidDimensionException | InvalidMetricException | DimensionSetExceededException e) {
             System.out.println(e);
         }

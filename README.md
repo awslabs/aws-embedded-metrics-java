@@ -92,7 +92,7 @@ The `MetricsLogger` is the interface you will use to publish embedded metrics.
 - MetricsLogger **putMetric**(String key, double value, Unit unit)
 - MetricsLogger **putMetric**(String key, double value)
 
-Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. Multiple metrics cannot have same key but different storage resolution. The Embedded Metric Format supports a maximum of 100 values per key.
+Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. Multiple metrics cannot have same key and different storage resolution. The Embedded Metric Format supports a maximum of 100 values per key.
 
 Requirements:
 

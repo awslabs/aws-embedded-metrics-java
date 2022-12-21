@@ -40,7 +40,7 @@ public class App {
         MetricsLogger logger = new MetricsLogger();
         logger.setNamespace("FargateEMF");
         logger.putMetric("Latency", 63, Unit.MILLISECONDS);
-        logger.putMetric("LatencyInHighResolution", 65, Unit.MILLISECONDS, StorageResolution.HIGH);
+        logger.putMetric("CPU Utilization", 87, Unit.PERCENT, StorageResolution.HIGH);
         logger.flush();
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         int portNumber = 8000;
@@ -77,7 +77,6 @@ public class App {
             logger.putProperty("Url", he.getRequestURI());
             try {
                 logger.putMetric("ProcessingTime", System.currentTimeMillis() - time, Unit.MILLISECONDS);
-                logger.putMetric("ProcessingTimeInHighResolution", System.currentTimeMillis() - time, Unit.MILLISECONDS, StorageResolution.HIGH);
             } catch (InvalidMetricException e) {
                 System.out.println(e);
             }

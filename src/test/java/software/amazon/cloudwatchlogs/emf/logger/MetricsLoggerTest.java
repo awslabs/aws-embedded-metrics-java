@@ -362,6 +362,16 @@ class MetricsLoggerTest {
     }
 
     @Test
+    void whenPutMetric_withSameMetricDifferentStorageResolutionAfterFlush_thenAllow()
+            throws InvalidMetricException {
+        logger.putMetric("Count", 1);
+        logger.flush();
+        logger.putMetric("Count", 1.0, StorageResolution.HIGH);
+        logger.flush();
+        assertTrue(sink.getLogEvents().get(0).contains("StorageResolution"));
+    }
+
+    @Test
     void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException() {
         assertThrows(
                 InvalidMetricException.class,

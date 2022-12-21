@@ -17,7 +17,6 @@
 package software.amazon.cloudwatchlogs.emf.util;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.cloudwatchlogs.emf.Constants;
@@ -26,7 +25,6 @@ import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 public class Validator {
-    public static Map<String, String> metricNameAndResolutionMap = new HashMap<>();
 
     private Validator() {
         throw new IllegalStateException("Utility class");
@@ -94,10 +92,15 @@ public class Validator {
      * @param value Metric value
      * @param unit Metric unit
      * @param storageResolution Metric resolution
+     * @param metricNameAndResolutionMap Map to validate Metric
      * @throws InvalidMetricException if metric is invalid
      */
     public static void validateMetric(
-            String name, double value, Unit unit, StorageResolution storageResolution)
+            String name,
+            double value,
+            Unit unit,
+            StorageResolution storageResolution,
+            Map<String, String> metricNameAndResolutionMap)
             throws InvalidMetricException {
 
         if (name == null || name.trim().isEmpty()) {
@@ -126,8 +129,7 @@ public class Validator {
         }
 
         if (metricNameAndResolutionMap.containsKey(name)) {
-            String resolutionOfMetric = metricNameAndResolutionMap.get(name);
-            if (!resolutionOfMetric.equals(storageResolution.toString())) {
+            if (!metricNameAndResolutionMap.get(name).equals(storageResolution.toString())) {
                 throw new InvalidMetricException(
                         "Resolution for metrics "
                                 + name

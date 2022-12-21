@@ -34,6 +34,7 @@ public class MetricsContext {
     @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
+    private final Map<String, String> metricNameAndResolutionMap = new HashMap<>();
 
     public MetricsContext() {
         this(new RootNode());
@@ -119,7 +120,7 @@ public class MetricsContext {
      */
     public void putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
-        Validator.validateMetric(key, value, unit, storageResolution);
+        Validator.validateMetric(key, value, unit, storageResolution, metricNameAndResolutionMap);
         metricDirective.putMetric(key, value, unit, storageResolution);
     }
     /**

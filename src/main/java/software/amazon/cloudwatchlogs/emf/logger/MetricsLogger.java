@@ -35,7 +35,6 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
-import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /**
  * A metrics logger. Use this interface to publish logs to CloudWatch Logs and extract metrics to
@@ -94,7 +93,6 @@ public class MetricsLogger {
             configureContextForEnvironment(context, environment);
             sink.accept(context);
             context = context.createCopyWithContext(flushPreserveDimensions);
-            Validator.metricNameAndResolutionMap.clear();
         } finally {
             rwl.writeLock().unlock();
         }
@@ -193,6 +191,9 @@ public class MetricsLogger {
      * @param value is the value of the metric
      * @param unit is the unit of the metric value
      * @param storageResolution is the resolution of the metric
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html#high-resolution-metrics">CloudWatch
+     *     High Resolution Metrics</a>
      * @return the current logger
      * @throws InvalidMetricException if the metric is invalid
      */
@@ -216,6 +217,9 @@ public class MetricsLogger {
      * @param key is the name of the metric
      * @param value is the value of the metric
      * @param storageResolution is the resolution of the metric
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html#high-resolution-metrics">CloudWatch
+     *     High Resolution Metrics</a>
      * @return the current logger
      * @throws InvalidMetricException if the metric is invalid
      */
