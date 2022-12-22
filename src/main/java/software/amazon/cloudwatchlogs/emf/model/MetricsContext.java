@@ -34,7 +34,7 @@ public class MetricsContext {
     @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
-    private final Map<String, String> metricNameAndResolutionMap = new HashMap<>();
+    private final Map<String, StorageResolution> metricNameAndResolutionMap = new HashMap<>();
 
     public MetricsContext() {
         this(new RootNode());

@@ -100,7 +100,7 @@ public class Validator {
             double value,
             Unit unit,
             StorageResolution storageResolution,
-            Map<String, String> metricNameAndResolutionMap)
+            Map<String, StorageResolution> metricNameAndResolutionMap)
             throws InvalidMetricException {
 
         if (name == null || name.trim().isEmpty()) {
@@ -129,14 +129,14 @@ public class Validator {
         }
 
         if (metricNameAndResolutionMap.containsKey(name)) {
-            if (!metricNameAndResolutionMap.get(name).equals(storageResolution.toString())) {
+            if (!metricNameAndResolutionMap.get(name).equals(storageResolution)) {
                 throw new InvalidMetricException(
                         "Resolution for metrics "
                                 + name
                                 + " is already set. A single log event cannot have a metric with two different resolutions.");
             }
         } else {
-            metricNameAndResolutionMap.put(name, storageResolution.toString());
+            metricNameAndResolutionMap.put(name, storageResolution);
         }
     }
 
