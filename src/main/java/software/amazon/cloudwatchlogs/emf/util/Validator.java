@@ -124,8 +124,9 @@ public class Validator {
             throw new InvalidMetricException("Metric unit cannot be null");
         }
 
-        if (storageResolution == null) {
-            throw new InvalidMetricException("Metric resolution cannot be null");
+        if (storageResolution == null
+                || storageResolution == StorageResolution.UNKNOWN_TO_SDK_VERSION) {
+            throw new InvalidMetricException("Metric resolution is invalid");
         }
 
         if (metricNameAndResolutionMap.containsKey(name)) {
