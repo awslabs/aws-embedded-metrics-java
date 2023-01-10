@@ -148,7 +148,7 @@ public class MetricsLoggerIntegrationTest {
                 .namespace("aws-embedded-metrics")
                 .metricName(metricName)
                 .dimensions(dims)
-                .period(1)
+                .period(60)
                 .startTime(now.minusMillis(5000))
                 .endTime(now)
                 .statistics(Statistic.SAMPLE_COUNT)
