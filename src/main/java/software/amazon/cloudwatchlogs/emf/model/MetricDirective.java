@@ -66,14 +66,17 @@ class MetricDirective {
         dimensions.add(dimensionSet);
     }
 
+    // Helper method for testing putMetric()
     void putMetric(String key, double value) {
         putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
     }
 
+    // Helper method for testing putMetric()
     void putMetric(String key, double value, Unit unit) {
         putMetric(key, value, unit, StorageResolution.STANDARD);
     }
 
+    // Helper method for testing serialization
     void putMetric(String key, double value, StorageResolution storageResolution) {
         putMetric(key, value, Unit.NONE, storageResolution);
     }
