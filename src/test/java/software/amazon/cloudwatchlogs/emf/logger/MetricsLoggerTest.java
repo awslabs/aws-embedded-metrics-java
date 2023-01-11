@@ -372,13 +372,11 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException() {
+    void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException() throws InvalidMetricException {
+        logger.putMetric("test", 1);
         assertThrows(
                 InvalidMetricException.class,
-                () -> {
-                    logger.putMetric("test", 1);
-                    logger.putMetric("test", 1, StorageResolution.HIGH);
-                });
+                () -> logger.putMetric("test", 1, StorageResolution.HIGH));
     }
 
     @Test

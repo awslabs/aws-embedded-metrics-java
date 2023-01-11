@@ -32,7 +32,7 @@ public class MetricDefinitionTest {
     }
 
     @Test
-    public void testSerializeMetricDefinitionWithoutUnitWithStorageResolution()
+    public void testSerializeMetricDefinitionWithoutUnitWithHighStorageResolution()
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         MetricDefinition metricDefinition =
@@ -50,6 +50,16 @@ public class MetricDefinitionTest {
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}", metricString);
+    }
+
+    @Test
+    public void testSerializeMetricDefinitionWithoutUnitWithStandardStorageResolution()
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MetricDefinition metricDefinition = new MetricDefinition("Time", StorageResolution.STANDARD, 10);
+        String metricString = objectMapper.writeValueAsString(metricDefinition);
+
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);
     }
 
     @Test

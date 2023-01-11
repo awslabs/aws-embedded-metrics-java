@@ -132,7 +132,7 @@ public class Validator {
         if (metricNameAndResolutionMap.containsKey(name)) {
             if (!metricNameAndResolutionMap.get(name).equals(storageResolution)) {
                 throw new InvalidMetricException(
-                        "Resolution for metrics "
+                        "Resolution for metric "
                                 + name
                                 + " is already set. A single log event cannot have a metric with two different resolutions.");
             }
