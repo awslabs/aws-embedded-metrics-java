@@ -16,7 +16,6 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-
 public enum StorageResolution {
     STANDARD(60),
     HIGH(1),
@@ -31,5 +30,4 @@ public enum StorageResolution {
     public int getValue() {
         return this.value;
     }
-
 }
