@@ -56,7 +56,8 @@ public class MetricDefinitionTest {
     public void testSerializeMetricDefinitionWithoutUnitWithStandardStorageResolution()
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MetricDefinition metricDefinition = new MetricDefinition("Time", StorageResolution.STANDARD, 10);
+        MetricDefinition metricDefinition =
+                new MetricDefinition("Time", StorageResolution.STANDARD, 10);
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);

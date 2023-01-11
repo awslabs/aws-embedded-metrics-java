@@ -372,7 +372,8 @@ class MetricsLoggerTest {
     }
 
     @Test
-    void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException() throws InvalidMetricException {
+    void whenPutMetric_withDifferentStorageResolution_thenThrowInvalidMetricException()
+            throws InvalidMetricException {
         logger.putMetric("test", 1);
         assertThrows(
                 InvalidMetricException.class,
