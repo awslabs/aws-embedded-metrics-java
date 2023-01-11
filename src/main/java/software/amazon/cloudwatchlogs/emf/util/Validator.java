@@ -129,15 +129,12 @@ public class Validator {
             throw new InvalidMetricException("Metric resolution is invalid");
         }
 
-        if (metricNameAndResolutionMap.containsKey(name)) {
-            if (!metricNameAndResolutionMap.get(name).equals(storageResolution)) {
-                throw new InvalidMetricException(
-                        "Resolution for metric "
-                                + name
-                                + " is already set. A single log event cannot have a metric with two different resolutions.");
-            }
-        } else {
-            metricNameAndResolutionMap.put(name, storageResolution);
+        if ((metricNameAndResolutionMap.containsKey(name))
+                && (!metricNameAndResolutionMap.get(name).equals(storageResolution))) {
+            throw new InvalidMetricException(
+                    "Resolution for metric "
+                            + name
+                            + " is already set. A single log event cannot have a metric with two different resolutions.");
         }
     }
 
