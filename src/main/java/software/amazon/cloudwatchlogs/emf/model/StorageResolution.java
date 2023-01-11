@@ -16,7 +16,6 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import java.util.stream.Stream;
 
 public enum StorageResolution {
     STANDARD(60),
@@ -33,17 +32,4 @@ public enum StorageResolution {
         return this.value;
     }
 
-    /**
-     * Use this in place of valueOf to convert the raw integer returned by the service into the enum
-     * value.
-     *
-     * @param value real value
-     * @return Storage Resolution corresponding to the value
-     */
-    public static StorageResolution fromValue(int value) {
-        return Stream.of(StorageResolution.values())
-                .filter(e -> e.getValue() == value)
-                .findFirst()
-                .orElse(UNKNOWN_TO_SDK_VERSION);
-    }
 }
