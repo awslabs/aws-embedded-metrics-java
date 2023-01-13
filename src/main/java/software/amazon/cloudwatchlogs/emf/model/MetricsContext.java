@@ -122,9 +122,7 @@ public class MetricsContext {
             throws InvalidMetricException {
         Validator.validateMetric(key, value, unit, storageResolution, metricNameAndResolutionMap);
         metricDirective.putMetric(key, value, unit, storageResolution);
-        if (!metricNameAndResolutionMap.containsKey(key)) {
-            metricNameAndResolutionMap.put(key, storageResolution);
-        }
+        metricNameAndResolutionMap.put(key, storageResolution);
     }
     /**
      * Add a metric measurement to the context with a storage resolution but without a unit.

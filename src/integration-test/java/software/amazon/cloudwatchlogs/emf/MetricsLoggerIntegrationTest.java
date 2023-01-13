@@ -38,7 +38,6 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
-import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 public class MetricsLoggerIntegrationTest {
@@ -123,7 +122,7 @@ public class MetricsLoggerIntegrationTest {
     private void logMetric(Environment env, String metricName) throws InvalidMetricException {
         MetricsLogger logger = new MetricsLogger(env);
         logger.putDimensions(dimensions);
-        logger.putMetric(metricName, 100, Unit.MILLISECONDS, StorageResolution.HIGH);
+        logger.putMetric(metricName, 100, Unit.MILLISECONDS);
         logger.flush();
     }
 
