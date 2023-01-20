@@ -111,7 +111,7 @@ Examples:
 // Standard Resolution example
 putMetric("Latency", 200, Unit.MILLISECONDS)
 putMetric("Latency", 201, Unit.MILLISECONDS, StorageResolution.STANDARD)
-		
+
 // High Resolution example
 putMetric("Memory.HeapUsed", 1600424.0, Unit.BYTES, StorageResolution.HIGH);
 ```
