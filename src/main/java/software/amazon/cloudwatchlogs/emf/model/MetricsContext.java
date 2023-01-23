@@ -34,6 +34,7 @@ public class MetricsContext {
     @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
+    private final Map<String, StorageResolution> metricNameAndResolutionMap = new HashMap<>();
 
     public MetricsContext() {
         this(new RootNode());
@@ -108,6 +109,44 @@ public class MetricsContext {
      * an array of scalar values.
      *
      * <pre>{@code
+     * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS, StorageResolution.HIGH)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param unit The unit of the metric
+     * @param storageResolution The resolution of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
+            throws InvalidMetricException {
+        Validator.validateMetric(key, value, unit, storageResolution, metricNameAndResolutionMap);
+        metricDirective.putMetric(key, value, unit, storageResolution);
+        metricNameAndResolutionMap.put(key, storageResolution);
+    }
+    /**
+     * Add a metric measurement to the context with a storage resolution but without a unit.
+     * Multiple calls using the same key will be stored as an array of scalar values.
+     *
+     * <pre>{@code
+     * metricContext.putMetric("Latency", 100, StorageResolution.HIGH)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param storageResolution The resolution of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(String key, double value, StorageResolution storageResolution)
+            throws InvalidMetricException {
+        putMetric(key, value, Unit.NONE, storageResolution);
+    }
+
+    /**
+     * Add a metric measurement to the context without a storage resolution. Multiple calls using
+     * the same key will be stored as an array of scalar values.
+     *
+     * <pre>{@code
      * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS)
      * }</pre>
      *
@@ -117,8 +156,7 @@ public class MetricsContext {
      * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
-        Validator.validateMetric(key, value, unit);
-        metricDirective.putMetric(key, value, unit);
+        putMetric(key, value, unit, StorageResolution.STANDARD);
     }
 
     /**
@@ -134,7 +172,7 @@ public class MetricsContext {
      * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value) throws InvalidMetricException {
-        putMetric(key, value, Unit.NONE);
+        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
     }
 
     /**
@@ -297,12 +335,14 @@ public class MetricsContext {
                             new MetricDefinition(
                                     metric.getName(),
                                     metric.getUnit(),
+                                    metric.getStorageResolution(),
                                     metric.getValues()
                                             .subList(0, Constants.MAX_DATAPOINTS_PER_METRIC)));
                     metricDefinitions.offer(
                             new MetricDefinition(
                                     metric.getName(),
                                     metric.getUnit(),
+                                    metric.getStorageResolution(),
                                     metric.getValues()
                                             .subList(
                                                     Constants.MAX_DATAPOINTS_PER_METRIC,

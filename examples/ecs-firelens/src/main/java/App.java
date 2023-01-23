@@ -23,6 +23,7 @@ import software.amazon.cloudwatchlogs.emf.environment.Environment;
 import software.amazon.cloudwatchlogs.emf.environment.EnvironmentProvider;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 import sun.misc.Signal;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class App {
         MetricsLogger logger = new MetricsLogger();
         logger.setNamespace("FargateEMF");
         logger.putMetric("Latency", 63, Unit.MILLISECONDS);
+        logger.putMetric("CPU Utilization", 87, Unit.PERCENT, StorageResolution.HIGH);
         logger.flush();
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         int portNumber = 8000;

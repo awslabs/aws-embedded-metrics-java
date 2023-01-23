@@ -201,7 +201,9 @@ class MetricsContextTest {
             Unit unit = Unit.fromValue(metric.get("Unit"));
             Object value = rootNode.get(name);
             if (value instanceof ArrayList) {
-                metricDefinitions.add(new MetricDefinition(name, unit, (ArrayList) value));
+                metricDefinitions.add(
+                        new MetricDefinition(
+                                name, unit, StorageResolution.STANDARD, (ArrayList) value));
             } else {
                 metricDefinitions.add(new MetricDefinition(name, unit, (double) value));
             }

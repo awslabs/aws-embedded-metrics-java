@@ -17,12 +17,15 @@
 package software.amazon.cloudwatchlogs.emf.util;
 
 import java.time.Instant;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.*;
+import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
 public class Validator {
+
     private Validator() {
         throw new IllegalStateException("Utility class");
     }
@@ -88,10 +91,18 @@ public class Validator {
      * @param name Metric name
      * @param value Metric value
      * @param unit Metric unit
+     * @param storageResolution Metric resolution
+     * @param metricNameAndResolutionMap Map to validate Metric
      * @throws InvalidMetricException if metric is invalid
      */
-    public static void validateMetric(String name, double value, Unit unit)
+    public static void validateMetric(
+            String name,
+            double value,
+            Unit unit,
+            StorageResolution storageResolution,
+            Map<String, StorageResolution> metricNameAndResolutionMap)
             throws InvalidMetricException {
+
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidMetricException(
                     "Metric name " + name + " must include at least one non-whitespace character");
@@ -111,6 +122,19 @@ public class Validator {
 
         if (unit == null) {
             throw new InvalidMetricException("Metric unit cannot be null");
+        }
+
+        if (storageResolution == null
+                || storageResolution == StorageResolution.UNKNOWN_TO_SDK_VERSION) {
+            throw new InvalidMetricException("Metric resolution is invalid");
+        }
+
+        if ((metricNameAndResolutionMap.containsKey(name))
+                && (!metricNameAndResolutionMap.get(name).equals(storageResolution))) {
+            throw new InvalidMetricException(
+                    "Resolution for metric "
+                            + name
+                            + " is already set. A single log event cannot have a metric with two different resolutions.");
         }
     }
 

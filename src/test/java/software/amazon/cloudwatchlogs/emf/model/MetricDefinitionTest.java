@@ -32,6 +32,38 @@ public class MetricDefinitionTest {
     }
 
     @Test
+    public void testSerializeMetricDefinitionWithoutUnitWithHighStorageResolution()
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MetricDefinition metricDefinition =
+                new MetricDefinition("Time", StorageResolution.HIGH, 10);
+        String metricString = objectMapper.writeValueAsString(metricDefinition);
+
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\",\"StorageResolution\":1}", metricString);
+    }
+
+    @Test
+    public void testSerializeMetricDefinitionWithUnitWithoutStorageResolution()
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MetricDefinition metricDefinition = new MetricDefinition("Time", Unit.MILLISECONDS, 10);
+        String metricString = objectMapper.writeValueAsString(metricDefinition);
+
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}", metricString);
+    }
+
+    @Test
+    public void testSerializeMetricDefinitionWithoutUnitWithStandardStorageResolution()
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MetricDefinition metricDefinition =
+                new MetricDefinition("Time", StorageResolution.STANDARD, 10);
+        String metricString = objectMapper.writeValueAsString(metricDefinition);
+
+        assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);
+    }
+
+    @Test
     public void testSerializeMetricDefinitionWithoutUnit() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         MetricDefinition metricDefinition = new MetricDefinition("Time");
@@ -43,10 +75,13 @@ public class MetricDefinitionTest {
     @Test
     public void testSerializeMetricDefinition() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MetricDefinition metricDefinition = new MetricDefinition("Time", Unit.MILLISECONDS, 10);
+        MetricDefinition metricDefinition =
+                new MetricDefinition("Time", Unit.MILLISECONDS, StorageResolution.HIGH, 10);
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
-        assertEquals("{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}", metricString);
+        assertEquals(
+                "{\"Name\":\"Time\",\"Unit\":\"Milliseconds\",\"StorageResolution\":1}",
+                metricString);
     }
 
     @Test

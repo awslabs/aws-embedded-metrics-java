@@ -91,6 +91,51 @@ class MetricDirectiveTest {
     }
 
     @Test
+    void testPutMetricWithoutStorageResolution() throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10);
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        Assertions.assertEquals(
+                StorageResolution.STANDARD,
+                metricDirective.getMetrics().get("Time").getStorageResolution());
+        Assertions.assertEquals(
+                "{\"Dimensions\":[[]],\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
+    }
+
+    @Test
+    void testPutMetricWithStandardStorageResolution() throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10, StorageResolution.STANDARD);
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        Assertions.assertEquals(
+                StorageResolution.STANDARD,
+                metricDirective.getMetrics().get("Time").getStorageResolution());
+        Assertions.assertEquals(
+                "{\"Dimensions\":[[]],\"Metrics\":[{\"Name\":\"Time\",\"Unit\":\"None\"}],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
+    }
+
+    @Test
+    void testPutMetricWithHighStorageResolution() throws JsonProcessingException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Time", 10, StorageResolution.HIGH);
+
+        String serializedMetricDirective = objectMapper.writeValueAsString(metricDirective);
+
+        Assertions.assertEquals(
+                StorageResolution.HIGH,
+                metricDirective.getMetrics().get("Time").getStorageResolution());
+        Assertions.assertEquals(
+                "{\"Dimensions\":[[]],\"Metrics\":[{\"Name\":\"Time\",\"StorageResolution\":1,\"Unit\":\"None\"}],\"Namespace\":\"aws-embedded-metrics\"}",
+                serializedMetricDirective);
+    }
+
+    @Test
     void testPutDimensions()
             throws JsonProcessingException, InvalidDimensionException,
                     DimensionSetExceededException {

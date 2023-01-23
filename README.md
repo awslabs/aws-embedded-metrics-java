@@ -38,7 +38,8 @@ class Example {
 
 		try {
 			metrics.putDimensions(DimensionSet.of("Service", "Aggregator"));
-			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS);
+			metrics.putMetric("ProcessingLatency", 100, Unit.MILLISECONDS, StorageResolution.STANDARD);
+			metrics.putMetric("Memory.HeapUsed", 1600424.0, Unit.BYTES, StorageResolution.HIGH);
 		} catch (InvalidDimensionException | InvalidMetricException e) {
 			log.error(e);
 		}
@@ -87,10 +88,12 @@ environment.getSink().shutdown().orTimeout(10_000L, TimeUnit.MILLISECONDS);
 
 The `MetricsLogger` is the interface you will use to publish embedded metrics.
 
+- MetricsLogger **putMetric**(String key, double value, Unit unit, StorageResolution storageResolution)
+- MetricsLogger **putMetric**(String key, double value, StorageResolution storageResolution)
 - MetricsLogger **putMetric**(String key, double value, Unit unit)
 - MetricsLogger **putMetric**(String key, double value)
 
-Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. The Embedded Metric Format supports a maximum of 100 values per key.
+Adds a new metric to the current logger context. Multiple metrics using the same key will be appended to an array of values. Multiple metrics cannot have the same key and different storage resolutions. The Embedded Metric Format supports a maximum of 100 values per key.
 
 Requirements:
 
@@ -99,10 +102,18 @@ Requirements:
 - Values must be in the range of 8.515920e-109 to 1.174271e+108. In addition, special values (for example, NaN, +Infinity, -Infinity) are not supported.
 - Metrics must meet CloudWatch Metrics requirements, otherwise a `InvalidMetricException` will be thrown. See [MetricDatum](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html) for valid values.
 
+- ##### Storage Resolution
+An OPTIONAL value representing the storage resolution for the corresponding metric. Setting this to `High` specifies this metric as a high-resolution metric, so that CloudWatch stores the metric with sub-minute resolution down to one second. Setting this to `Standard` specifies this metric as a standard-resolution metric, which CloudWatch stores at 1-minute resolution. If a value is not provided, then a default value of `Standard` is assumed. See [Cloud Watch High-Resolution metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html#high-resolution-metrics)
+
 Examples:
 
 ```java
+// Standard Resolution example
 putMetric("Latency", 200, Unit.MILLISECONDS)
+putMetric("Latency", 201, Unit.MILLISECONDS, StorageResolution.STANDARD)
+
+// High Resolution example
+putMetric("Memory.HeapUsed", 1600424.0, Unit.BYTES, StorageResolution.HIGH);
 ```
 
 - MetricsLogger **putProperty**(String key, Object value )
