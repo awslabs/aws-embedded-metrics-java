@@ -16,9 +16,9 @@ Generate CloudWatch metrics embedded within structured log events. The embedded 
 
 - **Generate custom metrics across compute environments**
 
-  - Easily generate custom metrics from Lambda functions without requiring custom batching code, making blocking network requests or relying on third-party software.
-  - Other compute environments (EC2, On-prem, ECS, EKS, and other container environments) are supported by installing the [CloudWatch Agent](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Generation_CloudWatch_Agent.html).
-    - Examples can be found in [examples/README.md](examples/README.md)
+- Easily generate custom metrics from Lambda functions without requiring custom batching code, making blocking network requests or relying on third-party software.
+- Other compute environments (EC2, On-prem, ECS, EKS, and other container environments) are supported by installing the [CloudWatch Agent](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Generation_CloudWatch_Agent.html).
+	- Examples can be found in [examples/README.md](examples/README.md)
 
 - **Link metrics to high cardinality context**
 

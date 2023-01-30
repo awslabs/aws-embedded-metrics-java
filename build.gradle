@@ -15,7 +15,7 @@
 
 plugins {
 	id 'java-library'
-	id 'com.diffplug.spotless' version '5.8.2'
+	id 'com.diffplug.spotless' version '6.14.0'
 	id 'maven-publish'
 	id 'signing'
 	id "me.champeau.jmh" version "0.6.6"
