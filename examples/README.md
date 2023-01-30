@@ -43,7 +43,7 @@ With ECS and Fargate, you can use the `awslogs` log driver to have your logs sen
 
 ## Fluent Bit and Fluentd
 
-Fluent Bit can be used to collect logs and push them to CloudWatch Logs. After configuring your task to use the `awslogs` log driver, you may write your EMF logs to STDOUT and they will be processed.
+Fluent Bit can be used to collect logs and push them to CloudWatch Logs. After configuring the Amazon CloudWatch Logs output plugin, you may write your EMF logs to STDOUT and they will be processed.
 
 [Getting Started with Fluent Bit](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit)
 
