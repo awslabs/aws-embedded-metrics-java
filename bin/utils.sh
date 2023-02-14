@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+echo "[!] Assertive"
+
 function check_exit() {
     last_exit_code=$?
 
