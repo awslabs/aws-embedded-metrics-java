@@ -49,11 +49,7 @@ Fluent Bit can be used to collect logs and push them to CloudWatch Logs. After c
 
 [Amazon CloudWatch output plugin for Fluent Bit](https://docs.fluentbit.io/manual/pipeline/outputs/cloudwatch)
 
-## Previous Examples
-
-The following examples are still valid examples and can still be used, but they predate the release of the EMF auto-detection feature.
-
-### FireLens on ECS EC2
+## FireLens on ECS EC2
 
 You can deploy the example by running the following:
 
@@ -79,7 +75,7 @@ aws s3api create-bucket --bucket <bucket-name> --region <region>
   <ecs-service-name>
 ```  
 
-### FireLens on ECS Fargate
+## FireLens on ECS Fargate
 
 For running on Fargate, s3 file option is not supported for Fluent-bit config. Hence, we need to build the fluent-bit custom config image and then use its reference in our Firelens container definition.
 
