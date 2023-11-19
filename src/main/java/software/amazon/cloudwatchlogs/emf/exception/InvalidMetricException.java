@@ -16,7 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.exception;
 
-public class InvalidMetricException extends Exception {
+public class InvalidMetricException extends RuntimeException {
     public InvalidMetricException(String message) {
         super(message);
     }

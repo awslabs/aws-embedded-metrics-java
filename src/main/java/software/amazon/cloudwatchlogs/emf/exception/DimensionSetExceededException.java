@@ -18,7 +18,7 @@ package software.amazon.cloudwatchlogs.emf.exception;
 
 import software.amazon.cloudwatchlogs.emf.Constants;
 
-public class DimensionSetExceededException extends Exception {
+public class DimensionSetExceededException extends RuntimeException {
 
     public DimensionSetExceededException() {
         super(
