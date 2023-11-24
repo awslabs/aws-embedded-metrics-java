@@ -40,10 +40,8 @@ public class DimensionSet {
      * @param v1 Value of the single dimension
      * @return a DimensionSet from the parameters
      * @throws InvalidDimensionException if the dimension name or value is invalid
-     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
-    public static DimensionSet of(String d1, String v1)
-            throws InvalidDimensionException, DimensionSetExceededException {
+    public static DimensionSet of(String d1, String v1) throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1));
     }
 
@@ -56,10 +54,9 @@ public class DimensionSet {
      * @param v2 Value of the second dimension
      * @return a DimensionSet from the parameters
      * @throws InvalidDimensionException if the dimension name or value is invalid
-     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
     public static DimensionSet of(String d1, String v1, String d2, String v2)
-            throws InvalidDimensionException, DimensionSetExceededException {
+            throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2));
     }
 
@@ -74,10 +71,9 @@ public class DimensionSet {
      * @param v3 Value of the third dimension
      * @return a DimensionSet from the parameters
      * @throws InvalidDimensionException if the dimension name or value is invalid
-     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
     public static DimensionSet of(String d1, String v1, String d2, String v2, String d3, String v3)
-            throws InvalidDimensionException, DimensionSetExceededException {
+            throws InvalidDimensionException {
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2), entryOf(d3, v3));
     }
 
@@ -94,11 +90,10 @@ public class DimensionSet {
      * @param v4 Value of the fourth dimension
      * @return a DimensionSet from the parameters
      * @throws InvalidDimensionException if the dimension name or value is invalid
-     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
     public static DimensionSet of(
             String d1, String v1, String d2, String v2, String d3, String v3, String d4, String v4)
-            throws InvalidDimensionException, DimensionSetExceededException {
+            throws InvalidDimensionException {
 
         return fromEntries(entryOf(d1, v1), entryOf(d2, v2), entryOf(d3, v3), entryOf(d4, v4));
     }
@@ -118,7 +113,6 @@ public class DimensionSet {
      * @param v5 Value of the fifth dimension
      * @return a DimensionSet from the parameters
      * @throws InvalidDimensionException if the dimension name or value is invalid
-     * @throws DimensionSetExceededException if the number of dimensions exceeds the limit
      */
     public static DimensionSet of(
             String d1,
@@ -131,7 +125,7 @@ public class DimensionSet {
             String v4,
             String d5,
             String v5)
-            throws InvalidDimensionException, DimensionSetExceededException {
+            throws InvalidDimensionException {
 
         return fromEntries(
                 entryOf(d1, v1),

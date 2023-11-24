@@ -16,7 +16,7 @@
 
 package software.amazon.cloudwatchlogs.emf.exception;
 
-public class InvalidTimestampException extends Exception {
+public class InvalidTimestampException extends IllegalArgumentException {
     public InvalidTimestampException(String message) {
         super(message);
     }
