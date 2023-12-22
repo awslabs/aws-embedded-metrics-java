@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
@@ -42,7 +41,8 @@ public class MetricsContext {
     @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
-    private final Map<String, StorageResolution> metricNameAndResolutionMap = new ConcurrentHashMap<>();
+    private final Map<String, StorageResolution> metricNameAndResolutionMap =
+            new ConcurrentHashMap<>();
 
     public MetricsContext() {
         this(new RootNode());
