@@ -18,7 +18,14 @@ package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
@@ -34,7 +41,8 @@ public class MetricsContext {
     @Getter private final RootNode rootNode;
 
     private MetricDirective metricDirective;
-    private final Map<String, StorageResolution> metricNameAndResolutionMap = new HashMap<>();
+    private final Map<String, StorageResolution> metricNameAndResolutionMap =
+            new ConcurrentHashMap<>();
 
     public MetricsContext() {
         this(new RootNode());
