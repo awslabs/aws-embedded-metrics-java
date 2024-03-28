@@ -65,6 +65,7 @@ environment's sink. A full example can be found in the [`examples`](examples) di
 
 ```java
 // create an environment singleton, this should be re-used across loggers
+// DO NOT USE in a lambda environment, use new EnvironmentProvider() or even just new LambdaProvider() instead
 DefaultEnvironment environment = new DefaultEnvironment(EnvironmentConfigurationProvider.getConfig());
 
 MetricsLogger logger = new MetricsLogger(environment);
