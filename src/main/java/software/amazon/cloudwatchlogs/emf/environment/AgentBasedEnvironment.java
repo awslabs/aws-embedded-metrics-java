@@ -20,7 +20,9 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.cloudwatchlogs.emf.sinks.AgentSink;
+import software.amazon.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.cloudwatchlogs.emf.sinks.Endpoint;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 import software.amazon.cloudwatchlogs.emf.sinks.SocketClientFactory;
@@ -28,11 +30,16 @@ import software.amazon.cloudwatchlogs.emf.sinks.retry.FibonacciRetryStrategy;
 
 @Slf4j
 public abstract class AgentBasedEnvironment implements Environment {
+    private static final String WRITE_TO_STDOUT = "WRITE_TO_STDOUT";
+    private final boolean shouldWriteToStdout;
     private final Configuration config;
     private ISink sink;
 
     protected AgentBasedEnvironment(Configuration config) {
         this.config = config;
+        shouldWriteToStdout = Optional.ofNullable(SystemWrapper.getenv(WRITE_TO_STDOUT))
+            .map(Boolean::parseBoolean)
+            .orElse(false);
     }
 
     @Override
@@ -67,27 +74,31 @@ public abstract class AgentBasedEnvironment implements Environment {
     @Override
     public ISink getSink() {
         if (sink == null) {
-            Endpoint endpoint;
-            if (config.getAgentEndpoint().isPresent()) {
-                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+            if (shouldWriteToStdout) {
+                sink = new ConsoleSink();
             } else {
-                log.info(
+                Endpoint endpoint;
+                if (config.getAgentEndpoint().isPresent()) {
+                    endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+                } else {
+                    log.info(
                         "Endpoint is not defined. Using default: {}",
                         Endpoint.DEFAULT_TCP_ENDPOINT);
-                endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
-            }
-            sink =
+                    endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+                }
+                sink =
                     new AgentSink(
-                            getLogGroupName(),
-                            getLogStreamName(),
-                            endpoint,
-                            new SocketClientFactory(),
-                            config.getAsyncBufferSize(),
-                            () ->
-                                    new FibonacciRetryStrategy(
-                                            Constants.MIN_BACKOFF_MILLIS,
-                                            Constants.MAX_BACKOFF_MILLIS,
-                                            Constants.MAX_BACKOFF_JITTER));
+                        getLogGroupName(),
+                        getLogStreamName(),
+                        endpoint,
+                        new SocketClientFactory(),
+                        config.getAsyncBufferSize(),
+                        () ->
+                            new FibonacciRetryStrategy(
+                                Constants.MIN_BACKOFF_MILLIS,
+                                Constants.MAX_BACKOFF_MILLIS,
+                                Constants.MAX_BACKOFF_JITTER));
+            }
         }
         return sink;
     }
