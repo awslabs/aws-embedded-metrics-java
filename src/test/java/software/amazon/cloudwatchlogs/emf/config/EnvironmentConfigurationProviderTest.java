@@ -40,6 +40,7 @@ public class EnvironmentConfigurationProviderTest {
         putEnv("AWS_EMF_AGENT_ENDPOINT", "Endpoint");
         putEnv("AWS_EMF_ENVIRONMENT", "Agent");
         putEnv("AWS_EMF_ASYNC_BUFFER_SIZE", "9999");
+        putEnv("AWS_EMF_WRITE_TO_STDOUT", "true");
 
         Configuration config = EnvironmentConfigurationProvider.createConfig();
 
@@ -50,6 +51,7 @@ public class EnvironmentConfigurationProviderTest {
         assertEquals("Endpoint", config.getAgentEndpoint().get());
         assertEquals(Environments.Agent, config.getEnvironmentOverride());
         assertEquals(9999, config.getAsyncBufferSize());
+        assertTrue(config.shouldWriteToStdout());
     }
 
     @Test
@@ -59,10 +61,20 @@ public class EnvironmentConfigurationProviderTest {
 
         // act
         putEnv("AWS_EMF_ASYNC_BUFFER_SIZE", "NaN");
+        putEnv("AWS_EMF_WRITE_TO_STDOUT", "notABool");
 
         // assert
         Configuration config = EnvironmentConfigurationProvider.createConfig();
         assertEquals(100, config.getAsyncBufferSize());
+        assertFalse(config.shouldWriteToStdout());
+    }
+
+    @Test
+    public void emptyEnvironmentValuesFallbackToExpectedDefaults() {
+        // assert
+        Configuration config = EnvironmentConfigurationProvider.createConfig();
+        assertEquals(100, config.getAsyncBufferSize());
+        assertFalse(config.shouldWriteToStdout());
     }
 
     private void putEnv(String key, String value) {

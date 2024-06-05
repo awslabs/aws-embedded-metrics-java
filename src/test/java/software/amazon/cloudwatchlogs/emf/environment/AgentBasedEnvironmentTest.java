@@ -71,8 +71,7 @@ public class AgentBasedEnvironmentTest {
 
     @Test
     public void testGetSinkOverrideToStdOut() {
-        PowerMockito.mockStatic(SystemWrapper.class);
-        PowerMockito.when(SystemWrapper.getenv("WRITE_TO_STDOUT")).thenReturn("true");
+        configuration.setShouldWriteToStdout(true);
 
         AgentBasedEnvironment env = new AgentBasedEnvironmentTestImplementation(configuration);
         ISink sink = env.getSink();
@@ -82,9 +81,7 @@ public class AgentBasedEnvironmentTest {
 
     @Test
     public void testGetSinkOverrideToStdOutFailFastOnImproperOverride() throws Exception {
-        PowerMockito.mockStatic(SystemWrapper.class);
-        // Will only override if this env is explicitly "true"
-        PowerMockito.when(SystemWrapper.getenv("WRITE_TO_STDOUT")).thenReturn("notABool");
+        configuration.setShouldWriteToStdout(false);
 
         testGetSinkWithDefaultEndpoint();
     }

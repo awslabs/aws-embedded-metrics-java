@@ -30,16 +30,11 @@ import software.amazon.cloudwatchlogs.emf.sinks.retry.FibonacciRetryStrategy;
 
 @Slf4j
 public abstract class AgentBasedEnvironment implements Environment {
-    private static final String WRITE_TO_STDOUT = "WRITE_TO_STDOUT";
-    private final boolean shouldWriteToStdout;
     private final Configuration config;
     private ISink sink;
 
     protected AgentBasedEnvironment(Configuration config) {
         this.config = config;
-        shouldWriteToStdout = Optional.ofNullable(SystemWrapper.getenv(WRITE_TO_STDOUT))
-            .map(Boolean::parseBoolean)
-            .orElse(false);
     }
 
     @Override
@@ -74,7 +69,7 @@ public abstract class AgentBasedEnvironment implements Environment {
     @Override
     public ISink getSink() {
         if (sink == null) {
-            if (shouldWriteToStdout) {
+            if (config.shouldWriteToStdout()) {
                 sink = new ConsoleSink();
             } else {
                 Endpoint endpoint;

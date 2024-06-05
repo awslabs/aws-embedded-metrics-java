@@ -59,6 +59,8 @@ public class Configuration {
     /** Queue length for asynchronous sinks. */
     @Setter @Getter int asyncBufferSize = Constants.DEFAULT_ASYNC_BUFFER_SIZE;
 
+    @Setter private boolean shouldWriteToStdout;
+
     public Optional<String> getServiceName() {
         return getStringOptional(serviceName);
     }
@@ -91,5 +93,9 @@ public class Configuration {
             return Optional.empty();
         }
         return Optional.of(value);
+    }
+
+    public boolean shouldWriteToStdout() {
+        return shouldWriteToStdout;
     }
 }

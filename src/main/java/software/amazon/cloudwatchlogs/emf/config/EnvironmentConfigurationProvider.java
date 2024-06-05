@@ -42,7 +42,8 @@ public class EnvironmentConfigurationProvider {
                 getEnvVar(ConfigurationKeys.AGENT_ENDPOINT),
                 getEnvironmentOverride(),
                 getIntOrDefault(
-                        ConfigurationKeys.ASYNC_BUFFER_SIZE, Constants.DEFAULT_ASYNC_BUFFER_SIZE));
+                        ConfigurationKeys.ASYNC_BUFFER_SIZE, Constants.DEFAULT_ASYNC_BUFFER_SIZE),
+                Boolean.parseBoolean(getEnvVar(ConfigurationKeys.WRITE_TO_STDOUT)));
     }
 
     private static Environments getEnvironmentOverride() {
