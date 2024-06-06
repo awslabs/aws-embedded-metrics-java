@@ -37,8 +37,10 @@ With Docker images, using the `awslogs` log driver will send your container logs
 
 ## ECS and Fargate
 
-With ECS and Fargate, you can use the `awslogs` log driver to have your logs sent to CloudWatch Logs on your behalf. After configuring your task to use the `awslogs` log driver, you may write your EMF logs to STDOUT and they will be processed.
+With ECS and Fargate, you can use the `awsfirelens` (recommended) or `awslogs` log driver to have your logs sent to CloudWatch Logs on your behalf. After configuring the options for your preferred log driver, you may write your EMF logs to STDOUT and they will be processed.
 To write your EMF logs to STDOUT, set the environment variable `AWS_EMF_WRITE_TO_STDOUT=true`
+
+[`awsfirelens` documentation](https://github.com/aws/amazon-cloudwatch-logs-for-fluent-bit)
 
 [ECS documentation on `awslogs` log driver](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html)
 
