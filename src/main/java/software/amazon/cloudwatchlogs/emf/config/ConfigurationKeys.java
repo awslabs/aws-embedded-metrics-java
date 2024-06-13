@@ -28,4 +28,5 @@ public class ConfigurationKeys {
     public static final String AGENT_ENDPOINT = "AGENT_ENDPOINT";
     public static final String ENVIRONMENT_OVERRIDE = "ENVIRONMENT";
     public static final String ASYNC_BUFFER_SIZE = "ASYNC_BUFFER_SIZE";
+    public static final String WRITE_TO_STDOUT = "WRITE_TO_STDOUT";
 }

@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
 import software.amazon.cloudwatchlogs.emf.sinks.AgentSink;
+import software.amazon.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.cloudwatchlogs.emf.sinks.Endpoint;
 import software.amazon.cloudwatchlogs.emf.sinks.ISink;
 import software.amazon.cloudwatchlogs.emf.sinks.SocketClientFactory;
@@ -67,27 +68,31 @@ public abstract class AgentBasedEnvironment implements Environment {
     @Override
     public ISink getSink() {
         if (sink == null) {
-            Endpoint endpoint;
-            if (config.getAgentEndpoint().isPresent()) {
-                endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+            if (config.shouldWriteToStdout()) {
+                sink = new ConsoleSink();
             } else {
-                log.info(
-                        "Endpoint is not defined. Using default: {}",
-                        Endpoint.DEFAULT_TCP_ENDPOINT);
-                endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+                Endpoint endpoint;
+                if (config.getAgentEndpoint().isPresent()) {
+                    endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
+                } else {
+                    log.info(
+                            "Endpoint is not defined. Using default: {}",
+                            Endpoint.DEFAULT_TCP_ENDPOINT);
+                    endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
+                }
+                sink =
+                        new AgentSink(
+                                getLogGroupName(),
+                                getLogStreamName(),
+                                endpoint,
+                                new SocketClientFactory(),
+                                config.getAsyncBufferSize(),
+                                () ->
+                                        new FibonacciRetryStrategy(
+                                                Constants.MIN_BACKOFF_MILLIS,
+                                                Constants.MAX_BACKOFF_MILLIS,
+                                                Constants.MAX_BACKOFF_JITTER));
             }
-            sink =
-                    new AgentSink(
-                            getLogGroupName(),
-                            getLogStreamName(),
-                            endpoint,
-                            new SocketClientFactory(),
-                            config.getAsyncBufferSize(),
-                            () ->
-                                    new FibonacciRetryStrategy(
-                                            Constants.MIN_BACKOFF_MILLIS,
-                                            Constants.MAX_BACKOFF_MILLIS,
-                                            Constants.MAX_BACKOFF_JITTER));
         }
         return sink;
     }

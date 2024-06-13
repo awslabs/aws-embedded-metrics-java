@@ -373,6 +373,24 @@ config.setAgentEndpoint("udp://127.0.0.1:1000");
 AWS_EMF_AGENT_ENDPOINT="udp://127.0.0.1:1000"
 ```
 
+**WriteToStdout**: For agent-based platforms, setting this configuration to `true` will make the `MetricsLogger` write to `stdout` rather than sending them to the agent. The default value for this configuration is `false`. This configuration has no effect for non-agent-based platforms.
+
+If an `EnvironmentOverride` is provided, this configuration will apply to the overriden environment if the environment is an agent-based platform
+
+Example:
+
+```java
+// in process
+import software.amazon.cloudwatchlogs.emf.config.Configuration;
+import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvider;
+
+Configuration config = EnvironmentConfigurationProvider.getConfig();
+config.setShouldWriteToStdout(true);
+
+// environment
+AWS_EMF_WRITE_TO_STDOUT="true"
+```
+
 ## Thread-safety
 
 ### Internal Synchronization
