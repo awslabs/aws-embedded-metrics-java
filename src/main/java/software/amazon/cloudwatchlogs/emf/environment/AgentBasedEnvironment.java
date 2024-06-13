@@ -20,7 +20,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.config.Configuration;
-import software.amazon.cloudwatchlogs.emf.config.SystemWrapper;
 import software.amazon.cloudwatchlogs.emf.sinks.AgentSink;
 import software.amazon.cloudwatchlogs.emf.sinks.ConsoleSink;
 import software.amazon.cloudwatchlogs.emf.sinks.Endpoint;
@@ -77,22 +76,22 @@ public abstract class AgentBasedEnvironment implements Environment {
                     endpoint = Endpoint.fromURL(config.getAgentEndpoint().get());
                 } else {
                     log.info(
-                        "Endpoint is not defined. Using default: {}",
-                        Endpoint.DEFAULT_TCP_ENDPOINT);
+                            "Endpoint is not defined. Using default: {}",
+                            Endpoint.DEFAULT_TCP_ENDPOINT);
                     endpoint = Endpoint.DEFAULT_TCP_ENDPOINT;
                 }
                 sink =
-                    new AgentSink(
-                        getLogGroupName(),
-                        getLogStreamName(),
-                        endpoint,
-                        new SocketClientFactory(),
-                        config.getAsyncBufferSize(),
-                        () ->
-                            new FibonacciRetryStrategy(
-                                Constants.MIN_BACKOFF_MILLIS,
-                                Constants.MAX_BACKOFF_MILLIS,
-                                Constants.MAX_BACKOFF_JITTER));
+                        new AgentSink(
+                                getLogGroupName(),
+                                getLogStreamName(),
+                                endpoint,
+                                new SocketClientFactory(),
+                                config.getAsyncBufferSize(),
+                                () ->
+                                        new FibonacciRetryStrategy(
+                                                Constants.MIN_BACKOFF_MILLIS,
+                                                Constants.MAX_BACKOFF_MILLIS,
+                                                Constants.MAX_BACKOFF_JITTER));
             }
         }
         return sink;
