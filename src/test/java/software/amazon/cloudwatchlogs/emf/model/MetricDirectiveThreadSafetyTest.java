@@ -3,6 +3,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 
@@ -50,7 +51,10 @@ public class MetricDirectiveThreadSafetyTest {
         assertEquals(metricDirective.getAllMetrics().size(), N_THREAD * N_PUT_METRIC);
         for (int i = 0; i < N_THREAD * N_PUT_METRIC; i++) {
             assertEquals(
-                    metricDirective.getMetrics().get("Metric-" + i).getValues().get(0), i, 1e-5);
+                    ((List<Double>) metricDirective.getMetrics().get("Metric-" + i).getValues())
+                            .get(0),
+                    i,
+                    1e-5);
         }
     }
 
@@ -86,10 +90,11 @@ public class MetricDirectiveThreadSafetyTest {
         }
 
         assertEquals(1, metricDirective.getAllMetrics().size());
-        MetricDefinition md = metricDirective.getAllMetrics().toArray(new MetricDefinition[0])[0];
-        Collections.sort(md.getValues());
+        Metric md = metricDirective.getAllMetrics().toArray(new Metric[0])[0];
+        List<Double> values = (List<Double>) md.getValues();
+        Collections.sort(values);
         for (int i = 0; i < N_THREAD * N_PUT_METRIC; i++) {
-            assertEquals(md.getValues().get(i), i, 1e-5);
+            assertEquals(values.get(i), i, 1e-5);
         }
     }
 

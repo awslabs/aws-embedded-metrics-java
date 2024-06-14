@@ -16,70 +16,101 @@
 
 package software.amazon.cloudwatchlogs.emf.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
-import software.amazon.cloudwatchlogs.emf.serializers.StorageResolutionFilter;
-import software.amazon.cloudwatchlogs.emf.serializers.StorageResolutionSerializer;
-import software.amazon.cloudwatchlogs.emf.serializers.UnitDeserializer;
-import software.amazon.cloudwatchlogs.emf.serializers.UnitSerializer;
 
 /** Represents the MetricDefinition of the EMF schema. */
-@AllArgsConstructor
-class MetricDefinition {
-    @NonNull
-    @Getter
-    @JsonProperty("Name")
-    private String name;
+public class MetricDefinition extends Metric<List<Double>> {
 
-    @Getter
-    @JsonProperty("Unit")
-    @JsonSerialize(using = UnitSerializer.class)
-    @JsonDeserialize(using = UnitDeserializer.class)
-    private Unit unit;
-
-    @Getter
-    @Setter
-    @JsonProperty("StorageResolution")
-    @JsonInclude(
-            value = JsonInclude.Include.CUSTOM,
-            valueFilter =
-                    StorageResolutionFilter.class) // Do not serialize when valueFilter is true
-    @JsonSerialize(using = StorageResolutionSerializer.class)
-    public StorageResolution storageResolution;
-
-    @JsonIgnore @NonNull @Getter private List<Double> values;
-
-    MetricDefinition(String name) {
-        this(name, Unit.NONE, StorageResolution.STANDARD, new ArrayList<>());
+    private MetricDefinition(
+            @NonNull String name,
+            Unit unit,
+            StorageResolution storageResolution,
+            List<Double> values) {
+        this.unit = unit;
+        this.storageResolution = storageResolution;
+        this.values = values;
+        this.name = name;
     }
 
-    MetricDefinition(String name, double value) {
-        this(name, Unit.NONE, StorageResolution.STANDARD, value);
+    MetricDefinition(Unit unit, StorageResolution storageResolution, List<Double> values) {
+        this.unit = unit;
+        this.storageResolution = storageResolution;
+        this.values = values;
     }
 
-    MetricDefinition(String name, Unit unit, double value) {
-        this(name, unit, StorageResolution.STANDARD, new ArrayList<>(Arrays.asList(value)));
+    @Override
+    protected Metric getMetricValuesUnderSize(int size) {
+        List<Double> subList = values.subList(0, Math.min(values.size(), size));
+        MetricDefinition metric =
+                MetricDefinition.builder()
+                        .unit(unit)
+                        .storageResolution(storageResolution)
+                        .values(subList)
+                        .build();
+        metric.setName(name);
+        return metric;
     }
 
-    MetricDefinition(String name, StorageResolution storageResolution, double value) {
-        this(name, Unit.NONE, storageResolution, new ArrayList<>(Arrays.asList(value)));
+    @Override
+    protected Metric getMetricValuesOverSize(int size) {
+        if (size > values.size()) {
+            return null;
+        }
+        List<Double> subList = values.subList(size, values.size());
+        MetricDefinition metric =
+                MetricDefinition.builder()
+                        .name(name)
+                        .unit(unit)
+                        .storageResolution(storageResolution)
+                        .values(subList)
+                        .build();
+        return metric;
     }
 
-    MetricDefinition(String name, Unit unit, StorageResolution storageResolution, double value) {
-        this(name, unit, storageResolution, new ArrayList<>(Arrays.asList(value)));
+    public static MetricDefinitionBuilder builder() {
+        return new MetricDefinitionBuilder();
     }
 
-    void addValue(double value) {
-        values.add(value);
+    /**
+     * @return the values of this metric, simplified to a double instead of a list if there is only
+     *     one value
+     */
+    @Override
+    protected Object getFormattedValues() {
+        return values.size() == 1 ? values.get(0) : values;
+    }
+
+    public static class MetricDefinitionBuilder
+            extends Metric.MetricBuilder<List<Double>, MetricDefinitionBuilder> {
+
+        @Override
+        protected MetricDefinitionBuilder getThis() {
+            return this;
+        }
+
+        public MetricDefinitionBuilder() {
+            this.values = new ArrayList<>();
+        }
+
+        @Override
+        public MetricDefinitionBuilder addValue(double value) {
+            this.values.add(value);
+            return this;
+        }
+
+        public MetricDefinitionBuilder values(@NonNull List<Double> values) {
+            this.values = values;
+            return this;
+        }
+
+        @Override
+        public MetricDefinition build() {
+            if (name == null) {
+                return new MetricDefinition(unit, storageResolution, values);
+            }
+            return new MetricDefinition(name, unit, storageResolution, values);
+        }
     }
 }

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
@@ -66,9 +65,8 @@ class RootNode {
         targetMembers.putAll(properties);
         targetMembers.putAll(getDimensions());
         for (MetricDirective metricDirective : aws.getCloudWatchMetrics()) {
-            for (MetricDefinition metric : metricDirective.getMetrics().values()) {
-                List<Double> values = metric.getValues();
-                targetMembers.put(metric.getName(), values.size() == 1 ? values.get(0) : values);
+            for (Metric metric : metricDirective.getMetrics().values()) {
+                targetMembers.put(metric.getName(), metric.getFormattedValues());
             }
         }
         return targetMembers;
@@ -85,7 +83,7 @@ class RootNode {
         return dimensions;
     }
 
-    Map<String, MetricDefinition> metrics() {
+    Map<String, Metric> metrics() {
         return aws.getCloudWatchMetrics().get(0).getMetrics();
     }
 
