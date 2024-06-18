@@ -21,9 +21,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
@@ -42,6 +42,8 @@ public class MetricsContext {
 
     private MetricDirective metricDirective;
     private final Map<String, StorageResolution> metricNameAndResolutionMap =
+            new ConcurrentHashMap<>();
+    private final Map<String, AggregationType> metricNameAndAggregationMap =
             new ConcurrentHashMap<>();
 
     public MetricsContext() {
@@ -117,6 +119,41 @@ public class MetricsContext {
      * an array of scalar values.
      *
      * <pre>{@code
+     * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS, StorageResolution.HIGH, AggregationType.LIST)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param unit The unit of the metric
+     * @param storageResolution The resolution of the metric
+     * @param aggregationType The aggregation type of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(
+            String key,
+            double value,
+            Unit unit,
+            StorageResolution storageResolution,
+            AggregationType aggregationType)
+            throws InvalidMetricException {
+        Validator.validateMetric(
+                key,
+                value,
+                unit,
+                storageResolution,
+                aggregationType,
+                metricNameAndResolutionMap,
+                metricNameAndAggregationMap);
+        metricDirective.putMetric(key, value, unit, storageResolution, aggregationType);
+        metricNameAndResolutionMap.put(key, storageResolution);
+        metricNameAndAggregationMap.put(key, aggregationType);
+    }
+
+    /**
+     * Add a metric measurement to the context. Multiple calls using the same key will be stored as
+     * an array of scalar values.
+     *
+     * <pre>{@code
      * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS, StorageResolution.HIGH)
      * }</pre>
      *
@@ -128,10 +165,9 @@ public class MetricsContext {
      */
     public void putMetric(String key, double value, Unit unit, StorageResolution storageResolution)
             throws InvalidMetricException {
-        Validator.validateMetric(key, value, unit, storageResolution, metricNameAndResolutionMap);
-        metricDirective.putMetric(key, value, unit, storageResolution);
-        metricNameAndResolutionMap.put(key, storageResolution);
+        putMetric(key, value, unit, storageResolution, AggregationType.LIST);
     }
+
     /**
      * Add a metric measurement to the context with a storage resolution but without a unit.
      * Multiple calls using the same key will be stored as an array of scalar values.
@@ -147,7 +183,7 @@ public class MetricsContext {
      */
     public void putMetric(String key, double value, StorageResolution storageResolution)
             throws InvalidMetricException {
-        putMetric(key, value, Unit.NONE, storageResolution);
+        putMetric(key, value, Unit.NONE, storageResolution, AggregationType.LIST);
     }
 
     /**
@@ -164,7 +200,67 @@ public class MetricsContext {
      * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value, Unit unit) throws InvalidMetricException {
-        putMetric(key, value, unit, StorageResolution.STANDARD);
+        putMetric(key, value, unit, StorageResolution.STANDARD, AggregationType.LIST);
+    }
+
+    /**
+     * Add a metric measurement to the context without a unit Multiple calls using the same key will
+     * be stored as an array of scalar values.
+     *
+     * <pre>{@code
+     * metricContext.putMetric("Count", 10, AggregationType.LIST)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param aggregationType The aggregation type of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(String key, double value, AggregationType aggregationType)
+            throws InvalidMetricException {
+        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD, aggregationType);
+    }
+
+    /**
+     * Add a metric measurement to the context with a storage resolution but without a unit.
+     * Multiple calls using the same key will be stored as an array of scalar values.
+     *
+     * <pre>{@code
+     * metricContext.putMetric("Latency", 100, StorageResolution.HIGH, AggregationType.LIST)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param storageResolution The resolution of the metric
+     * @param aggregationType The aggregation type of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(
+            String key,
+            double value,
+            StorageResolution storageResolution,
+            AggregationType aggregationType)
+            throws InvalidMetricException {
+        putMetric(key, value, Unit.NONE, storageResolution, aggregationType);
+    }
+
+    /**
+     * Add a metric measurement to the context without a storage resolution. Multiple calls using
+     * the same key will be stored as an array of scalar values.
+     *
+     * <pre>{@code
+     * metricContext.putMetric("Latency", 100, Unit.MILLISECONDS, AggregationType.LIST)
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @param unit The unit of the metric
+     * @param aggregationType The aggregation type of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void putMetric(String key, double value, Unit unit, AggregationType aggregationType)
+            throws InvalidMetricException {
+        putMetric(key, value, unit, StorageResolution.STANDARD, aggregationType);
     }
 
     /**
@@ -180,7 +276,26 @@ public class MetricsContext {
      * @throws InvalidMetricException if the metric is invalid
      */
     public void putMetric(String key, double value) throws InvalidMetricException {
-        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
+        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD, AggregationType.LIST);
+    }
+
+    /**
+     * Set a metric measurement to the context overwriting any existing metric that may be
+     * associated with that key.
+     *
+     * <pre>{@code
+     * metricContext.setMetric("Latency", StatisticSet.builer().addValue(10).addValue(100).build())
+     * }</pre>
+     *
+     * @param key Name of the metric
+     * @param value Value of the metric
+     * @throws InvalidMetricException if the metric is invalid
+     */
+    public void setMetric(String key, Metric value) throws InvalidMetricException {
+        Validator.validateMetric(key, value);
+        metricDirective.setMetric(key, value);
+        metricNameAndResolutionMap.put(key, value.storageResolution);
+        metricNameAndAggregationMap.put(key, AggregationType.STATISTIC_SET);
     }
 
     /**
@@ -324,25 +439,32 @@ public class MetricsContext {
         } else {
             List<RootNode> nodes = new ArrayList<>();
             Map<String, Metric> metrics = new HashMap<>();
-            Queue<Metric> metricQueue = new LinkedList<>(rootNode.metrics().values());
-            while (!metricQueue.isEmpty()) {
-                Metric metric = metricQueue.poll();
+            ArrayList<Queue<Metric>> remainingMetrics = new ArrayList<>();
+            PriorityQueue<Queue<Metric>> metricQueue =
+                    new PriorityQueue<>((x, y) -> Integer.compare(x.size(), y.size()));
 
+            for (Metric metric : rootNode.metrics().values()) {
+                metricQueue.offer(metric.serialize());
+            }
+
+            // Split metrics into batches of 100 (max allowed by EMF backend
+            while (!metricQueue.isEmpty() || !remainingMetrics.isEmpty()) {
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
-                        || metrics.containsKey(metric.getName())) {
+                        || metricQueue.isEmpty()
+                        || metrics.containsKey(metricQueue.peek().peek().getName())) {
                     nodes.add(buildRootNode(metrics));
                     metrics = new HashMap<>();
+                    metricQueue.addAll(remainingMetrics);
+                    remainingMetrics.clear();
                 }
 
-                Metric overSizeMetric =
-                        metric.getMetricValuesOverSize(Constants.MAX_DATAPOINTS_PER_METRIC);
-                Metric underSizeMetric =
-                        metric.getMetricValuesUnderSize(Constants.MAX_DATAPOINTS_PER_METRIC);
+                Queue<Metric> serializedMetrics = metricQueue.poll();
+                Metric firstBatch = serializedMetrics.poll();
 
-                metrics.put(metric.getName(), underSizeMetric);
+                metrics.put(firstBatch.getName(), firstBatch);
 
-                if (overSizeMetric != null) {
-                    metricQueue.offer(overSizeMetric);
+                if (!serializedMetrics.isEmpty()) {
+                    remainingMetrics.add(serializedMetrics);
                 }
             }
 
@@ -366,10 +488,6 @@ public class MetricsContext {
     }
 
     private boolean anyMetricWithTooManyDataPoints(RootNode node) {
-        return node.metrics().values().stream()
-                .anyMatch(
-                        metric ->
-                                metric.getMetricValuesOverSize(Constants.MAX_DATAPOINTS_PER_METRIC)
-                                        != null);
+        return node.metrics().values().stream().anyMatch(metric -> metric.isOversized());
     }
 }
