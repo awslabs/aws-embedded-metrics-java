@@ -83,7 +83,7 @@ class RootNode {
         return dimensions;
     }
 
-    Map<String, Metric> metrics() {
+    Map<String, Metric<?>> metrics() {
         return aws.getCloudWatchMetrics().get(0).getMetrics();
     }
 

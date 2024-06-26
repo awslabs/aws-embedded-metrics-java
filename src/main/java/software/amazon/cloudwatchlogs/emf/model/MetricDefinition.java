@@ -19,6 +19,8 @@ package software.amazon.cloudwatchlogs.emf.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+
 import lombok.NonNull;
 import software.amazon.cloudwatchlogs.emf.Constants;
 
@@ -43,8 +45,8 @@ public class MetricDefinition extends Metric<List<Double>> {
     }
 
     @Override
-    protected LinkedList<Metric> serialize() {
-        LinkedList<Metric> metrics = new LinkedList<>();
+    protected Queue<Metric<List<Double>>> serialize() {
+        Queue<Metric<List<Double>>> metrics = new LinkedList<>();
         MetricDefinition metric = this;
         while (metric != null) {
             metrics.add(metric.getFirstMetricBatch(Constants.MAX_DATAPOINTS_PER_METRIC));
@@ -67,7 +69,7 @@ public class MetricDefinition extends Metric<List<Double>> {
     }
 
     private MetricDefinition getRemainingMetricBatch(int batchSize) {
-        if (batchSize > values.size()) {
+        if (batchSize >= values.size()) {
             return null;
         }
         List<Double> subList = values.subList(batchSize, values.size());

@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 public enum AggregationType {
     LIST(0),
     STATISTIC_SET(1),
+    HISTOGRAM(2),
     UNKNOWN_TO_SDK_VERSION(-1);
 
     private final int value;

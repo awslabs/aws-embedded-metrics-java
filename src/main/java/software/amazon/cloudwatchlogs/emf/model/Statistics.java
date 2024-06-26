@@ -19,7 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 class Statistics {
-    Statistics(double max, double min, int count, double sum) {
+    Statistics(double max, double min, int count, double sum) throws IllegalArgumentException {
         this.max = max;
         this.min = min;
         this.count = count;
@@ -46,10 +46,6 @@ class Statistics {
 
     @JsonProperty("Sum")
     public Double sum;
-
-    int size() {
-        return 4;
-    }
 
     void addValue(double value) {
         count++;
@@ -86,5 +82,10 @@ class Statistics {
                 && that.sum.equals(sum)
                 && that.max.equals(max)
                 && that.min.equals(min);
+    }
+
+    @Override
+    public int hashCode() {
+        return count + sum.hashCode() + max.hashCode() + min.hashCode();
     }
 }

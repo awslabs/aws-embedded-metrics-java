@@ -18,10 +18,20 @@ package software.amazon.cloudwatchlogs.emf.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.With;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
@@ -33,7 +43,7 @@ class MetricDirective {
     @JsonProperty("Namespace")
     private String namespace;
 
-    @JsonIgnore @Setter @Getter @With private Map<String, Metric> metrics;
+    @JsonIgnore @Setter @Getter @With private Map<String, Metric<?>> metrics;
 
     @JsonIgnore
     @Getter(AccessLevel.PROTECTED)
@@ -97,6 +107,9 @@ class MetricDirective {
                             case STATISTIC_SET:
                                 builder = StatisticSet.builder();
                                 break;
+                            case HISTOGRAM:
+                                builder = HistogramMetric.builder();
+                                break;
                             case LIST:
                             default:
                                 builder = MetricDefinition.builder();
@@ -124,13 +137,13 @@ class MetricDirective {
      * @param key the name of the metric
      * @param value the value of the metric
      */
-    void setMetric(String key, Metric value) {
+    void setMetric(String key, Metric<?> value) {
         value.setName(key);
         metrics.put(key, value);
     }
 
     @JsonProperty("Metrics")
-    Collection<Metric> getAllMetrics() {
+    Collection<Metric<?>> getAllMetrics() {
         return metrics.values();
     }
 

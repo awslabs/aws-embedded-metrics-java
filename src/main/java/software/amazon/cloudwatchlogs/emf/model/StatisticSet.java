@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import java.util.LinkedList;
+import java.util.Queue;
 import lombok.NonNull;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
@@ -29,7 +30,8 @@ public class StatisticSet extends Metric<Statistics> {
             double max,
             double min,
             int count,
-            double sum) {
+            double sum)
+            throws IllegalArgumentException {
         this(unit, storageResolution, new Statistics(max, min, count, sum));
     }
 
@@ -51,10 +53,10 @@ public class StatisticSet extends Metric<Statistics> {
     }
 
     @Override
-    protected LinkedList<Metric> serialize() throws InvalidMetricException {
+    protected Queue<Metric<Statistics>> serialize() throws InvalidMetricException {
         // A statistic set is a complete metric that cannot be broken into smaller pieces therefore
         // this metric will be the only one in the returned list
-        LinkedList<Metric> queue = new LinkedList<>();
+        Queue<Metric<Statistics>> queue = new LinkedList<>();
         queue.add(this);
 
         return queue;
