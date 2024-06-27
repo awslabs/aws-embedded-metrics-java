@@ -71,7 +71,10 @@ class MetricDirectiveTest {
         metricDirective.putMetric("Time", 20);
 
         Assertions.assertEquals(1, metricDirective.getAllMetrics().size());
-        MetricDefinition[] mds = metricDirective.getAllMetrics().toArray(new MetricDefinition[0]);
+        MetricDefinition.MetricDefinitionBuilder[] mds =
+                metricDirective
+                        .getAllMetrics()
+                        .toArray(new MetricDefinition.MetricDefinitionBuilder[0]);
         Assertions.assertEquals(Arrays.asList(10d, 20d), mds[0].getValues());
     }
 

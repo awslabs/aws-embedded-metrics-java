@@ -24,11 +24,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 
-public class MetricDefinitionTest {
+class MetricDefinitionTest {
 
     @Test(expected = NullPointerException.class)
     public void testThrowExceptionIfNameIsNull() {
-        new MetricDefinition(null);
+        MetricDefinition.MetricDefinitionBuilder builder = MetricDefinition.builder();
+        builder.setName(null);
     }
 
     @Test
@@ -36,7 +37,11 @@ public class MetricDefinitionTest {
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         MetricDefinition metricDefinition =
-                new MetricDefinition("Time", StorageResolution.HIGH, 10);
+                MetricDefinition.builder()
+                        .storageResolution(StorageResolution.HIGH)
+                        .addValue(10)
+                        .name("Time")
+                        .build();
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\",\"StorageResolution\":1}", metricString);
@@ -46,7 +51,12 @@ public class MetricDefinitionTest {
     public void testSerializeMetricDefinitionWithUnitWithoutStorageResolution()
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MetricDefinition metricDefinition = new MetricDefinition("Time", Unit.MILLISECONDS, 10);
+        MetricDefinition metricDefinition =
+                MetricDefinition.builder()
+                        .unit(Unit.MILLISECONDS)
+                        .addValue(10)
+                        .name("Time")
+                        .build();
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"Milliseconds\"}", metricString);
@@ -57,7 +67,11 @@ public class MetricDefinitionTest {
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         MetricDefinition metricDefinition =
-                new MetricDefinition("Time", StorageResolution.STANDARD, 10);
+                MetricDefinition.builder()
+                        .storageResolution(StorageResolution.STANDARD)
+                        .addValue(10)
+                        .name("Time")
+                        .build();
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);
@@ -66,7 +80,7 @@ public class MetricDefinitionTest {
     @Test
     public void testSerializeMetricDefinitionWithoutUnit() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MetricDefinition metricDefinition = new MetricDefinition("Time");
+        MetricDefinition metricDefinition = MetricDefinition.builder().name("Time").build();
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals("{\"Name\":\"Time\",\"Unit\":\"None\"}", metricString);
@@ -76,7 +90,12 @@ public class MetricDefinitionTest {
     public void testSerializeMetricDefinition() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         MetricDefinition metricDefinition =
-                new MetricDefinition("Time", Unit.MILLISECONDS, StorageResolution.HIGH, 10);
+                MetricDefinition.builder()
+                        .unit(Unit.MILLISECONDS)
+                        .storageResolution(StorageResolution.HIGH)
+                        .addValue(10)
+                        .name("Time")
+                        .build();
         String metricString = objectMapper.writeValueAsString(metricDefinition);
 
         assertEquals(
@@ -86,10 +105,11 @@ public class MetricDefinitionTest {
 
     @Test
     public void testAddValue() {
-        MetricDefinition md = new MetricDefinition("Time", Unit.MICROSECONDS, 10);
-        assertEquals(Collections.singletonList(10d), md.getValues());
+        MetricDefinition.MetricDefinitionBuilder builder =
+                MetricDefinition.builder().unit(Unit.MILLISECONDS).addValue(10).addValue(20);
+        assertEquals(Collections.singletonList(10d), builder.getValues());
 
-        md.addValue(20);
-        assertEquals(Arrays.asList(10d, 20d), md.getValues());
+        builder.addValue(20);
+        assertEquals(Arrays.asList(10d, 20d), builder.getValues());
     }
 }

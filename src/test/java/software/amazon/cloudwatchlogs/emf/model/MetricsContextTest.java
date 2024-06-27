@@ -48,8 +48,8 @@ class MetricsContextTest {
 
         List<MetricDefinition> metrics = parseMetrics(events.get(0));
         Assertions.assertEquals(metrics.size(), metricCount);
-        for (MetricDefinition metric : metrics) {
-            MetricDefinition originalMetric = mc.getRootNode().metrics().get(metric.getName());
+        for (Metric metric : metrics) {
+            Metric originalMetric = mc.getRootNode().metrics().get(metric.getName());
             Assertions.assertEquals(originalMetric.getName(), metric.getName());
             Assertions.assertEquals(originalMetric.getUnit(), metric.getUnit());
         }
@@ -73,8 +73,9 @@ class MetricsContextTest {
             allMetrics.addAll(parseMetrics(event));
         }
         Assertions.assertEquals(metricCount, allMetrics.size());
-        for (MetricDefinition metric : allMetrics) {
-            MetricDefinition originalMetric = mc.getRootNode().metrics().get(metric.getName());
+        for (Metric metric : allMetrics) {
+            Metric originalMetric = mc.getRootNode().metrics().get(metric.getName());
+
             Assertions.assertEquals(originalMetric.getName(), metric.getName());
             Assertions.assertEquals(originalMetric.getUnit(), metric.getUnit());
         }
@@ -202,10 +203,20 @@ class MetricsContextTest {
             Object value = rootNode.get(name);
             if (value instanceof ArrayList) {
                 metricDefinitions.add(
-                        new MetricDefinition(
-                                name, unit, StorageResolution.STANDARD, (ArrayList) value));
+                        MetricDefinition.builder()
+                                .name(name)
+                                .unit(unit)
+                                .storageResolution(StorageResolution.STANDARD)
+                                .values((ArrayList) value)
+                                .build());
             } else {
-                metricDefinitions.add(new MetricDefinition(name, unit, (double) value));
+                metricDefinitions.add(
+                        MetricDefinition.builder()
+                                .name(name)
+                                .unit(unit)
+                                .storageResolution(StorageResolution.STANDARD)
+                                .addValue((double) value)
+                                .build());
             }
         }
         return metricDefinitions;

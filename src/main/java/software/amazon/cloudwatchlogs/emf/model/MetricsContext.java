@@ -323,11 +323,10 @@ public class MetricsContext {
             return Arrays.asList(this.rootNode.serialize());
         } else {
             List<RootNode> nodes = new ArrayList<>();
-            Map<String, MetricDefinition> metrics = new HashMap<>();
-            Queue<MetricDefinition> metricDefinitions =
-                    new LinkedList<>(rootNode.metrics().values());
-            while (!metricDefinitions.isEmpty()) {
-                MetricDefinition metric = metricDefinitions.poll();
+            Map<String, Metric> metrics = new HashMap<>();
+            Queue<Metric> metricQueue = new LinkedList<>(rootNode.metrics().values());
+            while (!metricQueue.isEmpty()) {
+                Metric metric = metricQueue.poll();
 
                 if (metrics.size() == Constants.MAX_METRICS_PER_EVENT
                         || metrics.containsKey(metric.getName())) {
@@ -335,28 +334,18 @@ public class MetricsContext {
                     metrics = new HashMap<>();
                 }
 
-                if (metric.getValues().size() <= Constants.MAX_DATAPOINTS_PER_METRIC) {
-                    metrics.put(metric.getName(), metric);
-                } else {
-                    metrics.put(
-                            metric.getName(),
-                            new MetricDefinition(
-                                    metric.getName(),
-                                    metric.getUnit(),
-                                    metric.getStorageResolution(),
-                                    metric.getValues()
-                                            .subList(0, Constants.MAX_DATAPOINTS_PER_METRIC)));
-                    metricDefinitions.offer(
-                            new MetricDefinition(
-                                    metric.getName(),
-                                    metric.getUnit(),
-                                    metric.getStorageResolution(),
-                                    metric.getValues()
-                                            .subList(
-                                                    Constants.MAX_DATAPOINTS_PER_METRIC,
-                                                    metric.getValues().size())));
+                Metric overSizeMetric =
+                        metric.getMetricValuesOverSize(Constants.MAX_DATAPOINTS_PER_METRIC);
+                Metric underSizeMetric =
+                        metric.getMetricValuesUnderSize(Constants.MAX_DATAPOINTS_PER_METRIC);
+
+                metrics.put(metric.getName(), underSizeMetric);
+
+                if (overSizeMetric != null) {
+                    metricQueue.offer(overSizeMetric);
                 }
             }
+
             if (!metrics.isEmpty()) {
                 nodes.add(buildRootNode(metrics));
             }
@@ -368,7 +357,7 @@ public class MetricsContext {
         }
     }
 
-    private RootNode buildRootNode(Map<String, MetricDefinition> metrics) {
+    private RootNode buildRootNode(Map<String, Metric> metrics) {
         Metadata metadata = rootNode.getAws();
         MetricDirective md = metadata.getCloudWatchMetrics().get(0);
         Metadata clonedMetadata =
@@ -379,6 +368,8 @@ public class MetricsContext {
     private boolean anyMetricWithTooManyDataPoints(RootNode node) {
         return node.metrics().values().stream()
                 .anyMatch(
-                        metric -> metric.getValues().size() > Constants.MAX_DATAPOINTS_PER_METRIC);
+                        metric ->
+                                metric.getMetricValuesOverSize(Constants.MAX_DATAPOINTS_PER_METRIC)
+                                        != null);
     }
 }
