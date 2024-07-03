@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.*;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
 /** Represents the MetricDirective part of the EMF schema. */
 @AllArgsConstructor
@@ -32,7 +33,7 @@ class MetricDirective {
     @JsonProperty("Namespace")
     private String namespace;
 
-    @JsonIgnore @Setter @Getter @With private Map<String, MetricDefinition> metrics;
+    @JsonIgnore @Setter @Getter @With private Map<String, Metric> metrics;
 
     @JsonIgnore
     @Getter(AccessLevel.PROTECTED)
@@ -85,16 +86,28 @@ class MetricDirective {
         metrics.compute(
                 key,
                 (k, v) -> {
-                    if (v == null) return new MetricDefinition(key, unit, storageResolution, value);
-                    else {
-                        v.addValue(value);
+                    if (v == null) {
+                        MetricDefinition.MetricDefinitionBuilder builder =
+                                MetricDefinition.builder()
+                                        .name(k)
+                                        .unit(unit)
+                                        .storageResolution(storageResolution)
+                                        .addValue(value);
+                        return builder;
+                    } else if (v instanceof Metric.MetricBuilder) {
+                        ((Metric.MetricBuilder) v).addValue(value);
                         return v;
+                    } else {
+                        throw new InvalidMetricException(
+                                String.format(
+                                        "New metrics cannot be put to the name: \"%s\", because it has been set to an immutable metric type.",
+                                        k));
                     }
                 });
     }
 
     @JsonProperty("Metrics")
-    Collection<MetricDefinition> getAllMetrics() {
+    Collection<Metric> getAllMetrics() {
         return metrics.values();
     }
 
