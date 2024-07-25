@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.logger;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,7 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
+import software.amazon.cloudwatchlogs.emf.model.AggregationType;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
@@ -529,6 +531,22 @@ class MetricsLoggerTest {
 
         logger.flush();
         assertFalse(sink.getLogEvents().get(0).contains("Count"));
+    }
+
+    @Test
+    void testDefaultAggregationType()
+            throws InvalidMetricException, DimensionSetExceededException, JsonProcessingException {
+        logger.setDefaultAggregationType(AggregationType.STATISTIC_SET);
+        assertEquals(AggregationType.STATISTIC_SET, logger.getDefaultAggregationType());
+
+        logger.putMetric("Count", 1);
+        logger.flush();
+
+        assertTrue(
+                sink.getContext()
+                        .serialize()
+                        .get(0)
+                        .contains("\"Count\":{\"Max\":1.0,\"Min\":1.0,\"Count\":1,\"Sum\":1.0}"));
     }
 
     private void expectDimension(String dimension, String value)

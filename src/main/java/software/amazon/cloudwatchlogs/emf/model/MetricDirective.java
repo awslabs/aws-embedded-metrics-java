@@ -69,31 +69,42 @@ class MetricDirective {
 
     // Helper method for testing putMetric()
     void putMetric(String key, double value) {
-        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
+        putMetric(key, value, Unit.NONE, StorageResolution.STANDARD, AggregationType.LIST);
     }
 
     // Helper method for testing putMetric()
     void putMetric(String key, double value, Unit unit) {
-        putMetric(key, value, unit, StorageResolution.STANDARD);
+        putMetric(key, value, unit, StorageResolution.STANDARD, AggregationType.LIST);
     }
 
     // Helper method for testing serialization
     void putMetric(String key, double value, StorageResolution storageResolution) {
-        putMetric(key, value, Unit.NONE, storageResolution);
+        putMetric(key, value, Unit.NONE, storageResolution, AggregationType.LIST);
     }
 
-    void putMetric(String key, double value, Unit unit, StorageResolution storageResolution) {
+    void putMetric(
+            String key,
+            double value,
+            Unit unit,
+            StorageResolution storageResolution,
+            AggregationType aggregationType) {
         metrics.compute(
                 key,
                 (k, v) -> {
                     if (v == null) {
-                        MetricDefinition.MetricDefinitionBuilder builder =
-                                MetricDefinition.builder()
-                                        .name(k)
-                                        .unit(unit)
-                                        .storageResolution(storageResolution)
-                                        .addValue(value);
-                        return builder;
+                        Metric.MetricBuilder builder;
+                        switch (aggregationType) {
+                            case STATISTIC_SET:
+                                builder = StatisticSet.builder();
+                                break;
+                            case LIST:
+                            default:
+                                builder = MetricDefinition.builder();
+                        }
+                        return builder.name(k)
+                                .unit(unit)
+                                .storageResolution(storageResolution)
+                                .addValue(value);
                     } else if (v instanceof Metric.MetricBuilder) {
                         ((Metric.MetricBuilder) v).addValue(value);
                         return v;
@@ -104,6 +115,18 @@ class MetricDirective {
                                         k));
                     }
                 });
+    }
+
+    /**
+     * Sets a metric to the given value. If a metric with the same name already exists, it will be
+     * overwritten.
+     *
+     * @param key the name of the metric
+     * @param value the value of the metric
+     */
+    void setMetric(String key, Metric value) {
+        value.setName(key);
+        metrics.put(key, value);
     }
 
     @JsonProperty("Metrics")

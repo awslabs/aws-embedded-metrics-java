@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.LinkedList;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -41,7 +42,7 @@ public abstract class Metric<V> {
     @JsonProperty("Unit")
     @JsonSerialize(using = UnitSerializer.class)
     @JsonDeserialize(using = UnitDeserializer.class)
-    protected Unit unit;
+    protected Unit unit = Unit.NONE;
 
     @JsonProperty("StorageResolution")
     @JsonInclude(
@@ -49,7 +50,7 @@ public abstract class Metric<V> {
             valueFilter =
                     StorageResolutionFilter.class) // Do not serialize when valueFilter is true
     @JsonSerialize(using = StorageResolutionSerializer.class)
-    protected StorageResolution storageResolution;
+    protected StorageResolution storageResolution = StorageResolution.STANDARD;
 
     @JsonIgnore @Getter protected V values;
 
@@ -58,23 +59,20 @@ public abstract class Metric<V> {
         return this.getValues();
     }
 
-    /**
-     * Creates a Metric with the first {@code size} values of the current metric
-     *
-     * @param size the maximum size of the returned metric's values
-     * @return a Metric with the first {@code size} values of the current metric.
-     */
-    protected abstract Metric getMetricValuesUnderSize(int size);
+    /** @return true if the values of this metric are valid, false otherwise. */
+    public abstract boolean hasValidValues();
+
+    /** @return true if the values of this metric are oversized for CloudWatch Logs */
+    protected abstract boolean isOversized();
 
     /**
-     * Creates a Metric all metrics after the first {@code size} values of the current metric. If
-     * there are less than {@code size} values, null is returned.
+     * Creates a list of new Metrics based off the values in this metric split in so that they are
+     * small enough that CWL will not drop the message values
      *
-     * @param size the maximum size of the returned metric's values
-     * @return a Metric with the all metrics after the first {@code size} values of the current
-     *     metric. If there are less than {@code size} values, null is returned.
+     * @return a list of metrics based off of the values of this metric that aren't too large for
+     *     CWL
      */
-    protected abstract Metric getMetricValuesOverSize(int size);
+    protected abstract LinkedList<Metric> serialize();
 
     public abstract static class MetricBuilder<V, T extends MetricBuilder<V, T>> extends Metric<V> {
 
@@ -92,7 +90,7 @@ public abstract class Metric<V> {
          *
          * @return the built metric
          */
-        abstract Metric build();
+        abstract Metric<V> build();
 
         protected T name(@NonNull String name) {
             this.name = name;
@@ -109,16 +107,24 @@ public abstract class Metric<V> {
             return getThis();
         }
 
-        protected Metric getMetricValuesOverSize(int size) {
-            return build().getMetricValuesOverSize(size);
+        @Override
+        public boolean hasValidValues() {
+            return build().hasValidValues();
         }
 
-        protected Metric getMetricValuesUnderSize(int size) {
-            return build().getMetricValuesUnderSize(size);
+        @Override
+        protected LinkedList<Metric> serialize() {
+            return build().serialize();
         }
 
+        @Override
         protected Object getFormattedValues() {
             return build().getFormattedValues();
+        }
+
+        @Override
+        protected boolean isOversized() {
+            return build().isOversized();
         }
     }
 }

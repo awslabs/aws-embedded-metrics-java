@@ -20,7 +20,12 @@ import java.time.Instant;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.cloudwatchlogs.emf.Constants;
-import software.amazon.cloudwatchlogs.emf.exception.*;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
+import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
+import software.amazon.cloudwatchlogs.emf.model.AggregationType;
+import software.amazon.cloudwatchlogs.emf.model.Metric;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
 
@@ -92,6 +97,7 @@ public class Validator {
      * @param value Metric value
      * @param unit Metric unit
      * @param storageResolution Metric resolution
+     * @param aggregationType Metric aggregation type
      * @param metricNameAndResolutionMap Map to validate Metric
      * @throws InvalidMetricException if metric is invalid
      */
@@ -100,7 +106,9 @@ public class Validator {
             double value,
             Unit unit,
             StorageResolution storageResolution,
-            Map<String, StorageResolution> metricNameAndResolutionMap)
+            AggregationType aggregationType,
+            Map<String, StorageResolution> metricNameAndResolutionMap,
+            Map<String, AggregationType> metricNameAndAggregationMap)
             throws InvalidMetricException {
 
         if (name == null || name.trim().isEmpty()) {
@@ -135,6 +143,61 @@ public class Validator {
                     "Resolution for metric "
                             + name
                             + " is already set. A single log event cannot have a metric with two different resolutions.");
+        }
+
+        if (aggregationType == null || aggregationType == AggregationType.UNKNOWN_TO_SDK_VERSION) {
+            throw new InvalidMetricException("Metric aggregation type is invalid");
+        }
+
+        if ((metricNameAndAggregationMap.containsKey(name))
+                && (!metricNameAndAggregationMap.get(name).equals(aggregationType))) {
+            throw new InvalidMetricException(
+                    "Aggregation type for metric "
+                            + name
+                            + " is already set. A single log event cannot have a metric with two different aggregation types.");
+        }
+    }
+
+    /**
+     * Validates Metric.
+     *
+     * @see <a
+     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html">CloudWatch
+     *     Metric</a>
+     * @param name Metric name
+     * @param metric Metric to be validated
+     * @throws InvalidMetricException if metric is invalid
+     */
+    public static void validateMetric(String name, Metric metric) throws InvalidMetricException {
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidMetricException(
+                    "Metric name " + name + " must include at least one non-whitespace character");
+        }
+
+        if (name.length() > Constants.MAX_METRIC_NAME_LENGTH) {
+            throw new InvalidMetricException(
+                    "Metric name exceeds maximum length of "
+                            + Constants.MAX_METRIC_NAME_LENGTH
+                            + ": "
+                            + name);
+        }
+
+        if (metric == null) {
+            throw new InvalidMetricException("Metric cannot be null");
+        }
+
+        if (!metric.hasValidValues()) {
+            throw new InvalidMetricException("Metric has no values");
+        }
+
+        if (metric.getUnit() == null) {
+            throw new InvalidMetricException("Metric unit cannot be null");
+        }
+
+        if (metric.getStorageResolution() == null
+                || metric.getStorageResolution() == StorageResolution.UNKNOWN_TO_SDK_VERSION) {
+            throw new InvalidMetricException("Metric resolution is invalid");
         }
     }
 

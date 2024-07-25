@@ -17,8 +17,10 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import lombok.NonNull;
+import software.amazon.cloudwatchlogs.emf.Constants;
 
 /** Represents the MetricDefinition of the EMF schema. */
 public class MetricDefinition extends Metric<List<Double>> {
@@ -41,8 +43,19 @@ public class MetricDefinition extends Metric<List<Double>> {
     }
 
     @Override
-    protected Metric getMetricValuesUnderSize(int size) {
-        List<Double> subList = values.subList(0, Math.min(values.size(), size));
+    protected LinkedList<Metric> serialize() {
+        LinkedList<Metric> metrics = new LinkedList<>();
+        MetricDefinition metric = this;
+        while (metric != null) {
+            metrics.add(metric.getFirstMetricBatch(Constants.MAX_DATAPOINTS_PER_METRIC));
+            metric = metric.getRemainingMetricBatch(Constants.MAX_DATAPOINTS_PER_METRIC);
+        }
+
+        return metrics;
+    }
+
+    private MetricDefinition getFirstMetricBatch(int batchSize) {
+        List<Double> subList = values.subList(0, Math.min(values.size(), batchSize));
         MetricDefinition metric =
                 MetricDefinition.builder()
                         .unit(unit)
@@ -53,12 +66,11 @@ public class MetricDefinition extends Metric<List<Double>> {
         return metric;
     }
 
-    @Override
-    protected Metric getMetricValuesOverSize(int size) {
-        if (size > values.size()) {
+    private MetricDefinition getRemainingMetricBatch(int batchSize) {
+        if (batchSize > values.size()) {
             return null;
         }
-        List<Double> subList = values.subList(size, values.size());
+        List<Double> subList = values.subList(batchSize, values.size());
         MetricDefinition metric =
                 MetricDefinition.builder()
                         .name(name)
@@ -67,6 +79,10 @@ public class MetricDefinition extends Metric<List<Double>> {
                         .values(subList)
                         .build();
         return metric;
+    }
+
+    protected boolean isOversized() {
+        return values.size() > Constants.MAX_DATAPOINTS_PER_METRIC;
     }
 
     public static MetricDefinitionBuilder builder() {
@@ -80,6 +96,11 @@ public class MetricDefinition extends Metric<List<Double>> {
     @Override
     protected Object getFormattedValues() {
         return values.size() == 1 ? values.get(0) : values;
+    }
+
+    @Override
+    public boolean hasValidValues() {
+        return values != null && !values.isEmpty();
     }
 
     public static class MetricDefinitionBuilder

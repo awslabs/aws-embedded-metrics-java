@@ -30,7 +30,9 @@ import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidNamespaceException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidTimestampException;
+import software.amazon.cloudwatchlogs.emf.model.AggregationType;
 import software.amazon.cloudwatchlogs.emf.model.DimensionSet;
+import software.amazon.cloudwatchlogs.emf.model.Metric;
 import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 import software.amazon.cloudwatchlogs.emf.model.StorageResolution;
 import software.amazon.cloudwatchlogs.emf.model.Unit;
@@ -45,6 +47,7 @@ public class MetricsLogger {
     private MetricsContext context;
     private CompletableFuture<Environment> environmentFuture;
     private EnvironmentProvider environmentProvider;
+    @Getter @Setter private volatile AggregationType defaultAggregationType = AggregationType.LIST;
     /**
      * This lock is used to create an internal sync context for flush() method in multi-threaded
      * situations. Flush() acquires write lock, other methods (accessing mutable shared data with
@@ -191,6 +194,7 @@ public class MetricsLogger {
      * @param value is the value of the metric
      * @param unit is the unit of the metric value
      * @param storageResolution is the resolution of the metric
+     * @param aggregationType is the aggregation type of the metric
      * @see <a
      *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html#high-resolution-metrics">CloudWatch
      *     High Resolution Metrics</a>
@@ -198,11 +202,15 @@ public class MetricsLogger {
      * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger putMetric(
-            String key, double value, Unit unit, StorageResolution storageResolution)
+            String key,
+            double value,
+            Unit unit,
+            StorageResolution storageResolution,
+            AggregationType aggregationType)
             throws InvalidMetricException {
         rwl.readLock().lock();
         try {
-            this.context.putMetric(key, value, unit, storageResolution);
+            this.context.putMetric(key, value, unit, storageResolution, aggregationType);
             return this;
         } finally {
             rwl.readLock().unlock();
@@ -210,55 +218,153 @@ public class MetricsLogger {
     }
 
     /**
-     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
-     * not contribute to your account TPS limits. The value will also be available in your
-     * CloudWatch Logs
      *
-     * @param key is the name of the metric
-     * @param value is the value of the metric
-     * @param storageResolution is the resolution of the metric
-     * @see <a
-     *     href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html#high-resolution-metrics">CloudWatch
-     *     High Resolution Metrics</a>
-     * @return the current logger
-     * @throws InvalidMetricException if the metric is invalid
+     *
+     * <ul>
+     *   <li>Unit defaults to NONE
+     *   <li>AggregationType defaults to the default AggregationType of this logger
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
      */
     public MetricsLogger putMetric(String key, double value, StorageResolution storageResolution)
             throws InvalidMetricException {
-        this.putMetric(key, value, Unit.NONE, storageResolution);
+        this.putMetric(key, value, Unit.NONE, storageResolution, this.defaultAggregationType);
         return this;
     }
 
     /**
-     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
-     * not contribute to your account TPS limits. The value will also be available in your
-     * CloudWatch Logs
      *
-     * @param key is the name of the metric
-     * @param value is the value of the metric
-     * @param unit is the unit of the metric value
-     * @return the current logger
-     * @throws InvalidMetricException if the metric is invalid
+     *
+     * <ul>
+     *   <li>StorageResolution defaults to STANDARD
+     *   <li>AggregationType defaults to the default AggregationType of this logger
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
      */
     public MetricsLogger putMetric(String key, double value, Unit unit)
             throws InvalidMetricException {
-        this.putMetric(key, value, unit, StorageResolution.STANDARD);
+        this.putMetric(key, value, unit, StorageResolution.STANDARD, this.defaultAggregationType);
         return this;
     }
 
     /**
-     * Put a metric value. This value will be emitted to CloudWatch Metrics asynchronously and does
-     * not contribute to your account TPS limits. The value will also be available in your
-     * CloudWatch Logs
+     *
+     *
+     * <ul>
+     *   <li>StorageResolution defaults to STANDARD
+     *   <li>Unit defaults to NONE
+     *   <li>AggregationType defaults to the default AggregationType of this logger
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
+     */
+    public MetricsLogger putMetric(String key, double value) throws InvalidMetricException {
+        this.putMetric(
+                key, value, Unit.NONE, StorageResolution.STANDARD, this.defaultAggregationType);
+        return this;
+    }
+
+    /**
+     *
+     *
+     * <ul>
+     *   <li>AggregationType defaults to the default AggregationType of this logger
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
+     */
+    public MetricsLogger putMetric(
+            String key, double value, Unit unit, StorageResolution storageResolution)
+            throws InvalidMetricException {
+        this.putMetric(key, value, Unit.NONE, storageResolution, this.defaultAggregationType);
+        return this;
+    }
+
+    /**
+     *
+     *
+     * <ul>
+     *   <li>StorageResolution defaults to STANDARD
+     *   <li>AggregationType defaults to the default AggregationType of this logger
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
+     */
+    public MetricsLogger putMetric(
+            String key,
+            double value,
+            StorageResolution storageResolution,
+            AggregationType aggregationType)
+            throws InvalidMetricException {
+        this.putMetric(key, value, Unit.NONE, storageResolution, aggregationType);
+        return this;
+    }
+
+    /**
+     *
+     *
+     * <ul>
+     *   <li>StorageResolution defaults to STANDARD
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
+     */
+    public MetricsLogger putMetric(
+            String key, double value, Unit unit, AggregationType aggregationType)
+            throws InvalidMetricException {
+        this.putMetric(key, value, unit, StorageResolution.STANDARD, aggregationType);
+        return this;
+    }
+
+    /**
+     *
+     *
+     * <ul>
+     *   <li>StorageResolution defaults to STANDARD
+     *   <li>Unit defaults to NONE
+     * </ul>
+     *
+     * @see MetricsLogger#putMetric(String key, double value, Unit unit, StorageResolution
+     *     storageResolution, AggregationType aggregationType) putMetric(String key, double value,
+     *     Unit unit, StorageResolution storageResolution, AggregationType aggregationType)
+     */
+    public MetricsLogger putMetric(String key, double value, AggregationType aggregationType)
+            throws InvalidMetricException {
+        this.putMetric(key, value, Unit.NONE, StorageResolution.STANDARD, aggregationType);
+        return this;
+    }
+
+    /**
+     * Set a metric value, if a metric already has the same key it will be overwitten. This value
+     * will be emitted to CloudWatch Metrics asynchronously and does not contribute to your account
+     * TPS limits. The value will also be available in your CloudWatch Logs
      *
      * @param key the name of the metric
      * @param value the value of the metric
      * @return the current logger
      * @throws InvalidMetricException if the metric is invalid
      */
-    public MetricsLogger putMetric(String key, double value) throws InvalidMetricException {
-        this.putMetric(key, value, Unit.NONE, StorageResolution.STANDARD);
-        return this;
+    public MetricsLogger setMetric(String key, Metric value) throws InvalidMetricException {
+        try {
+            this.context.setMetric(key, value);
+            return this;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     /**

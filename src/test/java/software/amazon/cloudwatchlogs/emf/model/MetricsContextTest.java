@@ -46,7 +46,7 @@ class MetricsContextTest {
         List<String> events = mc.serialize();
         Assertions.assertEquals(1, events.size());
 
-        List<MetricDefinition> metrics = parseMetrics(events.get(0));
+        List<MetricDefinition> metrics = parseMetricDefinitions(events.get(0));
         Assertions.assertEquals(metrics.size(), metricCount);
         for (Metric metric : metrics) {
             Metric originalMetric = mc.getRootNode().metrics().get(metric.getName());
@@ -70,7 +70,7 @@ class MetricsContextTest {
 
         List<MetricDefinition> allMetrics = new ArrayList<>();
         for (String event : events) {
-            allMetrics.addAll(parseMetrics(event));
+            allMetrics.addAll(parseMetricDefinitions(event));
         }
         Assertions.assertEquals(metricCount, allMetrics.size());
         for (Metric metric : allMetrics) {
@@ -96,7 +96,7 @@ class MetricsContextTest {
         Assertions.assertEquals(expectedEventCount, events.size());
         List<MetricDefinition> allMetrics = new ArrayList<>();
         for (String event : events) {
-            allMetrics.addAll(parseMetrics(event));
+            allMetrics.addAll(parseMetricDefinitions(event));
         }
         List<Double> expectedValues = new ArrayList<>();
         for (int i = 0; i < Constants.MAX_DATAPOINTS_PER_METRIC; i++) {
@@ -121,8 +121,8 @@ class MetricsContextTest {
         List<String> events = mc.serialize();
         Assertions.assertEquals(expectedEventCount, events.size());
 
-        List<MetricDefinition> metricsFromEvent1 = parseMetrics(events.get(0));
-        List<MetricDefinition> metricsFromEvent2 = parseMetrics(events.get(1));
+        List<MetricDefinition> metricsFromEvent1 = parseMetricDefinitions(events.get(0));
+        List<MetricDefinition> metricsFromEvent2 = parseMetricDefinitions(events.get(1));
 
         Assertions.assertEquals(2, metricsFromEvent1.size());
         List<Double> expectedValues = new ArrayList<>();
@@ -152,6 +152,44 @@ class MetricsContextTest {
         Map<String, Object> rootNode = parseRootNode(events.get(0));
         // If there's no metric added, the _aws would be filtered out from the log event
         Assertions.assertFalse(rootNode.containsKey("_aws"));
+    }
+
+    @Test
+    void testSerializeStatisticSetMetric() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        int dataPointCount = 100;
+        String metricName = "metric1";
+        for (int i = 0; i < dataPointCount; i++) {
+            mc.putMetric(metricName, i, AggregationType.STATISTIC_SET);
+        }
+
+        List<String> events = mc.serialize();
+        List<StatisticSet> statisticSets = parseStatisticSetMetrics(events.get(0));
+        Assertions.assertEquals(1, statisticSets.size());
+        Assertions.assertEquals(
+                new Statistics(99., 0., 100, 4950.), statisticSets.get(0).getValues());
+    }
+
+    @Test
+    void testSetInvalidMetric() {
+        MetricsContext mc = new MetricsContext();
+        Assertions.assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    mc.setMetric("Metric", StatisticSet.builder().build());
+                });
+
+        Assertions.assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    mc.setMetric("Metric", null);
+                });
+
+        Assertions.assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    mc.setMetric("", StatisticSet.builder().addValue(1).build());
+                });
     }
 
     @Test
@@ -188,7 +226,8 @@ class MetricsContextTest {
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<MetricDefinition> parseMetrics(String event) throws JsonProcessingException {
+    private ArrayList<MetricDefinition> parseMetricDefinitions(String event)
+            throws JsonProcessingException {
         Map<String, Object> rootNode = parseRootNode(event);
         Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
         ArrayList<Map<String, Object>> metricDirectives =
@@ -220,6 +259,35 @@ class MetricsContextTest {
             }
         }
         return metricDefinitions;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<StatisticSet> parseStatisticSetMetrics(String event)
+            throws JsonProcessingException {
+        Map<String, Object> rootNode = parseRootNode(event);
+        Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
+        ArrayList<Map<String, Object>> metricDirectives =
+                (ArrayList<Map<String, Object>>) metadata.get("CloudWatchMetrics");
+        ArrayList<Map<String, String>> metrics =
+                (ArrayList<Map<String, String>>) metricDirectives.get(0).get("Metrics");
+
+        ArrayList<StatisticSet> statisticSets = new ArrayList<>();
+        for (Map<String, String> metric : metrics) {
+            String name = metric.get("Name");
+            Unit unit = Unit.fromValue(metric.get("Unit"));
+            Map value = (Map) rootNode.get(name);
+            statisticSets.add(
+                    new StatisticSet(
+                            name,
+                            unit,
+                            StorageResolution.STANDARD,
+                            new Statistics(
+                                    (Double) value.get("Max"),
+                                    (Double) value.get("Min"),
+                                    (int) value.get("Count"),
+                                    (Double) value.get("Sum"))));
+        }
+        return statisticSets;
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {

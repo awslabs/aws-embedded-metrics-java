@@ -17,19 +17,24 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class MetricDefinitionTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testThrowExceptionIfNameIsNull() {
         MetricDefinition.MetricDefinitionBuilder builder = MetricDefinition.builder();
-        builder.setName(null);
+        assertThrows(
+                NullPointerException.class,
+                () -> {
+                    builder.setName(null);
+                });
     }
 
     @Test
@@ -106,7 +111,7 @@ class MetricDefinitionTest {
     @Test
     public void testAddValue() {
         MetricDefinition.MetricDefinitionBuilder builder =
-                MetricDefinition.builder().unit(Unit.MILLISECONDS).addValue(10).addValue(20);
+                MetricDefinition.builder().unit(Unit.MILLISECONDS).addValue(10);
         assertEquals(Collections.singletonList(10d), builder.getValues());
 
         builder.addValue(20);
