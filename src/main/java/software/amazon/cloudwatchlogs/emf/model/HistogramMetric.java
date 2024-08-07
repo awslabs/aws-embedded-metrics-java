@@ -95,22 +95,37 @@ public class HistogramMetric extends Metric<Histogram> {
 
         @Override
         public Histogram getValues() {
-            return values.reduce();
+            rwl.readLock().lock();
+            try {
+                return values.reduce();
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public HistogramMetricBuilder addValue(double value) {
-            this.values.addValue(value);
-            return this;
+            rwl.readLock().lock();
+            try {
+                values.addValue(value);
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public HistogramMetric build() {
-            values.reduce();
-            if (name == null) {
-                return new HistogramMetric(unit, storageResolution, values);
+            rwl.writeLock().lock();
+            try {
+                values.reduce();
+                if (name == null) {
+                    return new HistogramMetric(unit, storageResolution, values);
+                }
+                return new HistogramMetric(name, unit, storageResolution, values);
+            } finally {
+                rwl.writeLock().unlock();
             }
-            return new HistogramMetric(name, unit, storageResolution, values);
         }
     }
 }

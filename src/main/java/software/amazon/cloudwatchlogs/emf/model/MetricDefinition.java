@@ -118,21 +118,36 @@ public class MetricDefinition extends Metric<List<Double>> {
 
         @Override
         public MetricDefinitionBuilder addValue(double value) {
-            this.values.add(value);
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values.add(value);
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         public MetricDefinitionBuilder values(@NonNull List<Double> values) {
-            this.values = values;
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values = values;
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public MetricDefinition build() {
-            if (name == null) {
-                return new MetricDefinition(unit, storageResolution, values);
+            rwl.writeLock().lock();
+            try {
+                if (name == null) {
+                    return new MetricDefinition(unit, storageResolution, values);
+                }
+                return new MetricDefinition(name, unit, storageResolution, values);
+            } finally {
+                rwl.writeLock().unlock();
             }
-            return new MetricDefinition(name, unit, storageResolution, values);
         }
     }
 }

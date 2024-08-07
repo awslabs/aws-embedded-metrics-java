@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -78,6 +79,14 @@ public abstract class Metric<V> {
 
     public abstract static class MetricBuilder<V, T extends MetricBuilder<V, T>> extends Metric<V> {
 
+        /**
+         * This lock is used to create an internal sync context for build() method in multi-threaded
+         * situations. build() acquires write lock, other methods (accessing mutable shared data))
+         * acquires read lock. This makes sure build() is executed exclusively, while other methods
+         * can be executed concurrently.
+         */
+        @JsonIgnore final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
         protected abstract T getThis();
 
         /**
@@ -95,18 +104,33 @@ public abstract class Metric<V> {
         abstract Metric<V> build();
 
         protected T name(@NonNull String name) {
-            this.name = name;
-            return getThis();
+            rwl.readLock().lock();
+            try {
+                this.name = name;
+                return getThis();
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         public T unit(Unit unit) {
-            this.unit = unit;
-            return getThis();
+            rwl.readLock().lock();
+            try {
+                this.unit = unit;
+                return getThis();
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         public T storageResolution(StorageResolution storageResolution) {
-            this.storageResolution = storageResolution;
-            return getThis();
+            rwl.readLock().lock();
+            try {
+                this.storageResolution = storageResolution;
+                return getThis();
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override

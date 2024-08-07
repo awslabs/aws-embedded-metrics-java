@@ -89,21 +89,36 @@ public class StatisticSet extends Metric<Statistics> {
 
         @Override
         public StatisticSetBuilder addValue(double value) {
-            this.values.addValue(value);
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values.addValue(value);
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
-        public StatisticSetBuilder values(@NonNull Statistics values) {
-            this.values = values;
-            return this;
+        StatisticSetBuilder values(@NonNull Statistics values) {
+            rwl.readLock().lock();
+            try {
+                this.values = values;
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public StatisticSet build() {
-            if (name == null) {
-                return new StatisticSet(unit, storageResolution, values);
+            rwl.writeLock().lock();
+            try {
+                if (name == null) {
+                    return new StatisticSet(unit, storageResolution, values);
+                }
+                return new StatisticSet(name, unit, storageResolution, values);
+            } finally {
+                rwl.writeLock().unlock();
             }
-            return new StatisticSet(name, unit, storageResolution, values);
         }
     }
 }
