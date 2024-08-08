@@ -17,6 +17,7 @@
 package software.amazon.cloudwatchlogs.emf.model;
 
 import java.util.LinkedList;
+import java.util.Queue;
 import lombok.NonNull;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
 
@@ -29,7 +30,8 @@ public class StatisticSet extends Metric<Statistics> {
             double max,
             double min,
             int count,
-            double sum) {
+            double sum)
+            throws IllegalArgumentException {
         this(unit, storageResolution, new Statistics(max, min, count, sum));
     }
 
@@ -51,10 +53,10 @@ public class StatisticSet extends Metric<Statistics> {
     }
 
     @Override
-    protected LinkedList<Metric> serialize() throws InvalidMetricException {
+    protected Queue<Metric<Statistics>> serialize() throws InvalidMetricException {
         // A statistic set is a complete metric that cannot be broken into smaller pieces therefore
         // this metric will be the only one in the returned list
-        LinkedList<Metric> queue = new LinkedList<>();
+        Queue<Metric<Statistics>> queue = new LinkedList<>();
         queue.add(this);
 
         return queue;
@@ -87,21 +89,36 @@ public class StatisticSet extends Metric<Statistics> {
 
         @Override
         public StatisticSetBuilder addValue(double value) {
-            this.values.addValue(value);
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values.addValue(value);
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
-        public StatisticSetBuilder values(@NonNull Statistics values) {
-            this.values = values;
-            return this;
+        StatisticSetBuilder values(@NonNull Statistics values) {
+            rwl.readLock().lock();
+            try {
+                this.values = values;
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public StatisticSet build() {
-            if (name == null) {
-                return new StatisticSet(unit, storageResolution, values);
+            rwl.writeLock().lock();
+            try {
+                if (name == null) {
+                    return new StatisticSet(unit, storageResolution, values);
+                }
+                return new StatisticSet(name, unit, storageResolution, values);
+            } finally {
+                rwl.writeLock().unlock();
             }
-            return new StatisticSet(name, unit, storageResolution, values);
         }
     }
 }

@@ -19,6 +19,7 @@ package software.amazon.cloudwatchlogs.emf.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import lombok.NonNull;
 import software.amazon.cloudwatchlogs.emf.Constants;
 
@@ -43,8 +44,8 @@ public class MetricDefinition extends Metric<List<Double>> {
     }
 
     @Override
-    protected LinkedList<Metric> serialize() {
-        LinkedList<Metric> metrics = new LinkedList<>();
+    protected Queue<Metric<List<Double>>> serialize() {
+        Queue<Metric<List<Double>>> metrics = new LinkedList<>();
         MetricDefinition metric = this;
         while (metric != null) {
             metrics.add(metric.getFirstMetricBatch(Constants.MAX_DATAPOINTS_PER_METRIC));
@@ -117,21 +118,36 @@ public class MetricDefinition extends Metric<List<Double>> {
 
         @Override
         public MetricDefinitionBuilder addValue(double value) {
-            this.values.add(value);
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values.add(value);
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         public MetricDefinitionBuilder values(@NonNull List<Double> values) {
-            this.values = values;
-            return this;
+            rwl.readLock().lock();
+            try {
+                this.values = values;
+                return this;
+            } finally {
+                rwl.readLock().unlock();
+            }
         }
 
         @Override
         public MetricDefinition build() {
-            if (name == null) {
-                return new MetricDefinition(unit, storageResolution, values);
+            rwl.writeLock().lock();
+            try {
+                if (name == null) {
+                    return new MetricDefinition(unit, storageResolution, values);
+                }
+                return new MetricDefinition(name, unit, storageResolution, values);
+            } finally {
+                rwl.writeLock().unlock();
             }
-            return new MetricDefinition(name, unit, storageResolution, values);
         }
     }
 }

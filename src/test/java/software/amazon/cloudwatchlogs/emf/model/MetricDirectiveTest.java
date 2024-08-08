@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidMetricException;
@@ -305,6 +305,54 @@ class MetricDirectiveTest {
                 StatisticSet.class, metricDirective.getMetrics().get("Metric").getClass());
         Assertions.assertEquals(
                 1, ((Statistics) metricDirective.getMetrics().get("Metric").getValues()).count);
+
+        Assertions.assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    metricDirective.putMetric("Metric", 1.);
+                });
+    }
+
+    @Test
+    void testSetMetricHistogramReplacement()
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
+        MetricDirective metricDirective = new MetricDirective();
+        metricDirective.putMetric("Metric", 10.);
+        Assertions.assertEquals(
+                MetricDefinition.MetricDefinitionBuilder.class,
+                metricDirective.getMetrics().get("Metric").getClass());
+
+        HistogramMetric hist1 = HistogramMetric.builder().addValue(7.).addValue(2.5).build();
+
+        metricDirective.setMetric("Metric", hist1);
+        Assertions.assertEquals(
+                HistogramMetric.class, metricDirective.getMetrics().get("Metric").getClass());
+        Assertions.assertEquals(
+                2, ((Histogram) metricDirective.getMetrics().get("Metric").getValues()).count);
+
+        HistogramMetric hist2 = HistogramMetric.builder().addValue(7.).build();
+
+        metricDirective.setMetric("Metric", hist2);
+        Assertions.assertEquals(
+                HistogramMetric.class, metricDirective.getMetrics().get("Metric").getClass());
+        Assertions.assertEquals(
+                1, ((Histogram) metricDirective.getMetrics().get("Metric").getValues()).count);
+    }
+
+    @Test
+    void testSetMetricHistogramThenPutMetric()
+            throws JsonProcessingException, InvalidDimensionException,
+                    DimensionSetExceededException {
+        MetricDirective metricDirective = new MetricDirective();
+
+        HistogramMetric hist1 = HistogramMetric.builder().addValue(7.).build();
+
+        metricDirective.setMetric("Metric", hist1);
+        Assertions.assertEquals(
+                HistogramMetric.class, metricDirective.getMetrics().get("Metric").getClass());
+        Assertions.assertEquals(
+                1, ((Histogram) metricDirective.getMetrics().get("Metric").getValues()).count);
 
         Assertions.assertThrows(
                 InvalidMetricException.class,

@@ -171,12 +171,39 @@ class MetricsContextTest {
     }
 
     @Test
+    void testSerializeHistogramMetric() throws JsonProcessingException {
+        MetricsContext mc = new MetricsContext();
+        int dataPointCount = 100;
+        String metricName = "metric1";
+        for (int i = 0; i < dataPointCount; i++) {
+            mc.putMetric(metricName, i, AggregationType.HISTOGRAM);
+        }
+
+        List<String> events = mc.serialize();
+        List<HistogramMetric> hists = parseHistogramMetrics(events.get(0));
+        Assertions.assertEquals(1, hists.size());
+        Histogram hist = hists.get(0).getValues();
+        Assertions.assertEquals(100, hist.count);
+        Assertions.assertEquals(4950, hist.sum, 1e-5);
+        Assertions.assertEquals(99, hist.max, 1e-5);
+        Assertions.assertEquals(0., hist.min, 1e-5);
+        Assertions.assertEquals(34, hist.values.size());
+        Assertions.assertEquals(34, hist.counts.size());
+    }
+
+    @Test
     void testSetInvalidMetric() {
         MetricsContext mc = new MetricsContext();
         Assertions.assertThrows(
                 InvalidMetricException.class,
                 () -> {
                     mc.setMetric("Metric", StatisticSet.builder().build());
+                });
+
+        Assertions.assertThrows(
+                InvalidMetricException.class,
+                () -> {
+                    mc.setMetric("Metric", HistogramMetric.builder().build());
                 });
 
         Assertions.assertThrows(
@@ -288,6 +315,34 @@ class MetricsContextTest {
                                     (Double) value.get("Sum"))));
         }
         return statisticSets;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<HistogramMetric> parseHistogramMetrics(String event)
+            throws JsonProcessingException {
+        Map<String, Object> rootNode = parseRootNode(event);
+        Map<String, Object> metadata = (Map<String, Object>) rootNode.get("_aws");
+        ArrayList<Map<String, Object>> metricDirectives =
+                (ArrayList<Map<String, Object>>) metadata.get("CloudWatchMetrics");
+        ArrayList<Map<String, String>> metrics =
+                (ArrayList<Map<String, String>>) metricDirectives.get(0).get("Metrics");
+
+        ArrayList<HistogramMetric> historgrams = new ArrayList<>();
+        for (Map<String, String> metric : metrics) {
+            String name = metric.get("Name");
+            Unit unit = Unit.fromValue(metric.get("Unit"));
+            Map value = (Map) rootNode.get(name);
+            Histogram hist =
+                    new Histogram(
+                            (List<Double>) value.get("Values"),
+                            (List<Integer>) value.get("Counts"));
+            hist.sum = (Double) value.get("Sum");
+            hist.count = (Integer) value.get("Count");
+            hist.max = (Double) value.get("Max");
+            hist.min = (Double) value.get("Min");
+            historgrams.add(new HistogramMetric(name, unit, StorageResolution.STANDARD, hist));
+        }
+        return historgrams;
     }
 
     private Map<String, Object> parseRootNode(String event) throws JsonProcessingException {

@@ -409,6 +409,42 @@ Thread-safety for the second use case is achieved by using a ReentrantReadWriteL
 With all the internal synchronization measures, however, there're still certain multi-threading use cases that are not covered by this library, which might require external synchronizations or other protection measures.
 This is due to the fact that the execution order of APIs are not determined in async contexts. For example, if user needs to associate a given set of properties with a metric in each thread, the results are not guaranteed since the execution order of `putProperty()` is not determined across threads. In such cases, we recommend using a different MetricsLogger instance for different threads, so that no resources are shared and no thread-safety problem would ever happen. Note that this can often be simplified by using a ThreadLocal variable.
 
+## Aggregation
+
+### Built in Aggregation
+
+There are 3 types of aggregation implemented in this library: List, Statistic Sets, and Histograms.
+
+- List reports all values added to a metrics as a list of values.
+- Statistic Sets only reports the maximum, minimum, sum, and count of values added to a metric.
+- Histograms use the Sparse Exponential Histogram Algorithm (SEH) to place each value added to a metric into a bin which keeps track of how many values have been added it. A histogram will report the bin values, the count of values in each bin, and a statistic set about the provided values. Note: SEH only accepts values greater than 0
+
+There are several ways to set the aggregation type of a metric:
+1. Use the `AggregationType` parameter when calling `putMetric` on `MetricsLogger`
+```
+MetricsLogger logger = new MetricsLogger();
+logger.putMetric("metric", 1, AggregationType.Histogram);
+```
+2. By default, `MetricsLogger` will set all metrics that are added using `putMetric` without specificying an aggregation type to use List aggregation. This default behaviour can be changed to any of the other aggregation types by using a setter (it is recommended that this be done before any metrics are added to the logger because trying to change the aggregation type of an exist log with throw an error):
+```
+MetricsLogger logger = new MetricsLogger();
+logger.setDefaultAggregationType(AggregationType.StatisticSet);
+```
+
+### Custom Histograms
+
+Custom histograms can also be created if the sparse exponential histogram algorithm is not the best for the given data. To do this use the `HistogramMetric` class.
+
+```
+ArrayList<Double> values = Arrays.asList(1, 1234, 7, 100);
+ArrayList<Integer> counts = Arrays.asList(1, 2, 7, 10);
+
+HistogramMetric histogram = HistogramMetric(values, counts);
+
+MetricsLogger logger = new MetricsLogger();
+logger.setMetric("myHistogram", histogram);
+```
+
 ## Examples
 
 Check out the [examples](https://github.com/awslabs/aws-embedded-metrics-java/tree/master/examples) directory to get started.

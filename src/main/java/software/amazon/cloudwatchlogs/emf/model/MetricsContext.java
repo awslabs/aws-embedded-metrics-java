@@ -432,15 +432,15 @@ public class MetricsContext {
      * @return the serialized strings.
      * @throws JsonProcessingException if there's any object that cannot be serialized
      */
-    public List<String> serialize() throws JsonProcessingException {
+    public List<String> serialize() throws JsonProcessingException, InvalidMetricException {
         if (rootNode.metrics().size() <= Constants.MAX_METRICS_PER_EVENT
                 && !anyMetricWithTooManyDataPoints(rootNode)) {
             return Arrays.asList(this.rootNode.serialize());
         } else {
             List<RootNode> nodes = new ArrayList<>();
-            Map<String, Metric> metrics = new HashMap<>();
-            ArrayList<Queue<Metric>> remainingMetrics = new ArrayList<>();
-            PriorityQueue<Queue<Metric>> metricQueue =
+            Map<String, Metric<?>> metrics = new HashMap<>();
+            ArrayList<Queue<Metric<?>>> remainingMetrics = new ArrayList<>();
+            PriorityQueue<Queue<Metric<?>>> metricQueue =
                     new PriorityQueue<>((x, y) -> Integer.compare(x.size(), y.size()));
 
             for (Metric metric : rootNode.metrics().values()) {
@@ -458,7 +458,7 @@ public class MetricsContext {
                     remainingMetrics.clear();
                 }
 
-                Queue<Metric> serializedMetrics = metricQueue.poll();
+                Queue<Metric<?>> serializedMetrics = metricQueue.poll();
                 Metric firstBatch = serializedMetrics.poll();
 
                 metrics.put(firstBatch.getName(), firstBatch);
@@ -479,7 +479,7 @@ public class MetricsContext {
         }
     }
 
-    private RootNode buildRootNode(Map<String, Metric> metrics) {
+    private RootNode buildRootNode(Map<String, Metric<?>> metrics) {
         Metadata metadata = rootNode.getAws();
         MetricDirective md = metadata.getCloudWatchMetrics().get(0);
         Metadata clonedMetadata =

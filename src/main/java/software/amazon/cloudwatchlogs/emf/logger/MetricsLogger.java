@@ -359,6 +359,7 @@ public class MetricsLogger {
      * @throws InvalidMetricException if the metric is invalid
      */
     public MetricsLogger setMetric(String key, Metric value) throws InvalidMetricException {
+        rwl.readLock().lock();
         try {
             this.context.setMetric(key, value);
             return this;
