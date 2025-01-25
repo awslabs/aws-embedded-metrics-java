@@ -26,7 +26,7 @@ Generate CloudWatch metrics embedded within structured log events. The embedded 
 
 ## Usage
 
-To use a metric logger, you need to manually create and flush the logger..
+To use a metric logger, you need to manually create and flush the logger.
 
 ```java
 import software.amazon.cloudwatchlogs.emf.logger.MetricsLogger;
