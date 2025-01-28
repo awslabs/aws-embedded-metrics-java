@@ -20,8 +20,6 @@ tempfile="$rootdir/src/integration-test/resources/agent/.temp"
 
 pushd $rootdir/src/integration-test/resources/agent
 echo "[AmazonCloudWatchAgent]
-aws_access_key_id = $AWS_ACCESS_KEY_ID
-aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
 " > ./.aws/credentials
 
 echo "[profile AmazonCloudWatchAgent]
@@ -31,7 +29,5 @@ region = $AWS_REGION
 docker build -t agent:latest .
 docker run  -p 25888:25888/udp -p 25888:25888/tcp  \
     -e AWS_REGION=$AWS_REGION \
-    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
     agent:latest &> $tempfile &
 popd
