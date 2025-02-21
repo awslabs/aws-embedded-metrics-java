@@ -391,6 +391,12 @@ config.setShouldWriteToStdout(true);
 AWS_EMF_WRITE_TO_STDOUT="true"
 ```
 
+## Annotations
+
+This library includes a package implmenting annotations that log metrics about method behaviour. This package was seperated so that it can be optionally imported because it adds a large dependency.
+
+Please see the [README](annotations/README.md) in the annotations project folder to learn more.
+
 ## Thread-safety
 
 ### Internal Synchronization
