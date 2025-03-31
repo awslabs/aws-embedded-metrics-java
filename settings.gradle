@@ -9,6 +9,7 @@
 
 rootProject.name = 'aws-embedded-metrics'
 
+include 'annotations'
 include 'examples:agent'
 include 'examples:ecs-firelens'
 include 'examples:lambda'
