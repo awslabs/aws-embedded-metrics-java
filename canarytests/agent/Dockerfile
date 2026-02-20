@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-slim
+FROM amazoncorretto:11
 RUN mkdir /app
 COPY build/libs/*.jar /app/agent.jar
 ENV JAVA_OPTS=""
