@@ -21,13 +21,17 @@ import java.util.Map;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import software.amazon.cloudwatchlogs.emf.Constants;
 import software.amazon.cloudwatchlogs.emf.exception.DimensionSetExceededException;
 import software.amazon.cloudwatchlogs.emf.exception.InvalidDimensionException;
 import software.amazon.cloudwatchlogs.emf.util.Validator;
 
 /** A combination of dimension values. */
+@ToString
+@EqualsAndHashCode
 public class DimensionSet {
 
     @Getter(AccessLevel.PACKAGE)
