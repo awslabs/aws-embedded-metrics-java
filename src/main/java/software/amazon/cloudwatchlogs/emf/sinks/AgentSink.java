@@ -141,6 +141,7 @@ public class AgentSink implements ISink {
                     Thread.sleep(backoff.next());
                 }
             }
+            log.warn("Failed all attempts to write message to the socket.");
         }
     }
 }
