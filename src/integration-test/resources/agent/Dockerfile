@@ -1,16 +1,4 @@
-
-FROM public.ecr.aws/lts/ubuntu:latest
-
-RUN apt-get update &&  \
-    apt-get install -y ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN curl -O https://amazon-cloud-watch-agent.s3.amazonaws.com/debian/amd64/1.237768.0/amazon-cloudwatch-agent.deb && \
-    dpkg -i -E amazon-cloudwatch-agent.deb && \
-    rm -rf /tmp/* && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl && \
-    rm -rf /opt/aws/amazon-cloudwatch-agent/bin/config-downloader
+FROM amazon/cloudwatch-agent
 
 COPY ./.aws/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/bin/default_linux_config.json
 COPY ./.aws/config /root/.aws/config
