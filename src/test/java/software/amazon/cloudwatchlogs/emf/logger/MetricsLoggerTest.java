@@ -531,6 +531,28 @@ class MetricsLoggerTest {
         assertFalse(sink.getLogEvents().get(0).contains("Count"));
     }
 
+    @Test
+    void putMetricWithSameNameAndDifferentDimensionSet_shouldNotAggregateCounts() {
+        MetricsLogger logger = new MetricsLogger(envProvider);
+        logger.setDimensions(DimensionSet.of("foo", "bar"));
+        logger.putMetric("metric", 1);
+        logger.setDimensions(DimensionSet.of("barf", "baz"));
+        logger.putMetric("metric", 1);
+        logger.flush();
+
+        List<String> events = sink.getLogEvents();
+
+        assertEquals(2, events.size());
+
+        assertTrue(events.get(0).contains("metric"));
+        assertTrue(events.get(0).contains("foo"));
+        assertTrue(events.get(0).contains("bar"));
+
+        assertTrue(events.get(1).contains("metric"));
+        assertTrue(events.get(1).contains("barf"));
+        assertTrue(events.get(1).contains("baz"));
+    }
+
     private void expectDimension(String dimension, String value)
             throws DimensionSetExceededException {
         List<DimensionSet> dimensions = sink.getContext().getDimensions();
