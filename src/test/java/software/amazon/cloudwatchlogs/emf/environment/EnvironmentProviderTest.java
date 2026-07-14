@@ -16,13 +16,22 @@
 
 package software.amazon.cloudwatchlogs.emf.environment;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import com.github.javafaker.Faker;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -220,5 +229,85 @@ public class EnvironmentProviderTest {
         Environment env = environmentProvider.resolveEnvironment().join();
         assertSame(env, mockedLambdaEnv);
         assertTrue(System.currentTimeMillis() - startTime < 3_000);
+    }
+
+    @Test
+    public void testResolveEnvironmentResolvesOnceUnderConcurrentCallers() throws Exception {
+        environmentProvider.cleanResolvedEnvironment();
+
+        /*
+        EnvironmentProvider.resolveEnvironment() tries to resolve a new Environment and produces a call to
+        Environment.probe() only when it detects that the static cachedEnvironment is not assigned. This test confirms
+        only a single call to Environment.probe() is made in a concurrent access scenario - the first call to
+        EnvironmentProvider.resolveEnvironment() resolves the new Environment, and subsequent calls return the cached
+        version and perform no resolution.
+
+        We arbitrarily set up 8 concurrent thread calls to environmentProvider.resolveEnvironment(). We guarantee that
+        all threads passed through resolveEnvironment() and produced a CompletableFuture (either via cache or actual
+        resolution) by gating on an 'allCallersEntered' CountDownLatch.  Any thread that is trying to resolve the
+        environment via probe() is paused using a 'releaseResolution' CountDownLatch, so that the cachedEnvironment is
+        guaranteed to be unpopulated when callers might race against it.
+
+        Our principal assertions are that only one thread entered probe() (verified via the probeCount AtomicInteger)
+        and that the Environment returned by all threads is the same.
+         */
+
+        int threadCount = 8;
+        AtomicInteger probeCount = new AtomicInteger(0);
+        CountDownLatch releaseResolution = new CountDownLatch(1);
+        CountDownLatch allCallersEntered = new CountDownLatch(threadCount);
+
+        Environment candidate = mock(Environment.class);
+        // probe() runs on a background pool thread (via CompletableFuture.supplyAsync inside the
+        // provider), so blocking on releaseResolution holds the resolution in flight without
+        // stalling the callers below.
+        when(candidate.probe())
+                .thenAnswer(
+                        invocation -> {
+                            probeCount.incrementAndGet();
+                            assertTrue(releaseResolution.await(10, TimeUnit.SECONDS));
+                            return true;
+                        });
+
+        // Swap the provider's real environments (Lambda/ECS/EC2/Default) for our single mock, so a
+        // resolution probes exactly this candidate.
+        FieldSetter.setField(
+                environmentProvider,
+                EnvironmentProvider.class.getDeclaredField("environments"),
+                new Environment[] {candidate});
+
+        ExecutorService pool = Executors.newFixedThreadPool(threadCount);
+        try {
+            // Future<CompletableFuture<Environment>>: the outer Future completes once the worker
+            // has called resolveEnvironment(); the inner CompletableFuture is the resolution
+            // result.
+            List<Future<CompletableFuture<Environment>>> submissions = new ArrayList<>();
+            for (int i = 0; i < threadCount; i++) {
+                submissions.add(
+                        pool.submit(
+                                () -> {
+                                    CompletableFuture<Environment> future =
+                                            environmentProvider.resolveEnvironment();
+                                    allCallersEntered.countDown();
+                                    return future;
+                                }));
+            }
+
+            // All callers have now raced the still-empty cache; release the held resolution.
+            assertTrue(allCallersEntered.await(10, TimeUnit.SECONDS));
+            releaseResolution.countDown();
+
+            Environment resolved = submissions.get(0).get(10, TimeUnit.SECONDS).join();
+            for (Future<CompletableFuture<Environment>> submission : submissions) {
+                assertSame(resolved, submission.get(10, TimeUnit.SECONDS).join());
+            }
+            assertSame(candidate, resolved);
+            assertEquals(1, probeCount.get());
+        } finally {
+            // Unblock any still-parked probe() in case an assertion failed before we released
+            // (countDown() on a zeroed latch is a no-op), then stop the pool.
+            releaseResolution.countDown();
+            pool.shutdownNow();
+        }
     }
 }

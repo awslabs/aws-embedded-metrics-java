@@ -27,7 +27,7 @@ import software.amazon.cloudwatchlogs.emf.config.EnvironmentConfigurationProvide
 
 /** A provider that will detect the environment. */
 public class EnvironmentProvider {
-    private static Environment cachedEnvironment;
+    private static volatile CompletableFuture<Environment> cachedEnvironment;
     private final Configuration config = EnvironmentConfigurationProvider.getConfig();
     private final Environment lambdaEnvironment = new LambdaEnvironment();
     private final Environment defaultEnvironment = new DefaultEnvironment(config);
@@ -41,23 +41,27 @@ public class EnvironmentProvider {
             };
 
     public CompletableFuture<Environment> resolveEnvironment() {
-        if (cachedEnvironment != null) {
-            return CompletableFuture.completedFuture(cachedEnvironment);
+        // Save in result to avoid multiple volatile reads on the most common path
+        CompletableFuture<Environment> result = cachedEnvironment;
+
+        if (result == null) {
+            synchronized (EnvironmentProvider.class) {
+                result = cachedEnvironment;
+                if (result == null) {
+                    result = resolve();
+                    cachedEnvironment = result;
+                }
+            }
         }
+        return result;
+    }
 
-        Optional<Environment> env = getEnvironmentFromOverride();
-        if (env.isPresent()) {
-            cachedEnvironment = env.get();
-            return CompletableFuture.completedFuture(cachedEnvironment);
+    private CompletableFuture<Environment> resolve() {
+        Optional<Environment> override = getEnvironmentFromOverride();
+        if (override.isPresent()) {
+            return CompletableFuture.completedFuture(override.get());
         }
-
-        CompletableFuture<Optional<Environment>> resolvedEnv = discoverEnvironmentAsync();
-
-        return resolvedEnv.thenApply(
-                optionalEnv -> {
-                    cachedEnvironment = optionalEnv.orElse(defaultEnvironment);
-                    return cachedEnvironment;
-                });
+        return discoverEnvironmentAsync().thenApply(env -> env.orElse(defaultEnvironment));
     }
 
     public Environment getDefaultEnvironment() {
