@@ -43,6 +43,8 @@ import software.amazon.cloudwatchlogs.emf.model.MetricsContext;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemWrapper.class})
 public class ECSEnvironmentTest {
+    private static final String IMAGE_DIGEST =
+            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     private Configuration config;
     private ECSEnvironment environment;
     private ResourceFetcher fetcher;
@@ -158,6 +160,63 @@ public class ECSEnvironmentTest {
     }
 
     @Test
+    public void testGetLogGroupNameFromImageDigest() {
+        String image = "registry.example:5000/team/test-image@sha256:" + IMAGE_DIGEST;
+        probeWithImage(image, null);
+
+        assertEquals(
+                "test-image-sha256-" + IMAGE_DIGEST + "-metrics", environment.getLogGroupName());
+        assertEquals("test-image@sha256:" + IMAGE_DIGEST, environment.getName());
+
+        MetricsContext context = new MetricsContext();
+        environment.configureContext(context);
+        assertEquals(image, context.getProperty("image"));
+    }
+
+    @Test
+    public void testGetLogGroupNameFromTaggedImageDigest() {
+        probeWithImage("registry.example/team/test-image:latest@sha256:" + IMAGE_DIGEST, null);
+
+        assertEquals(
+                "test-image-latest-sha256-" + IMAGE_DIGEST + "-metrics",
+                environment.getLogGroupName());
+        assertEquals("test-image:latest@sha256:" + IMAGE_DIGEST, environment.getName());
+    }
+
+    @Test
+    public void testGetLogGroupNameFromTaggedImage() {
+        probeWithImage("registry.example:5000/team/test.image_1-2:latest", null);
+
+        assertEquals("test.image_1-2-latest-metrics", environment.getLogGroupName());
+        assertEquals("test.image_1-2:latest", environment.getName());
+    }
+
+    @Test
+    public void testGetLogGroupNameFromConfigForDigestImage() {
+        probeWithImage("registry.example/test-image@sha256:" + IMAGE_DIGEST, null);
+        when(config.getLogGroupName()).thenReturn(Optional.of("custom/group.name_1-2#metrics"));
+
+        assertEquals("custom/group.name_1-2#metrics", environment.getLogGroupName());
+    }
+
+    @Test
+    public void testGetLogGroupNameForFireLensWithDigestImage() {
+        probeWithImage("registry.example/test-image@sha256:" + IMAGE_DIGEST, "localhost");
+
+        assertEquals("", environment.getLogGroupName());
+        assertEquals("test-image@sha256:" + IMAGE_DIGEST, environment.getName());
+    }
+
+    @Test
+    public void testGetLogGroupNameReplaceDigestInConfiguredServiceName() {
+        String serviceName = "testRepo@sha256:" + IMAGE_DIGEST;
+        when(config.getServiceName()).thenReturn(Optional.of(serviceName));
+
+        assertEquals("testRepo-sha256-" + IMAGE_DIGEST + "-metrics", environment.getLogGroupName());
+        assertEquals(serviceName, environment.getName());
+    }
+
+    @Test
     public void testConfigureContext() throws UnknownHostException {
         PowerMockito.mockStatic(SystemWrapper.class);
         String uri = "http://ecs-metata.com";
@@ -178,6 +237,23 @@ public class ECSEnvironmentTest {
                 metadata.labels.get("com.amazonaws.ecs.cluster"), context.getProperty("cluster"));
         assertEquals(
                 metadata.labels.get("com.amazonaws.ecs.task-arn"), context.getProperty("taskArn"));
+    }
+
+    private void probeWithImage(String image, String fluentHost) {
+        PowerMockito.mockStatic(SystemWrapper.class);
+        PowerMockito.when(SystemWrapper.getenv("ECS_CONTAINER_METADATA_URI"))
+                .thenReturn("http://ecs-metadata.example");
+        PowerMockito.when(SystemWrapper.getenv("FLUENT_HOST")).thenReturn(fluentHost);
+        ECSEnvironment.ECSMetadata metadata = new ECSEnvironment.ECSMetadata();
+        metadata.image = image;
+        metadata.createdAt = "2026-11-14T00:00:00Z";
+        metadata.startedAt = "2026-11-14T00:00:01Z";
+        metadata.labels = new HashMap<>();
+        metadata.labels.put("com.amazonaws.ecs.cluster", "test-cluster");
+        metadata.labels.put("com.amazonaws.ecs.task-arn", "test-task");
+        when(fetcher.fetch(any(), (ObjectMapper) any(), any())).thenReturn(metadata);
+
+        assertTrue(environment.probe());
     }
 
     private void getRandomMetadata(ECSEnvironment.ECSMetadata metadata) {
