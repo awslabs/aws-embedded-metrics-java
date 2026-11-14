@@ -54,9 +54,8 @@ public abstract class AgentBasedEnvironment implements Environment {
             return config.getLogGroupName().get();
         } else {
             String serviceName = getName();
-            // for ECS services, replace "repo:tag" format with "repo-tag" to satisfy
-            // log group regex
-            serviceName = serviceName.replace(":", "-");
+            // ECS image tags and digests contain ':' and '@', which log group names do not allow.
+            serviceName = serviceName.replace(":", "-").replace("@", "-");
             return serviceName + "-metrics";
         }
     }
